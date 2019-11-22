@@ -1,0 +1,9 @@
+
+# Ignore skins and plugins: they must be separated
+plgs/*
+skins/*
+
+
+#force those paths to exists
+!plgs/index.htm
+!skins/index.htm
