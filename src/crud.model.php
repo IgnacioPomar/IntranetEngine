@@ -3,8 +3,8 @@
 // @formatter:off
 interface iEntity
 {
-	public static function getTable();
-	public static function getKeylist();
+	public static function getTable(): array;
+	public static function getKeylist():array;
 }
 
 /**
@@ -32,7 +32,7 @@ abstract class Entity implements iEntity
 
 
 	// @formatter:off
-	abstract public function getCompleteFieldList ();
+	abstract public function getCompleteFieldList ():array;
 	abstract public function setDefaultFieldlist();
 	abstract public function setFormFieldlist();
 	abstract public function __GET($k);
@@ -279,13 +279,16 @@ abstract class Entity implements iEntity
 		{
 			$arrayRetVal = array_diff_key ($arrayRetVal, $this->formFieldListExclusionesSoloLectura);
 		}
-		foreach ($this->formFieldListTraducciones as $key->$traduccion)
+		/*
+		//TODO: trabajar con traducciones aqui
+		foreach ($this->formFieldListTraducciones as $key => $traduccion)
 		{
 			if (array_key_exists ($key, $arrayRetVal))
 			{
 				$arrayRetVal [$key] [0] = $traduccion;
 			}
 		}
+		*/
 
 		return $arrayRetVal;
 	}
