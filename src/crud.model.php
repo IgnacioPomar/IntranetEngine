@@ -3,8 +3,8 @@
 // @formatter:off
 interface iEntity
 {
-	public static function getTable(): array;
-	public static function getKeylist():array;
+	public static function getTable();
+	public static function getKeylist();
 }
 
 /**
@@ -32,7 +32,7 @@ abstract class Entity implements iEntity
 
 
 	// @formatter:off
-	abstract public function getCompleteFieldList ():array;
+	abstract public function getCompleteFieldList ();
 	abstract public function setDefaultFieldlist();
 	abstract public function setFormFieldlist();
 	abstract public function __GET($k);
@@ -65,6 +65,12 @@ abstract class Entity implements iEntity
 	protected $formFieldListExclusiones = array ();
 	protected $formFieldListExclusionesSoloLectura = array ();
 	protected $formFieldListTraducciones = array ();
+
+
+	public function getAdditionalIndexes ()
+	{
+		return array();
+	}
 
 
 	// TODO: Crear un tipo de campo aparte en vez de usar el tipo de campo en el formulario....
@@ -1172,7 +1178,7 @@ class CrudModel
 				}
 				break;
 			case 'textarea':
-				$sql .= $nombre . ' varchar(' . $campo [2] . ') DEFAULT NULL';
+				$sql .= $nombre . ' TEXT DEFAULT NULL';
 				break;
 			case 'text':
 				$sql .= $nombre . ' varchar(' . $campo [2] . ') DEFAULT NULL';
@@ -1307,9 +1313,32 @@ class CrudModel
 			$sperador = ', ';
 		}
 
-		if (count ($keys) == 1)
+		if (count ($keys) > 1)
 		{
-			$sql .= ', PRIMARY KEY (' . $keys [0] . ')';
+			$sql .= ', PRIMARY KEY (';
+			$sep = '';
+			foreach ($keys as $currKey)
+			{
+				$sql .= $sep . $currKey;
+				$sep = ',';
+
+			}
+			$sql .=')';
+		}
+
+		$moreIdx = $entidad->getAdditionalIndexes();
+		$i = 0;
+		foreach ($moreIdx as $currIdx)
+		{
+			$i++;
+			$sql .=', INDEX i' . $i . ' (';
+			$sep = '';
+			foreach ($currIdx as $fld)
+			{
+				$sql .= $sep . $fld . ' ASC';
+				$sep = ',';
+			}
+			$sql .= ')';
 		}
 
 		$sql .= ');';
