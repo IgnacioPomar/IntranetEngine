@@ -7,3 +7,4 @@ skins/*
 #force those paths to exists
 !plgs/index.htm
 !skins/index.htm
+cfg/site_cfg.php
