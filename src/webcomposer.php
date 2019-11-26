@@ -322,18 +322,10 @@ class WebComposer
 
 	private static function showPlgContents ($mysqli, $skin, $menuOpcs, $mnu)
 	{
-		if ($mnu == 'Portada')
-		{
-			$isSkinnable = 1;
-			$class = 'Portada';
-		}
-		else
-		{
-			$opc = $menuOpcs [$mnu];
-			$isSkinnable = $opc ['isSkinnable'];
-			$class = $opc ['class'];
-		}
-
+		$opc = $menuOpcs [$mnu];
+		$isSkinnable = $opc ['isSkinnable'];
+		$class = $opc ['class'];
+		
 		if ($isSkinnable == 1)
 		{
 
@@ -368,6 +360,28 @@ class WebComposer
 	}
 
 
+	private static function showEmptyBody($mysqli, $skin, $skinFile, $menuOpcs, $mnu)
+	{
+		// Cargamos el skin
+		$output = WebComposer::loadHtmlFromSkin($skin, $skinFile);
+
+		// Componemos las distintas partes de la página
+		// TODO: Revisar todas las entradas de skin y hacerlas skin ready
+		WebComposer::setUserInfo($mysqli, $skin, $output);
+		WebComposer::setMenu($skin, $menuOpcs, $output, $mnu);
+		$output = str_replace('@@cssFiles@@', '', $output);
+		$output = str_replace('@@externalJs@@', '', $output);
+		$output = str_replace('@@jsLastCall@@', '', $output);
+		$output = str_replace('@@skinPath@@', $GLOBALS['skinUriPath'], $output);
+		$output = str_replace('@@content@@', '', $output);
+		$output = str_replace('@@pageTitle@@', "GVI", $output);
+
+		header('Content-Type: text/html; charset=utf-8');
+		echo $output;
+	}
+
+
+
 	/**
 	 *
 	 * @param string $skin
@@ -399,7 +413,7 @@ class WebComposer
 		{
 			if ($_GET ['mn'] == "logout")
 			{
-				return Auth::logout ();
+				return Auth::logout (mysqli);
 			}
 
 			if (array_key_exists ($_GET ['mn'], $menuOpcs))
@@ -453,16 +467,14 @@ class WebComposer
 				include ("fake404.php");
 			}
 		}
-		else // Se trata de la portada
+		else // Nothing selected
 		{
-
-			include_once ('modules/portada.php');
-
+			//TODO: have a -1 option in the nodes for the Frontpage module
 			// Cargamos el skin
 			$output = WebComposer::loadHtmlFromSkin ($skin, 'skel.htm');
 
 			// Y mostramos la portada
-			WebComposer::showPlgContents ($mysqli, $skin, $menuOpcs, 'Portada');
+			WebComposer::showEmptyBody ($mysqli, $skin,Plugin::getSkin(), $menuOpcs, 'Portada');
 		}
 	}
 }
