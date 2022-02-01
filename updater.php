@@ -71,19 +71,34 @@ class WebEngineUpdater
      * Comprueba que el usuario este logueado
      *  @return boolean false Si ha fallado la autenticación
      */
-    private function checkAuth ()
+    private function checkAdminAuth ()
     {
         session_start ();
         
         // Comprobamos si estamos autenticados
         include_once  'src/auth.php';
-        $this->userId = Auth::login ($this->mysqli);
+        $this->userId = Auth::setupLogin ($this->mysqli);
         
 		//TODO; comprobar que tiene permisos de admin
 		
         // Mostramos la página de verdad
-        return ( $this->userId !== NULL);
-            
+        if ( $this->userId !== NULL)
+        {
+            if ($_SESSION ['isAdmin'] == 1)
+            {
+                echo 'You need ADMIN privileges to enter here';
+                return TRUE;
+
+            }
+            else
+            {
+                return FALSE;
+            }
+        } 
+        else
+        {
+            return FALSE;
+        }
     }
     
   
@@ -95,7 +110,7 @@ class WebEngineUpdater
     {
         $updater = new WebEngineUpdater ();
         
-        if ($updater->checkInstallation () && $updater->connectDb () && $updater->checkAuth ())
+        if ($updater->checkInstallation () && $updater->connectDb () && $updater->checkAdminAuth ())
         {
             $updater->updateIfOutdated ();
         }

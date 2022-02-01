@@ -8,8 +8,8 @@ class WebEngine
     private $userId;
     
     /**
-     * Nos conectamos a la base de datos
-     * @return boolean false en casod e que haya habido un error a la conexión en la base de datos
+     * Establish connection to database
+     * @return boolean false if database connection failed
      */
     private function connectDb ()
     {
@@ -39,21 +39,18 @@ class WebEngine
     {
         if (! file_exists ($GLOBALS ['fileCfg']))
         {
-            include_once 'src/installer.php';
-            Installer::install ();
-            
+            echo 'Waiting installation';
             return false;
         }
         
         //Tenemos archivo de configuración
         include_once $GLOBALS ['fileCfg'];
         
-        
-        
-        //if ($GLOBALS ['Version'] != VERSION) {//Que hacemos is cambia la versión?}
-        
-        
-        
+        if ($GLOBALS ['Version'] != VERSION)
+        {
+            echo 'Maintenance in progress. Please, return later';
+            return false;
+        }
         return true;
     }
     
@@ -89,17 +86,6 @@ class WebEngine
         print ($layout);
     }
     
-    /**
-     * Pantalla de bienvenida para los alumnos (primera entrada en las aplicación)
-     */
-    private function bienvenida ()
-    {
-        //YAGNI: Hacer un  texto dinámico a introducir desde el área de "profesores"
-        return file_get_contents ($GLOBALS ['skinPath'] . 'html/bienvenida.htm');
-        
-    }
-    
-    
     
     /**
      * Barra de menú de la izquierda: muestra las opciones para gestionar los usuarios
@@ -133,43 +119,7 @@ class WebEngine
         return $retVal;
     }
     
-    /**
-     * Hace de menú dentro de las opciones existentes
-     * @return string
-     */
-    private function getBody ()
-    {
-        if (isset($_GET['o']))
-        {
-            switch ($_GET['o'])
-            {
-                case 'logout':
-                    Auth::logout($this->mysqli); //Esta rompe la ejecución
-                    break;
-                case 'alumnos':
-                    include_once ("src/Alumnos.php");
-                    return Alumnos::main($this->mysqli, $this->userId);
-                    break;
-                case 'pago':
-                    include_once ("src/Pagadores.php");
-                    return Pagadores::main($this->mysqli, $this->userId);
-                    break;
-                case 'preins':
-                	include_once ("src/Preinscripciones.php");
-                	return Preinscripciones::main($this->mysqli, $this->userId);
-                	break;
-                default:
-                    return $this->bienvenida();
-                    break;
-            }   
-        }
-        else
-        {
-            return $this->bienvenida();
-        }
-        
-        return '';
-    }
+
     
     /**
      * Punto de entrada a la aplicación 
@@ -180,15 +130,7 @@ class WebEngine
         
         if ($webEngine->checkInstallation () && $webEngine->connectDb () && $webEngine->checkAuth ())
         {
-            if (isset($_GET['ajax']))
-            {
-                return $webEngine->getBody ();
-            }
-            else
-            {
-                $webEngine->compose ();   
-            }
-
+            $webEngine->compose ( isset($_GET['ajax']) );   
         }
         
     }

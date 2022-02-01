@@ -75,10 +75,9 @@ class Installer
 		$GLOBALS ['plgsPath'] = $GLOBALS ['basePath'] . 'plgs' . DIRECTORY_SEPARATOR . $_POST ['plgs'] . DIRECTORY_SEPARATOR;
 
 		// 2.- Creamos la estructura de la base de datos y metemos datos iniciales
-		if (! $this->createNewDBSchema ( $outputMessage))
-		{
-			return $outputMessage;
-		}
+		$this->createNewDBSchema ( $outputMessage);
+
+        
 
         if (! $this->addInitialData ( $outputMessage))
 		{
@@ -170,7 +169,7 @@ class Installer
 		}
 		else
 		{
-			$out .= '<div class="fail"><b>Error</b>: Unablle to create admin user.<br />: '. $mysqli->error. '</div>';
+			$out .= '<div class="fail"><b>Error</b>: Unablle to create admin user.<br />: '. $this->mysqli->error. '</div>';
 			return FALSE;
 		}
 	}
