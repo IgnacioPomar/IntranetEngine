@@ -44,7 +44,7 @@ function validatePassword(){
 var pass2=document.getElementById("adminpass2").value;
 var pass1=document.getElementById("adminpass1").value;
 if(pass1!=pass2)
-	document.getElementById("adminpass2").setCustomValidity("La contraseña debe coincidir");
+	document.getElementById("adminpass2").setCustomValidity("Password verification failed: are diferent");
 else
 	document.getElementById("adminpass2").setCustomValidity('');	 
 //empty string means no validation error
@@ -91,11 +91,11 @@ else
 				</tr>
 				<tr>
 					<td><label for='skins'>Seleccione skins</label></td>
-					<td><select id='skins' name='skins'></select></td>
+					<td><select id='skins' name='skins'>@@skins@@</select></td>
 				</tr>
 				<tr>
 					<td><label for='plgs'>Seleccione plugins</label></td>
-					<td><select id='plgs' name='plgs'></select></td>
+					<td><select id='plgs' name='plgs'>@@plgs@@</select></td>
 				</tr>
 				<tr>
 					<td colspan='2' class='titulo'>Configuración del usuario
