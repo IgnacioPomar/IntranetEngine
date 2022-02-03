@@ -2,7 +2,7 @@
 include_once ('src/defines.php');
 
 
-class WebEngineUpdater
+class WebEngineAdmin
 {
     private $mysqli;
     private $userId;
@@ -68,15 +68,15 @@ class WebEngineUpdater
 	}
     
     /**
-     * Comprueba que el usuario este logueado
-     *  @return boolean false Si ha fallado la autenticación
+     * Check user login
+     *  @return boolean false if no user or user without admin role
      */
     private function checkAdminAuth ()
     {
         session_start ();
         
         // Comprobamos si estamos autenticados
-        include_once  'src/auth.php';
+        include_once  $GLOBALS['authModule'];
         $this->userId = Auth::setupLogin ($this->mysqli);
         
 		//TODO; comprobar que tiene permisos de admin
@@ -86,12 +86,11 @@ class WebEngineUpdater
         {
             if ($_SESSION ['isAdmin'] == 1)
             {
-                echo 'You need ADMIN privileges to enter here';
                 return TRUE;
-
             }
             else
             {
+                echo 'You need ADMIN privileges to enter here';
                 return FALSE;
             }
         } 
@@ -104,20 +103,20 @@ class WebEngineUpdater
   
     
     /**
-     * Punto de entrada a la aplicación 
+     * Entry Point
      */
     public static function main ()
     {
-        $updater = new WebEngineUpdater ();
+        $adminModule = new WebEngineAdmin ();
         
-        if ($updater->checkInstallation () && $updater->connectDb () && $updater->checkAdminAuth ())
+        if ($adminModule->checkInstallation () && $adminModule->connectDb () && $adminModule->checkAdminAuth ())
         {
-            $updater->updateIfOutdated ();
+            $adminModule->updateIfOutdated ();
         }
         
     }
 
 }
 
-WebEngineUpdater::main ();
+WebEngineAdmin::main ();
 

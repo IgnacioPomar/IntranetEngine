@@ -155,11 +155,11 @@ class Installer
 	 */
 	public function addInitialData (&$out)
 	{
-		$sqlCmd = 'INSERT INTO logins (name, email, password, isAdmin) VALUES (';
+		$sqlCmd = 'INSERT INTO logins (name, email, password, isActive, isAdmin) VALUES (';
 		$sqlCmd .= '"' . $_POST ['adminname'] . '",';
 		$sqlCmd .= '"' . $_POST ['adminlogin'] . '",';
 		$sqlCmd .= '"' . password_hash ($_POST ['adminpass1'], PASSWORD_DEFAULT) . '",';
-		$sqlCmd .= '1);';
+		$sqlCmd .= '1,1);';
 
 		// Finalmente, insertamos el nuevo registro
 		if ($this->mysqli->query ($sqlCmd) === TRUE)
@@ -206,6 +206,8 @@ class Installer
 	 */
 	public function saveNewCfgFile (&$outputMessage)
 	{
+		//TODO: Detect and apply the modules (auth....)
+
 		$outputSkin = './src/rsc/default/site_cfg_def.php';
 		$cfgFile = file_get_contents ($outputSkin);
 		$cfgFile = str_replace ('@@dbserver@@', $_POST ['dbserver'], $cfgFile);

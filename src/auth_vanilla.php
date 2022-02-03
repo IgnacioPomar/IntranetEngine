@@ -1,57 +1,65 @@
 <?php
 class Auth
 {
+	private $userId;
+    private $mysqli;
+    
+    private $errorInfo;
+    private $errorCode;
+
 	/**
 	 * A login for the admin space. 
 	 * It wont use the skin at all
 	 */
-	public static function setupLogin ()
+	public static function setupLogin ($mysqli)
 	{
-		$userId = NULL;
-		$errorInfo = '';
-
 		if (isset ($_SESSION ['userId']))
 		{
 			return $_SESSION ['userId'];
 		}
 
-		if (self::checkLocallogin ($userId, $errorInfo)) return $userId;
+		$auth = new Auth ();
+        $auth->userId = NULL;
+        $auth->mysqli = $mysqli;
 
-		self::showSetupLoginForm ( $errorInfo);
+		if ($auth->checkLocallogin ()) return $auth->userId;
+
+		$auth->showSetupLoginForm ();
 
 	}
 
 
-	public static function login ($skin = 'defaut')
+	public static function login ($mysqli)
 	{
-		$userId = NULL;
-		$errorInfo = '';
-
-		// 0.- Comprobar si ya estamos dentro de una sesión php
+		// 0.- WE are already in session
 		if (isset ($_SESSION ['userId']))
 		{
 			return $_SESSION ['userId'];
 		}
 
+		$auth = new Auth ();
+        $auth->userId = NULL;
+        $auth->mysqli = $mysqli;
+
 		// 1.- Comprobar si venimos de otras sesiones
-		if (self::checkCookieslogin ($userId)) return $userId;
+		if ($auth->checkCookieslogin ()) return $auth->userId;;
 
 		// 2.- Comprobar si hay login con cuenta de google o Facebook
 		// 3.- Comprobar si se ha introducido algo en el formulario de login
-		if (self::checkLocallogin ($userId, $errorInfo)) return $userId;
+		if ($auth->checkLocallogin ()) return $auth->userId;
 
 		// 4.- Comprobamos si es una llamada interna de la página
-		if (self::checkInternalCall ($userId)) return $userId;
+		if ($auth->checkInternalCall ()) return $auth->userId;
 
 		// 5.- Comprobamos si se trata de una llamada desde una aplicación
-		if (self::checkAppCall ($userId)) return $userId;
+		if ($auth->checkAppCall ()) return $auth->userId;
 
 		// TODO: opcionalmente añadir un método de identificación usando certificados instalados en la máqina
 		// https://webauthn.guide/#webauthn-api
 
 		// ---------- No tenemos id de usuario que devolver ----------
 		// 5.- Mostrar el formulario de login
-		Auth::showLoginForm ($skin, $errorInfo);
+		$auth->showLoginForm ();
 		return NULL;
 	}
 
@@ -59,24 +67,21 @@ class Auth
 	/**
 	 * Rellenamos los datos que mantendremos a lo largo de la sesión referente al usuario
 	 *
-	 * @param mysqli $mysqli
 	 * @param integer $userId
 	 * @return boolean
 	 */
-	private static function fillSessionData ($mysqli, $userId)
+	private function fillSessionData ()
 	{
-		$mysqli->query ("SET NAMES 'UTF8'");
-		$consulta = "SELECT isAdmin, nombre FROM {usuarios} WHERE idUsuario = $userId;";
-		$consulta = prefixQuery ($consulta);
+		$consulta = "SELECT isAdmin, name FROM logins WHERE idUser = $this->userId;";
 
-		if ($resultado = $mysqli->query ($consulta))
+		if ($resultado = $this->mysqli->query ($consulta))
 		{
 			if ($resultado->num_rows > 0)
 			{
 				$tupla = $resultado->fetch_object ();
 				$_SESSION ['isAdmin'] = $tupla->isAdmin;
-				$_SESSION ['nombreUsuario'] = $tupla->nombre;
-				$_SESSION ['userId'] = $userId;
+				$_SESSION ['userName'] = $tupla->name;
+				$_SESSION ['userId'] = $this->userId;
 			}
 
 			$resultado->free_result ();
@@ -87,17 +92,15 @@ class Auth
 	/**
 	 * Comprobamos si el usuario en cuestión esta activo
 	 *
-	 * @param mysqli $mysqli
 	 * @param integer $userId
 	 * @return boolean
 	 */
-	private static function checkIfUserIsActive ($mysqli, $userId)
+	private function checkIfUserIsActive ($userId)
 	{
 		$retVal = FALSE;
-		$consulta = "SELECT isActive FROM {usuarios} WHERE idUsuario = $userId;";
-		$consulta = prefixQuery ($consulta);
+		$consulta = "SELECT isActive FROM logins WHERE idUser = $userId;";
 
-		if ($resultado = $mysqli->query ($consulta))
+		if ($resultado = $this->mysqli->query ($consulta))
 		{
 			if ($resultado->num_rows > 0)
 			{
@@ -117,18 +120,27 @@ class Auth
 
 
 	/**
-	 * Nos aseguramos de que la base de datos admita un mayor tiempo de vida a esta identificación
+	 * Extend the coookie another 30 days
 	 *
 	 *
-	 * @param mysqli $mysqli
 	 * @param integer $userId
 	 * @return boolean
 	 */
-	private static function extendCoockieLife (&$mysqli, $cookieId)
+	private function extendCoockieLife ($cookieId)
 	{
-		$sql = "UPDATE {sesioncookie} SET expires= NOW() + INTERVAL 30 DAY WHERE cookieId = '$cookieId';";
-		$sql = prefixQuery ($sql);
-		$mysqli->query ($sql);
+		$sql = "UPDATE sessCookie SET expires= NOW() + INTERVAL 30 DAY WHERE cookieId = '$cookieId';";
+		$this->mysqli->query ($sql);
+	}
+
+
+	/**
+	 *DElete old coockies
+	 *
+	 */
+	private function deleteOldCookies ()
+	{
+		$sql = 'DELETE FROM sessCookie  WHERE expires < NOW();';
+		$this->mysqli->query ($sql);
 	}
 
 
@@ -136,53 +148,34 @@ class Auth
 	 * Nos aseguramos de que la base de datos admita un mayor tiempo de vida a esta identificación
 	 *
 	 *
-	 * @param mysqli $mysqli
 	 * @param integer $userId
 	 * @return boolean
 	 */
-	private static function deleteOldCookies (&$mysqli)
-	{
-		$sql = 'DELETE FROM {sesioncookie}  WHERE expires < NOW();';
-		$sql = prefixQuery ($sql);
-		$mysqli->query ($sql);
-	}
-
-
-	/**
-	 * Nos aseguramos de que la base de datos admita un mayor tiempo de vida a esta identificación
-	 *
-	 *
-	 * @param mysqli $mysqli
-	 * @param integer $userId
-	 * @return boolean
-	 */
-	private static function checkStaticPass (&$mysqli, $staticPass, &$userId, $extendLifeTime, $useCookie)
+	private function checkStaticPass ( $staticPass, $extendLifeTime, $useCookie)
 	{
 		list ($cookieId, $cookiePass) = explode ('@', $staticPass);
-		$cookieId = $mysqli->real_escape_string ($cookieId);
+		$cookieId = $this->mysqli->real_escape_string ($cookieId);
 
-		$consulta = "SELECT cookiePass, realUserId FROM {sesioncookie} WHERE cookieId ='$cookieId'";
-		$consulta = prefixQuery ($consulta);
+		$consulta = "SELECT cookiePass, realUserId FROM sessCookie WHERE cookieId ='$cookieId'";
 
 		// TODO: Considerar usar la información de browser INFo para comprobar si es una sesión válida
 		$retVal = false;
-		if ($resultado = $mysqli->query ($consulta))
+		if ($resultado = $this->mysqli->query ($consulta))
 		{
 			if ($resultado->num_rows > 0)
 			{
 				$tupla = $resultado->fetch_object ();
 
-				if (($tupla->cookiePass === $cookiePass) && (Auth::checkIfUserIsActive ($mysqli, $tupla->realUserId)))
+				if (($tupla->cookiePass === $cookiePass) && ($this->checkIfUserIsActive ($tupla->realUserId)))
 				{
-					self::fillSessionData ($mysqli, $tupla->realUserId);
-
-					// Datos de retorno
-					$userId = $tupla->realUserId;
+					$this->userId = $tupla->realUserId;
+					$this->fillSessionData ($tupla->realUserId);
+					
 					$retVal = true;
 
 					if ($extendLifeTime)
 					{
-						self::extendCoockieLife ($mysqli, $cookieId);
+						$this->extendCoockieLife ( $cookieId);
 						if ($useCookie)
 						{
 							setcookie ("SecurityCookie", $cookieId . '@' . $cookiePass, strtotime ('+30 days'));
@@ -212,11 +205,9 @@ class Auth
 	/**
 	 * Intentamos hacer la autentificacion mediante cookie
 	 *
-	 * @param integer $userId
-	 *        	parametro de salida: Identificador del usuarioq ue hace login
 	 * @return boolean TRUE en caso de que la autentificaci´n sea correcta
 	 */
-	private static function checkCookieslogin (&$userId)
+	private function checkCookieslogin ()
 	{
 		$retVal = FALSE;
 
@@ -225,15 +216,11 @@ class Auth
 			// Comprobamos si la cookie tiene el formato deseado
 			if (strpos ($_COOKIE ['SecurityCookie'], '@') !== false)
 			{
-
-				$mysqli = @new mysqli ($GLOBALS ['dbserver'], $GLOBALS ['dbuser'], $GLOBALS ['dbpass'], $GLOBALS ['dbname'], $GLOBALS ['dbport']);
-
 				// Primero eliminamos las cookies caducadas
-				self::deleteOldCookies ($mysqli);
+				$this->deleteOldCookies ();
 
-				$retVal = self::checkStaticPass ($mysqli, $_COOKIE ['SecurityCookie'], $userId, true, true);
+				$retVal = $this->checkStaticPass ( $_COOKIE ['SecurityCookie'], true, true);
 
-				$mysqli->close ();
 			}
 		}
 
@@ -247,7 +234,7 @@ class Auth
 	 *
 	 * @return boolean TRUE en caso de que la autentificación sea correcta
 	 */
-	private static function checkInternalCall (&$userId)
+	private function checkInternalCall ()
 	{
 		$retVal = FALSE;
 
@@ -271,10 +258,7 @@ class Auth
 
 			if (strpos ($secureCookie, '@') !== false)
 			{
-				$mysqli = @new mysqli ($GLOBALS ['dbserver'], $GLOBALS ['dbuser'], $GLOBALS ['dbpass'], $GLOBALS ['dbname'], $GLOBALS ['dbport']);
-				$retVal = self::checkStaticPass ($mysqli, $secureCookie, $userId, false, false);
-
-				$mysqli->close ();
+				$retVal = $this->checkStaticPass ( $secureCookie,  false, false);
 			}
 		}
 		return $retVal;
@@ -287,7 +271,7 @@ class Auth
 	 *
 	 * @return boolean TRUE en caso de que la autentificación sea correcta
 	 */
-	private static function checkAppCall (&$userId)
+	private function checkAppCall ()
 	{
 		if (isset ($_POST ['AppIdAction']))
 		{
@@ -299,25 +283,20 @@ class Auth
 				$loginRetval = 'KO'; // . json_encode ($_POST);
 				if ((isset ($_POST ['appIdUser'])) && (isset ($_POST ['appIdPass'])))
 				{
-					// Estamos realizando un login
-					// Rompe el flujo y responde directamente
-					$mysqli = @new mysqli ($GLOBALS ['dbserver'], $GLOBALS ['dbuser'], $GLOBALS ['dbpass'], $GLOBALS ['dbname'], $GLOBALS ['dbport']);
 
-					$sql = 'SELECT idUsuario, password FROM {usuarios} WHERE isActive=1 AND email="' . $_POST ['appIdUser'] . '"';
-					if ($res = $mysqli->query (prefixQuery ($sql)))
+					$sql = 'SELECT idUser, password FROM logins WHERE isActive=1 AND email="' . $_POST ['appIdUser'] . '"';
+					if ($res = $this->mysqli->query ($sql))
 					{
 						if ($row = $res->fetch_assoc ())
 						{
 							if (password_verify ($_POST ['appIdPass'], $row ['password']))
 							{
-								$userId = $row ['idUsuario'];
+								$userId = $row ['idUser'];
 								$loginRetval = 'OK:';
-								$loginRetval .= Auth::saveCookieSession ($mysqli, $userId, false);
+								$loginRetval .= $this->saveCookieSession ($this->mysqli, $userId, false);
 							}
 						}
 					}
-
-					$mysqli->close ();
 				}
 				exit ($loginRetval);
 			}
@@ -327,12 +306,10 @@ class Auth
 				$keyToken = $_POST ['AppIdToken'];
 				if (strpos ($keyToken, '@') !== false)
 				{
-					$mysqli = @new mysqli ($GLOBALS ['dbserver'], $GLOBALS ['dbuser'], $GLOBALS ['dbpass'], $GLOBALS ['dbname'], $GLOBALS ['dbport']);
-					if (self::checkStaticPass ($mysqli, $keyToken, $userId, true, false))
+					if ($this->checkStaticPass ( $keyToken,  true, false))
 					{
 						$retval = true;
 					}
-					$mysqli->close ();
 				}
 
 				if ($_POST ['AppIdAction'] == 'check')
@@ -380,20 +357,19 @@ class Auth
 	 * @param integer $userId
 	 *        	Identificador real del usuario
 	 */
-	private static function saveCookieSession ($mysqli, $userId, $setCookie)
+	private function saveCookieSession ( $setCookie)
 	{
 		// Primero obtenemos los valores unicos para esta sesion
 		$cookieId = uniqid ('', true); // menos de 30 caracteres
 		$cookiePass = mt_rand (100000000, 999999999);
-		$browserId = $mysqli->real_escape_string ($_SERVER ['HTTP_USER_AGENT']);
+		$browserId = $this->mysqli->real_escape_string ($_SERVER ['HTTP_USER_AGENT']);
 		$browserId = $_SERVER ['HTTP_USER_AGENT'];
 
-		$consulta = "INSERT INTO {sesioncookie} (cookieId,cookiePass,realUserId,firstAccess,expires,browserInfo)
-		VALUES (\"$cookieId\",\"$cookiePass\",$userId,NOW(),NOW() + INTERVAL 30 DAY,\"$browserId\");
+		$consulta = "INSERT INTO sessCookie (cookieId,cookiePass,realUserId,firstAccess,expires,browserInfo)
+		VALUES (\"$cookieId\",\"$cookiePass\",$this->userId,NOW(),NOW() + INTERVAL 30 DAY,\"$browserId\");
 		";
-		$consulta = prefixQuery ($consulta);
 
-		if ($mysqli->query ($consulta))
+		if ($this->mysqli->query ($consulta))
 		{
 			if ($setCookie)
 			{
@@ -408,29 +384,17 @@ class Auth
 
 	/**
 	 *
-	 * @param integer $userId
-	 * @param string $errorInfo
 	 * @return boolean
 	 */
-	public static function checkLocallogin (&$userId, &$errorInfo)
+	public function checkLocallogin ()
 	{
 		$retVal = FALSE;
 		if (isset ($_POST ['user']))
 		{
-			$mysqli = @new mysqli ($GLOBALS ['dbserver'], $GLOBALS ['dbuser'], $GLOBALS ['dbpass'], $GLOBALS ['dbname'], $GLOBALS ['dbport']);
-
-			$usuario = $_POST ['user'];
-			$usuario = $mysqli->real_escape_string ($_POST ['user']);
-			$consulta = 'SELECT idUsuario, password, isActive FROM {usuarios} WHERE email="' . $usuario . '"';
-			$consulta = prefixQuery ($consulta);
-
-			if ($mysqli->connect_error)
-			{
-				$errorInfo = 'Base de datos inaccesible: ' . $mysqli->connect_error;
-				return FALSE;
-			}
-
-			if ($resultado = $mysqli->query ($consulta))
+			$usuario = $this->mysqli->real_escape_string ($_POST ['user']);
+			$consulta = 'SELECT idUser, password, isActive FROM logins WHERE email="' . $usuario . '"';
+		
+			if ($resultado = $this->mysqli->query ($consulta))
 			{
 				if ($resultado->num_rows > 0)
 				{
@@ -440,30 +404,29 @@ class Auth
 					{
 						if ($tupla->isActive == 1)
 						{
-							$userId = $tupla->idUsuario;
-							$_SESSION ['userId'] = $tupla->idUsuario;
-							Auth::saveCookieSession ($mysqli, $userId, true);
+							$this->userId = $tupla->idUser;
+							$_SESSION ['userId'] = $this->userId;
+							$this->saveCookieSession (true);
 							$retVal = TRUE;
 
-							self::fillSessionData ($mysqli, $tupla->idUsuario);
+							$this->fillSessionData ();
 						}
 						else
 						{
-							$errorInfo = 'Cuenta caducada';
+							$this->errorInfo = 'Cuenta caducada';
 						}
 					}
 					else
 					{
-						$errorInfo = 'Usuario o contraseña incorrectos';
+						$this->errorInfo = 'Usuario o contraseña incorrectos';
 					}
 				}
 				else
 				{
-					$errorInfo = 'Usuario o contraseña incorrectos';
+					$this->errorInfo = 'Usuario o contraseña incorrectos';
 				}
 				$resultado->free ();
 			}
-			$mysqli->close ();
 		}
 		return $retVal;
 	}
@@ -474,11 +437,11 @@ class Auth
 	 *
 	 * @param string $lang
 	 */
-	private static function showFinalLoginForm ($file, $skin, $errorInfo = '')
+	private function showFinalLoginForm ($file, $skin)
 	{
 		$loginForm = file_get_contents ($file);
 		$loginForm = str_replace ('@@skin@@', $skin, $loginForm);
-		$loginForm = str_replace ('@@errorInfo@@', $errorInfo, $loginForm);
+		$loginForm = str_replace ('@@errorInfo@@', $this->errorInfo, $loginForm);
 
 		header ('Content-Type: text/html; charset=utf-8');
 		print ($loginForm);
@@ -489,28 +452,26 @@ class Auth
 	 *
 	 * @param string $lang
 	 */
-	public static function showLoginForm ($skin, $errorInfo = '')
+	public function showLoginForm ($skin)
 	{
-		self::showFinalLoginForm ($GLOBALS ['skinPath'] . 'html/loginForm.htm', $skin, $errorInfo);
+		$this->showFinalLoginForm ($GLOBALS ['skinPath'] . 'html/loginForm.htm', $skin);
 	}
 
-	public static function showSetupLoginForm ($errorInfo)
+	public function showSetupLoginForm ()
 	{
-		self::showFinalLoginForm ('./src/rsc/html/setupLoginForm.htm', '', $errorInfo);
+		$this->showFinalLoginForm ('./src/rsc/html/setupLoginForm.htm', '');
 	}
 
 
-	public static function logout ($mysqli)
+	public function logout ()
 	{
 		if (isset ($_COOKIE ['SecurityCookie']))
 		{
-			$mysqli = @new mysqli ($GLOBALS ['dbserver'], $GLOBALS ['dbuser'], $GLOBALS ['dbpass'], $GLOBALS ['dbname'], $GLOBALS ['dbport']);
 
 			$cookie = explode ("@", $_COOKIE ['SecurityCookie']);
 			// Primero eliminamos nuestra cookie actual
-			$consulta = 'DELETE FROM {sesioncookie} WHERE cookieId = "' . $cookie [0] . '" AND cookiePass = "' . $cookie [1] . '";';
-			$consulta = prefixQuery ($consulta);
-			$mysqli->query ($consulta);
+			$consulta = 'DELETE FROM sesioncookie WHERE cookieId = "' . $cookie [0] . '" AND cookiePass = "' . $cookie [1] . '";';
+			$this->mysqli->query ($consulta);
 		}
 
 

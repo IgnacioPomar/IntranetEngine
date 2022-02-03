@@ -1,17 +1,17 @@
 <?php
-
 /**
- * Datos de configuracion
+ * Site CFG
  */
 
-// Versión del sitio
-// Versión del sitio
+
+// site Version
 $GLOBALS['Version'] = '0.1';
 
-// Habilitar o deshabilitar Role-based access control
-$GLOBALS['enableRBAC']= TRUE;
+// Selected modules
+$GLOBALS['authModule'] = 'src/auth_vanilla.php';
 
-// Configuración de la base de datos
+// ----------------------------------
+// Database CFG
 $GLOBALS['dbserver'] = '@@dbserver@@';
 $GLOBALS['dbport'] ='@@dbport@@';
 $GLOBALS['dbuser'] ='@@dbuser@@';
@@ -19,12 +19,12 @@ $GLOBALS['dbpass'] = '@@dbpass@@';
 $GLOBALS['dbname'] = '@@dbname@@';
 
 
+// ----------------------------------
+
 $GLOBALS['plgs'] = '@@plgs@@';
 $GLOBALS['skin'] = '@@skins@@';
 
-// Encoding del servidor
+// ----------------------------------
 define ( 'SERVER_ENCODING', 'UTF-8' );
-
-// Configuración local
 date_default_timezone_set ( 'Europe/Madrid' );
 setlocale ( LC_ALL, 'es_ES.UTF8' );
