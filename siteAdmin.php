@@ -58,15 +58,52 @@ class WebEngineAdmin
 	{
 		if ($GLOBALS ['Version'] != VERSION) 
 		{
+			//TODO: instead of force, let the user decide if wants to apply now
 			include_once 'src/installer.php';
-            Installer::update ($this->mysqli);
+			$installer = new Installer ($this->mysqli);
+			echo $installer->createCoreTables();
 		}
 		else
 		{
-			echo 'Already updated';
+			if (isset ($_GET['a']))
+			{
+				switch ($_GET['a'])
+				{
+					case 'reinstallCore':
+						include_once 'src/installer.php';
+						$installer = new Installer ($this->mysqli);
+						echo $installer->createCoreTables();
+						break;
+				}
+				
+			}
+			else 
+			{
+				echo 'Version engine matches. <br ><h2>Admin actions</h2>';
+				$this->showAdminMnu ();
+			}
 		}
 	}
     
+	/**
+	 * Show admin posibilities
+	 */
+	private function showAdminMnu ()
+	{
+		//YAGNI: Improve format
+		//Only DBG
+		echo '<a href="?a=reinstallCore">Reinstall core tables</a><br /><hr /><br />';
+		
+		//Std Optrions
+		echo '<a href="?a=rePlugins">Reinstall Plugins</a><br />';
+		
+		//echo '<a href="?a=users">Admin site users</a><br />';
+		//echo '<a href="?a=rbac">Edit permissions</a><br />';
+		
+		// is users menu by json or by database?
+		//echo '<a href="?a=mnu">Edit Mnu</a><br />';
+	}
+	
     /**
      * Check user login
      *  @return boolean false if no user or user without admin role

@@ -4,12 +4,13 @@
 
 class Installer
 {
+	public $mysqli;
+	
     public static function install ()
     {
         //YAGNI: Check if the filkke has been added manually (and thus, it lefts the database updates)
         if (isset ($_POST ['dbname']))
 		{
-            include_once ('dbSchema.php');
             readfile  ('./src/rsc/html/installResult.htm');
             $installer = new Installer ();
 			print ($installer->installProcess ());
@@ -44,6 +45,20 @@ class Installer
         print ($layout);
 	}
     
+	
+	
+	public function __construct($mysqli = NULL) 
+	{
+		if ($mysqli == NULL)
+		{
+			$this->mysqli = @new mysqli ($_POST ['dbserver'], $_POST ['dbuser'], $_POST ['dbpass'], $_POST ['dbname'], $_POST ['dbport']);
+		}
+		else 
+		{
+			$this->mysqli =$mysqli;
+		}
+	}
+	
     
     /**
 	 *
@@ -51,7 +66,7 @@ class Installer
 	 */
 	public function installProcess ()
 	{
-		$this->mysqli = @new mysqli ($_POST ['dbserver'], $_POST ['dbuser'], $_POST ['dbpass'], $_POST ['dbname'], $_POST ['dbport']);
+		
 
 		// Pasos a realizar
 		$outputMessage = '';
@@ -75,7 +90,7 @@ class Installer
 		$GLOBALS ['plgsPath'] = $GLOBALS ['basePath'] . 'plgs' . DIRECTORY_SEPARATOR . $_POST ['plgs'] . DIRECTORY_SEPARATOR;
 
 		// 2.- Creamos la estructura de la base de datos y metemos datos iniciales
-		$this->createNewDBSchema ( $outputMessage);
+		$outputMessage .= $this->createCoreTables ();
 
         
 
@@ -111,41 +126,59 @@ class Installer
 	}
 
 
-    private function formatDBAction ($upd)
-    {
-        if ( $upd[1] == -1)
-        {
-            return '<div class="fail"><b>Error</b>: '.$upd[0].' <br /> ' . $this->mysqli->connect_error. '</div>';
-        }
-        else if ( $upd[1] == 1)
-        {
-            return '<div class="OK"><b>'.$upd[0].' </b>: Ok</div>';
-        }
-        else
-        {
-            return '<div class="none">'.$upd[0].' [No changes]</div>';
-        }
-    }
+    
 
     
-	/**
-	 * Creamos el esquema de la base de datos
-	 *
-	 * @param string $outputMessage
-	 */
-	public function createNewDBSchema (&$outputMessage)
-	{
-        //relative to index... 
-        $dir = new FilesystemIterator("./src/tables/");
-        foreach ($dir as $fileinfo) 
-        {
-            if ($fileinfo->getExtension() == 'json')
-            {
-                //TODO: Elaborar más el informe de salida
-                $upd = DbSchema::createOrUpdateTable ($this->mysqli, $fileinfo->getPathname());
-                $outputMessage .= $this->formatDBAction ($upd);
-            }
-        }
+    /**
+     * Creamos el esquema de la base de datos
+     *
+     * @param string $outputMessage
+     */
+    public function createCoreTables ()
+    {
+    	return $this->createOrUpdateTables ('./src/tables/');
+    	
+    }
+    
+    
+    public function createOrUpdateTables ($basePath)
+    {
+    	include_once ('dbSchema.php');
+    	
+    	
+    	$retVal = '';
+    	
+    	//La ruta es relativa al index...
+    	$dir = new FilesystemIterator($basePath);
+    	foreach ($dir as $fileinfo)
+    	{
+    		if ($fileinfo->getExtension() == 'json')
+    		{
+    			$upd = DbSchema::createOrUpdateTable ($this->mysqli, $fileinfo->getPathname());
+    			
+    			$retVal .= $this->formatDBAction (  $upd );
+    			
+    		}
+    	}
+    	
+    	return $retVal;
+    }
+    
+    
+    private function formatDBAction ($upd)
+    {
+    	if ( $upd[1] == -1)
+    	{
+    		return '<div class="fail"><b>Error</b>: '.$upd[0].' <br /> ' . $this->mysqli->connect_error. '</div>';
+    	}
+    	else if ( $upd[1] == 1)
+    	{
+    		return '<div class="OK"><b>'.$upd[0].' </b>: Ok</div>';
+    	}
+    	else
+    	{
+    		return '<div class="none">'.$upd[0].' [No changes]</div>';
+    	}
     }
 
     /**
@@ -229,44 +262,13 @@ class Installer
 		}
 		else
 		{
-			$outputMessage .= '<div class="ok">Fichero de configuración: <b>OK</b></div>';
+			$outputMessage .= '<div class="ok">Config file: <b>OK</b></div>';
 		}
 
 		return TRUE;
 	}
     
     
-	public static function update ($mysqli)
-    {
-        include_once ('dbSchema.php');
-        
-        
-        $retVal = '';
-        
-        //La ruta es relativa al index... 
-        $dir = new FilesystemIterator("./src/tables/");
-        foreach ($dir as $fileinfo) 
-        {
-            if ($fileinfo->getExtension() == 'json')
-            {
-                $upd = DbSchema::createOrUpdateTable ($mysqli, $fileinfo->getPathname());
-                
-                switch ($upd[1])
-                {
-                	case -1:
-                		$retVal .= '<div class="fail">' .  $upd[0] . ': <b>FAil</b></div>';
-                		break;
-                	case 0:
-                		$retVal .= '<div class="NoAction">' .  $upd[0] . ': NoAction</div>';
-                		break;
-                	case 1:
-                		$retVal .= '<div class="ok">' .  $upd[0] . ': <b>OK</b></div>';
-                		break;
-                }
-            }
-        }
-        
-        return $retVal;
-    }
+	
     
 }
