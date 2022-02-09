@@ -236,7 +236,7 @@ class Installer
 	}
     
     
-    public static function update ($mysqli)
+	public static function update ($mysqli)
     {
         include_once ('dbSchema.php');
         
@@ -249,22 +249,20 @@ class Installer
         {
             if ($fileinfo->getExtension() == 'json')
             {
-                //TODO: Elaborar más el informe de salida
                 $upd = DbSchema::createOrUpdateTable ($mysqli, $fileinfo->getPathname());
-
-                $outputMessage .= '<div class="ok">Creando tablas: ' . $sqlTxtResult . '<br />Creacion de Tablas: <b>OK</b></div>';
-
-                return TRUE;
-            }
-            else
-            {
-                $outputMessage .= '<div class="fail">';
-                $outputMessage .= '<b>Error</b>: No se pudo crear la estructura de tablas.<br />Tablas ceradas: ';
-                $outputMessage .= $sqlTxtResult;
-                $outputMessage .= '</div>';
-
-                $retVal .= $upd[0] . ': ' . $upd[1] . '<br />';
                 
+                switch ($upd[1])
+                {
+                	case -1:
+                		$retVal .= '<div class="fail">' .  $upd[0] . ': <b>FAil</b></div>';
+                		break;
+                	case 0:
+                		$retVal .= '<div class="NoAction">' .  $upd[0] . ': NoAction</div>';
+                		break;
+                	case 1:
+                		$retVal .= '<div class="ok">' .  $upd[0] . ': <b>OK</b></div>';
+                		break;
+                }
             }
         }
         
