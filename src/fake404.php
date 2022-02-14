@@ -11,7 +11,7 @@ header ( $_SERVER ["SERVER_PROTOCOL"] . " 404 Not Found", true, 404 );
 	<h1>Not Found</h1>
 	<p>The requested URL <?php print ($_SERVER['REQUEST_URI']);?> was not found on this server.</p>
 	<hr>
-	<address>Apache/2.4.18 (Ubuntu) Server at intranet.gvinversiones.es
+	<address>Apache/2.4.18 (Ubuntu) Server at <?php print ($_SERVER['SERVER_NAME']);?>
 		Port 80</address>
 </body>
 </html>
