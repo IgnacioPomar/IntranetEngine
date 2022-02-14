@@ -27,9 +27,13 @@ function getRelativeSitePath ()
 // Rutas necesarias para poder moevr de directorio de forma transparente
 
 $GLOBALS ['basePath'] = getcwd () . DIRECTORY_SEPARATOR;
-$GLOBALS ['fileCfg'] = $GLOBALS ['basePath'] . 'cfg' . DIRECTORY_SEPARATOR . 'site_cfg.php';
-//$GLOBALS ['srcPath'] = $GLOBALS ['basePath'] . 'src' . DIRECTORY_SEPARATOR;
+$GLOBALS ['cfgPath'] = $GLOBALS ['basePath'] . 'cfg' . DIRECTORY_SEPARATOR;
+$GLOBALS ['fileCfg'] = $GLOBALS ['cfgPath'] . 'site_cfg.php';
 $GLOBALS ['uriPath'] = getRelativeSitePath ();
 
 
-$GLOBALS ['skinPath'] = $GLOBALS ['basePath'] . 'skin' . DIRECTORY_SEPARATOR;
+function setCfgGlobals ()
+{
+	$GLOBALS ['skinPath'] = $GLOBALS ['basePath'] . 'skins' . DIRECTORY_SEPARATOR . $GLOBALS['skin'] .  DIRECTORY_SEPARATOR ;
+	$GLOBALS ['templatePath'] = $GLOBALS ['skinPath'] . 'tmplt' . DIRECTORY_SEPARATOR;
+}

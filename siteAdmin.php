@@ -46,7 +46,7 @@ class WebEngineAdmin
         }
 		
         //Tenemos archivo de configuración
-        include_once $GLOBALS ['fileCfg'];
+        include_once ($GLOBALS ['fileCfg']);
         
         return true;
     }
@@ -113,7 +113,7 @@ class WebEngineAdmin
         session_start ();
         
         // Comprobamos si estamos autenticados
-        include_once  $GLOBALS['authModule'];
+        include_once  ($GLOBALS['moduleAuth']);
         $this->userId = Auth::setupLogin ($this->mysqli);
         
 		//TODO; comprobar que tiene permisos de admin
