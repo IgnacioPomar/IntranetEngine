@@ -1,4 +1,3 @@
-
 # Ignore skins and plugins: they must be separated
 plgs/*
 skins/*
@@ -8,3 +7,8 @@ cfg/*
 !plgs/index.htm
 !skins/index.htm
 
+
+# eclipse project settings
+.settings/
+.buildpath
+.project
