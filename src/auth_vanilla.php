@@ -72,7 +72,7 @@ class Auth
 	 */
 	private function fillSessionData ()
 	{
-		$consulta = "SELECT isAdmin, name FROM logins WHERE idUser = $this->userId;";
+		$consulta = "SELECT isAdmin, name FROM weUsers WHERE idUser = $this->userId;";
 
 		if ($resultado = $this->mysqli->query ($consulta))
 		{
@@ -98,7 +98,7 @@ class Auth
 	private function checkIfUserIsActive ($userId)
 	{
 		$retVal = FALSE;
-		$consulta = "SELECT isActive FROM logins WHERE idUser = $userId;";
+		$consulta = "SELECT isActive FROM weUsers WHERE idUser = $userId;";
 
 		if ($resultado = $this->mysqli->query ($consulta))
 		{
@@ -128,7 +128,7 @@ class Auth
 	 */
 	private function extendCoockieLife ($cookieId)
 	{
-		$sql = "UPDATE sessCookie SET expires= NOW() + INTERVAL 30 DAY WHERE cookieId = '$cookieId';";
+		$sql = "UPDATE weSessCookie SET expires= NOW() + INTERVAL 30 DAY WHERE cookieId = '$cookieId';";
 		$this->mysqli->query ($sql);
 	}
 
@@ -139,7 +139,7 @@ class Auth
 	 */
 	private function deleteOldCookies ()
 	{
-		$sql = 'DELETE FROM sessCookie  WHERE expires < NOW();';
+		$sql = 'DELETE FROM weSessCookie  WHERE expires < NOW();';
 		$this->mysqli->query ($sql);
 	}
 
@@ -156,7 +156,7 @@ class Auth
 		list ($cookieId, $cookiePass) = explode ('@', $staticPass);
 		$cookieId = $this->mysqli->real_escape_string ($cookieId);
 
-		$consulta = "SELECT cookiePass, realUserId FROM sessCookie WHERE cookieId ='$cookieId'";
+		$consulta = "SELECT cookiePass, realUserId FROM weSessCookie WHERE cookieId ='$cookieId'";
 
 		// TODO: Considerar usar la información de browser INFo para comprobar si es una sesión válida
 		$retVal = false;
@@ -284,7 +284,7 @@ class Auth
 				if ((isset ($_POST ['appIdUser'])) && (isset ($_POST ['appIdPass'])))
 				{
 
-					$sql = 'SELECT idUser, password FROM logins WHERE isActive=1 AND email="' . $_POST ['appIdUser'] . '"';
+					$sql = 'SELECT idUser, password FROM weUsers WHERE isActive=1 AND email="' . $_POST ['appIdUser'] . '"';
 					if ($res = $this->mysqli->query ($sql))
 					{
 						if ($row = $res->fetch_assoc ())
@@ -365,7 +365,7 @@ class Auth
 		$browserId = $this->mysqli->real_escape_string ($_SERVER ['HTTP_USER_AGENT']);
 		$browserId = $_SERVER ['HTTP_USER_AGENT'];
 
-		$consulta = "INSERT INTO sessCookie (cookieId,cookiePass,realUserId,firstAccess,expires,browserInfo)
+		$consulta = "INSERT INTO weSessCookie (cookieId,cookiePass,realUserId,firstAccess,expires,browserInfo)
 		VALUES (\"$cookieId\",\"$cookiePass\",$this->userId,NOW(),NOW() + INTERVAL 30 DAY,\"$browserId\");
 		";
 
@@ -392,7 +392,7 @@ class Auth
 		if (isset ($_POST ['user']))
 		{
 			$usuario = $this->mysqli->real_escape_string ($_POST ['user']);
-			$consulta = 'SELECT idUser, password, isActive FROM logins WHERE email="' . $usuario . '"';
+			$consulta = 'SELECT idUser, password, isActive FROM weUsers WHERE email="' . $usuario . '"';
 		
 			if ($resultado = $this->mysqli->query ($consulta))
 			{
@@ -437,10 +437,10 @@ class Auth
 	 *
 	 * @param string $lang
 	 */
-	private function showFinalLoginForm ($file, $skin)
+	private function showFinalLoginForm ($file)
 	{
 		$loginForm = file_get_contents ($file);
-		$loginForm = str_replace ('@@skin@@', $skin, $loginForm);
+		$loginForm = str_replace ('@@skinPath@@', $GLOBALS ['urlSkinPath'], $loginForm);
 		$loginForm = str_replace ('@@errorInfo@@', $this->errorInfo, $loginForm);
 
 		header ('Content-Type: text/html; charset=utf-8');
@@ -452,9 +452,9 @@ class Auth
 	 *
 	 * @param string $lang
 	 */
-	public function showLoginForm ($skin)
+	public function showLoginForm ()
 	{
-		$this->showFinalLoginForm ($GLOBALS ['skinPath'] . 'html/loginForm.htm', $skin);
+		$this->showFinalLoginForm ($GLOBALS ['skinPath'] . 'html/loginForm.htm');
 	}
 
 	public function showSetupLoginForm ()
@@ -470,7 +470,7 @@ class Auth
 
 			$cookie = explode ("@", $_COOKIE ['SecurityCookie']);
 			// Primero eliminamos nuestra cookie actual
-			$consulta = 'DELETE FROM sesioncookie WHERE cookieId = "' . $cookie [0] . '" AND cookiePass = "' . $cookie [1] . '";';
+			$consulta = 'DELETE FROM weSessCookie WHERE cookieId = "' . $cookie [0] . '" AND cookiePass = "' . $cookie [1] . '";';
 			$this->mysqli->query ($consulta);
 		}
 

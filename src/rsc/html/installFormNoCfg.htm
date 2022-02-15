@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+<title>Instalaci&oacute;n del sitio</title>
+<style>
+table {
+	margin: 0 auto;
+	font-family: Tahoma, Verdana, sans-serif;
+	background-color: #eee;
+	padding: 8px;
+	border: 2px solid #ddd;
+}
+
+.titulo {
+	text-align: center;
+	padding: 8px 2px;
+	border: 2px solid #ddd;
+	background-color: #e6e6e6;
+}
+
+form {
+	margin-top: 50px;
+	padding-top: 100px;
+}
+
+td {
+	padding: 2px;
+}
+
+[type=text], [type=password], [type=number] {
+	border: 2px inset #aaa;
+	padding: 1px 3px;
+}
+</style>
+
+<script type="text/javascript">
+window.onload = function () {
+	document.getElementById("adminpass1").onchange = validatePassword;
+	document.getElementById("adminpass2").onchange = validatePassword;
+}
+function validatePassword(){
+var pass2=document.getElementById("adminpass2").value;
+var pass1=document.getElementById("adminpass1").value;
+if(pass1!=pass2)
+	document.getElementById("adminpass2").setCustomValidity("Password verification failed: are diferent");
+else
+	document.getElementById("adminpass2").setCustomValidity('');	 
+//empty string means no validation error
+}
+</script>
+
+</head>
+
+<body>
+	<form method='post'>
+		<table>
+			<tbody>
+				<tr>
+					<td colspan='2' class='titulo'>Configuración del usuario
+						administrador</td>
+				</tr>
+				<tr>
+					<td><label for='adminname'>Nombre a mostrar</label></td>
+					<td><input type='text' id='adminname' name='adminname'
+						value=''></td>
+				</tr>
+				<tr>
+					<td><label for='adminlogin'>Email del usuario</label></td>
+					<td><input type='email' id='adminlogin' name='adminlogin'
+						required='required' value=''></td>
+				</tr>
+				<tr>
+					<td><label for='adminpass1'>Contraseña</label></td>
+					<td><input type='password' id='adminpass1' name='adminpass1'
+						required='required' value=''></td>
+				</tr>
+				<tr>
+					<td><label for='adminpass2'>Repetir contraseña</label></td>
+					<td><input type='password' id='adminpass2' name='adminpass2'
+						required='required' value=''></td>
+				</tr>
+				<tr>
+					<td colspan='2' class='titulo'><input type='submit'
+						value='Iniciar la instalaci&oacute;n'></td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+</body>
+
+</html>

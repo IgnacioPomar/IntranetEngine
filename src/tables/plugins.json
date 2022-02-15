@@ -1,5 +1,5 @@
 {
-	"tablename":"plugins",
+	"tablename":"wePlugins",
 	"fields": {
 		"idPlg":		{"type":"auto"},
 		"plgName":		{"type":"string", "lenght":50},

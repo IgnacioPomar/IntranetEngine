@@ -1,5 +1,5 @@
 {
-	"tablename":"logins",
+	"tablename":"weUsers",
 	"fields": {
 		"idUser":	{"type":"auto"},
 		"email":		{"type":"string", "lenght":50},

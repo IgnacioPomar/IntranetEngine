@@ -36,8 +36,7 @@ class WebEngine
 	private function compose ()
 	{
 		$layout = file_get_contents ($GLOBALS ['templatePath'] . $this->mnu->getBaseTemplate());
-		$layout = str_replace ('@@Menu@@',  $this->mnu->getMenu (), $layout);
-		$layout = str_replace ('@@pageTitle@@',   $this->mnu->getTitle (), $layout);
+		
 		
 		
 		//---- Session data ----
@@ -52,6 +51,15 @@ class WebEngine
 		$cssFiles = call_user_func ($class . '::getExternalCss');
 		$jsFiles = call_user_func ($class . '::getExternalJs');
 		$jsCall = call_user_func ($class . '::getJsCall');
+		
+		
+		//---- Web Engine base components ----
+		$layout = str_replace ('@@Menu@@',  $this->mnu->getMenu (), $layout);
+		$layout = str_replace ('@@pageTitle@@',   $this->mnu->getTitle (), $layout);
+		$layout = str_replace ('@@skinPath@@', $GLOBALS ['urlSkinPath'], $layout);
+		
+		
+		//---- Finally, the body ----
 		$plgBody = call_user_func ($class . '::main', $this->context);
 		
 		

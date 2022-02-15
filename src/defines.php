@@ -34,6 +34,8 @@ $GLOBALS ['uriPath'] = getRelativeSitePath ();
 
 function setCfgGlobals ()
 {
+	$GLOBALS ['plgsPath'] = $GLOBALS ['basePath'] . 'plgs' . DIRECTORY_SEPARATOR . $GLOBALS ['plgs'] . DIRECTORY_SEPARATOR;
 	$GLOBALS ['skinPath'] = $GLOBALS ['basePath'] . 'skins' . DIRECTORY_SEPARATOR . $GLOBALS['skin'] .  DIRECTORY_SEPARATOR ;
 	$GLOBALS ['templatePath'] = $GLOBALS ['skinPath'] . 'tmplt' . DIRECTORY_SEPARATOR;
+	$GLOBALS ['urlSkinPath'] = $GLOBALS ['uriPath']. 'skins' . DIRECTORY_SEPARATOR . $GLOBALS['skin'] .  DIRECTORY_SEPARATOR ;
 }

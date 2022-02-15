@@ -1,5 +1,6 @@
 <?php
 include_once ('src/defines.php');
+include_once ('src/Plugin.php');
 
 
 class WebEngineAdmin
@@ -16,10 +17,18 @@ class WebEngineAdmin
         $this->mysqli = new mysqli ($GLOBALS ['dbserver'], $GLOBALS ['dbuser'], $GLOBALS ['dbpass'], $GLOBALS ['dbname'], $GLOBALS ['dbport']);
         if ($this->mysqli->connect_errno)
         {
-            print ('Database Connection Failed');
-            print ('Errno: ' . $this->mysqli->connect_errno . '<br />');
-            print ('Error: ' . $this->mysqli->connect_error . '<br />');
             
+            $outputMessage = '<div class="fail">';
+            $outputMessage .= '<b>Error</b>: Database connection Failed.<br />';
+            $outputMessage .= 'Error number: ' . $this->mysqli->connect_errno . '.<br />';
+            $outputMessage .= 'Error Description: ' . $this->mysqli->connect_error . '.<br />';
+            $outputMessage .= '</div>';
+            
+            
+            $outputMessage .= '<div class="fail">You must <b>FIX the site_cfg</b> file.</div>';
+            
+            
+            echo $outputMessage;
             return false;
         }
         
@@ -32,21 +41,53 @@ class WebEngineAdmin
     }
     
     /**
-     * Check if this is a fresh installation
+     * Check if the installation is working fine
      * @return boolean false if we called the installer
      */
     private function checkInstallation ()
     {
+    	return $this->checkFileCfg() && $this->connectDb () &&  $this->checkBaseTables ();
+    }
+    
+    
+    /**
+     * Check if this is a new installation with a manual site_cfg file
+     * @return boolean false if we called the installer
+     */
+    private function checkBaseTables ()
+    {
+    	
+    	$sql = 'SELECT 1 FROM weUsers LIMIT 1;';
+    	if (! $resultado = $this->mysqli->query ($sql))
+    	{
+    		$installer = new Installer ($this->mysqli);
+    		$installer->installWithConfigFile();
+    		return false;
+    	}
+    	else
+    	{
+    		$resultado->close ();
+    		return true;
+    	}
+    }
+    
+    /**
+     * Check if this is a fresh installation
+     * @return boolean false if we called the installer
+     */
+    private function checkFileCfg ()
+    {
         if (! file_exists ($GLOBALS ['fileCfg']))
         {
-            include_once 'src/installer.php';
-            Installer::install ();
+            include_once ('src/installer.php');
+            Installer::installFromScratch ();
             
             return false;
         }
 		
-        //Tenemos archivo de configuración
+        //WE have the config File
         include_once ($GLOBALS ['fileCfg']);
+        setCfgGlobals ();
         
         return true;
     }
@@ -62,17 +103,27 @@ class WebEngineAdmin
 			include_once 'src/installer.php';
 			$installer = new Installer ($this->mysqli);
 			echo $installer->createCoreTables();
+			echo $installer->registerPlugins();
 		}
 		else
 		{
 			if (isset ($_GET['a']))
 			{
+				include_once 'src/installer.php';
+				$installer = new Installer ($this->mysqli);
+				
+				$this->showAdminMnu ();
+				echo '<hr />';
 				switch ($_GET['a'])
 				{
 					case 'reinstallCore':
-						include_once 'src/installer.php';
-						$installer = new Installer ($this->mysqli);
+						echo '<h1>Reinstalling Core Tables</h1>';
 						echo $installer->createCoreTables();
+						break;
+						
+					case 'rePlugins':
+						echo '<h1>Reinstalling Plugins</h1>';
+						echo $installer->registerPlugins();
 						break;
 				}
 				
@@ -92,7 +143,7 @@ class WebEngineAdmin
 	{
 		//YAGNI: Improve format
 		//Only DBG
-		echo '<a href="?a=reinstallCore">Reinstall core tables</a><br /><hr /><br />';
+		echo '<a href="?a=reinstallCore">Reinstall core tables</a><br />';
 		
 		//Std Optrions
 		echo '<a href="?a=rePlugins">Reinstall Plugins</a><br />';
@@ -146,7 +197,7 @@ class WebEngineAdmin
     {
         $adminModule = new WebEngineAdmin ();
         
-        if ($adminModule->checkInstallation () && $adminModule->connectDb () && $adminModule->checkAdminAuth ())
+        if ($adminModule->checkInstallation ()  && $adminModule->checkAdminAuth ())
         {
             $adminModule->updateIfOutdated ();
         }

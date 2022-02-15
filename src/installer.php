@@ -6,22 +6,35 @@ class Installer
 {
 	public $mysqli;
 	
-    public static function install ()
+	public static function installFromScratch ()
     {
-        //YAGNI: Check if the filkke has been added manually (and thus, it lefts the database updates)
         if (isset ($_POST ['dbname']))
 		{
             readfile  ('./src/rsc/html/installResult.htm');
             $installer = new Installer ();
-			print ($installer->installProcess ());
+            print ($installer->installProcessFromScratch ());
 		}
 		else
 		{
 			Installer::showInstallSetup ();
 		}
     }
+    
+    public function installWithConfigFile ()
+    {
+    	if (isset ($_POST ['adminlogin']))
+    	{
+    		readfile  ('./src/rsc/html/installResult.htm');
+    		print ($this->installProcessCommon ());
+    	}
+    	else
+    	{
+    		readfile  ('./src/rsc/html/installFormNoCfg.htm');
+    	}
+    }
+    
 
-    public static function showInstallSetup ()
+    private static function showInstallSetup ()
 	{
 		$options = '';
 		foreach (glob ("./plgs/*", GLOB_ONLYDIR) as $filename)
@@ -60,35 +73,45 @@ class Installer
 	}
 	
     
-    /**
-	 *
-	 * 
+	
+	/**
+	 * Steps for a full fresh installs
+	 * @return string 
 	 */
-	public function installProcess ()
+	private function installProcessFromScratch ()
 	{
-		
-
-		// Pasos a realizar
 		$outputMessage = '';
-
+		
 		// 0.- Check Params
 		if (! $this->checkDbAccess ($outputMessage))
 		{
 			return $outputMessage;
 		}
-
+		
 		// 1.- Guardamos el nuevo fichero de configuración
 		if (! $this->saveNewCfgFile ($outputMessage))
 		{
 			return $outputMessage;
 		}
+		
+		include_once ($GLOBALS ['fileCfg']);
+		setCfgGlobals ();
+		
+		return $this->installProcessCommon();
+		
+	}
+	
+	
+	/**
+	 * Steps starting with the database inicialization
+	 * @return string
+	 */
+	private function installProcessCommon ()
+	{
+		// Out Msg
+		$outputMessage = '';
 
-		require_once (__DIR__ . '/../cfg/site_cfg.php');
-
-		// Las rutas "finales" las obtenemos para lograr código "transparene"
-		$GLOBALS ['skinPath'] = $GLOBALS ['basePath'] . 'skins' . DIRECTORY_SEPARATOR . $_POST ['skins'] . DIRECTORY_SEPARATOR;
-		$GLOBALS ['plgsPath'] = $GLOBALS ['basePath'] . 'plgs' . DIRECTORY_SEPARATOR . $_POST ['plgs'] . DIRECTORY_SEPARATOR;
-
+	
 		// 2.- Creamos la estructura de la base de datos y metemos datos iniciales
 		$outputMessage .= $this->createCoreTables ();
 
@@ -98,30 +121,8 @@ class Installer
 		{
 			return $outputMessage;
 		}
-
-        /*
-
-		if (! Installer::registerPlugins ($mysqli, $outputMessage))
-		{
-			return $outputMessage;
-		}
-
 		
-
-		// 3.- Actualizamos permisos y parámetros de plugins
-		require_once ('modules/nodosMenu.php');
-		$mysqli->select_db ($GLOBALS ['dbname']);
-		// Actualizar permisos
-		Permisos::updateTables ($mysqli);
-		Permisos::actualizarOnInstall ($mysqli, $outputMessage);
-		// Actualizar parámetros de configuración
-		GestorNodosMenu::updateTables ($mysqli);
-		Parametros::actualizarOnInstall ($mysqli, $outputMessage);
-
-		// 4.- Creamos fichero HtAccess
-
-        */
-
+		$outputMessage .=  $this->registerPlugins ($outputMessage);
 		return $outputMessage;
 	}
 
@@ -141,7 +142,7 @@ class Installer
     }
     
     
-    public function createOrUpdateTables ($basePath)
+    private function createOrUpdateTables ($basePath)
     {
     	include_once ('dbSchema.php');
     	
@@ -180,6 +181,143 @@ class Installer
     		return '<div class="none">'.$upd[0].' [No changes]</div>';
     	}
     }
+    
+    
+    public function registerPlugins ()
+    {
+    	$out = '';
+    	// Get list of currently installed Plugins
+    	$installedPLgs = array ();
+    	if ($resultado = $this->mysqli->query ('SELECT plgName FROM wePlugins;'))
+    	{
+    		while ($plgName = $resultado->fetch_assoc ())
+    		{
+    			$installedPLgs [] = $plgName;
+    		}
+    	}
+    	
+    	
+    	// Get current plgs info
+    	$currentPlgs = array ();
+    	foreach (glob ($GLOBALS ['plgsPath'] . "*.plg/*.php") as $filename)
+    	{
+    		$clases = self::getPhpClasses ($filename);
+    		if (sizeof ($clases) > 0)
+    		{
+    			include_once $filename;
+    			
+    			foreach ($clases as $className)
+    			{
+    				if (is_subclass_of ($className, 'Plugin'))
+    				{
+    					$currentPlgs[$className] = call_user_func ($className . '::getPlgInfo');
+    					$currentPlgs[$className]['path'] = $filename;
+    				}
+    			}
+    		}
+    	}
+    	
+    	// Update existing plugins
+    	foreach ($installedPLgs as $plgName)
+    	{
+    		if (isset($currentPlgs[$plgName]))
+    		{
+    			$plgInfo = & $currentPlgs[$plgName];
+    			$sql = 'UPDATE wePlugins SET plgDescrip = "'. $plgInfo['plgDescription'] . '", ';
+    			$sql .= 'plgFile = "' . $plgInfo['path'] . '", plgParams= "'.$plgInfo['params'].'", ';
+    			$sql .= 'plgPerms = "$plgName", isMenu = ' . $plgInfo['isMenu'] . ' ';
+    			$sql .= "WHERE plgName = \"$plgName\";";
+    			if ($this->mysqli->query ($sql) === TRUE)
+    			{
+    				$out .= '<div class="ok">New plugin registered: <b>'.$plgName.'</b></div>';
+    			}
+    			else
+    			{
+    				$out .= '<div class="fail"><b>Error</b>: Unablle to register plugin: <b>' . $plgName . '</b></div>';
+    			}
+    		}
+    		
+    	}
+    	
+    	// Create new Plugins
+    	foreach ($currentPlgs as $plgName => $plgInfo)
+    	{
+    		if (!in_array($plgName, $installedPLgs))
+    		{
+    			$sql = 'INSERT INTO wePlugins (plgName,plgDescrip,plgFile,plgParams,plgPerms,isMenu) VALUES (';
+    			$sql .= '"'.$plgName.'","'. $plgInfo['plgDescription'] . '","' . $plgInfo['path'] . '",';
+    			$sql .= '"'.$plgInfo['params'].'","'. $plgInfo['perms'] . '",' . $plgInfo['isMenu'] . ');';
+    			if ($this->mysqli->query ($sql) === TRUE)
+    			{
+    				$out .= '<div class="ok">New plugin registered: <b>'.$plgName.'</b></div>';
+    			}
+    			else
+    			{
+    				$out .= '<div class="fail"><b>Error</b>: Unablle to register plugin: <b>' . $plgName . '</b></div>';
+    			}
+    		}
+    	}
+ 
+    	
+    	// Delete NOT existing plugins
+    	$diff = array_diff ($installedPLgs, array_keys ($currentPlgs));
+    	if (count ($diff) > 0)
+    	{
+    		$sql = 'DELETE FROM wePlugins WHERE plgName IN (';
+    		$sep = '';
+    		foreach ($diff as $plgName)
+    		{
+    			$sql .= $sep. '"'.$plgName.'"';
+    			$sep = ',';
+    		}
+    		$sql .= ');';
+    		
+    		if ($this->mysqli->query ($sql) === TRUE)
+    		{
+    			$out .= '<div class="ok">Removed inexistent PLugins</div>';
+    		}
+    		else
+    		{
+    			$out .= '<div class="fail"><b>Error</b>: Unable to remove old plugins<br />: '. $this->mysqli->error. '</div>';
+    		}
+    	}
+    	else
+    	{
+    		$out .= '<div class="none">No Plugin was nedded to remove</div>';
+    	}
+    	
+    	
+    	
+    	// Create or Update PLugins Tables
+    	return $out. $this->createOrUpdateTables ($GLOBALS ['plgsPath']);
+    }
+    
+    
+    /**
+     * Get the classes defined in a PHP file
+     *
+     * @param string $filename
+     * @see https://stackoverflow.com/a/2051010/74785
+     * @return mixed[] Devuelve una lista de las clases que contiene el fichero
+     */
+    private static function getPhpClasses ($filename)
+    {
+    	$classes = array ();
+    	$php_code = file_get_contents ($filename);
+    	$tokens = token_get_all ($php_code);
+    	$count = count ($tokens);
+    	for($i = 2; $i < $count; $i ++)
+    	{
+    		if ($tokens [$i - 2] [0] == T_CLASS && $tokens [$i - 1] [0] == T_WHITESPACE && $tokens [$i] [0] == T_STRING)
+    		{
+    			
+    			$class_name = $tokens [$i] [1];
+    			$classes [] = $class_name;
+    		}
+    	}
+    	return $classes;
+    }
+    
 
     /**
 	 * Add the just created admin account
@@ -188,7 +326,7 @@ class Installer
 	 */
 	public function addInitialData (&$out)
 	{
-		$sqlCmd = 'INSERT INTO logins (name, email, password, isActive, isAdmin) VALUES (';
+		$sqlCmd = 'INSERT INTO weUsers (name, email, password, isActive, isAdmin) VALUES (';
 		$sqlCmd .= '"' . $_POST ['adminname'] . '",';
 		$sqlCmd .= '"' . $_POST ['adminlogin'] . '",';
 		$sqlCmd .= '"' . password_hash ($_POST ['adminpass1'], PASSWORD_DEFAULT) . '",';
