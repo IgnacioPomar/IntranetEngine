@@ -18,7 +18,7 @@ class Menu
 	private $mainMnu;
 	
 	private $currOpc;
-	private $currOpcId;
+	public $hasOpc;
 	
 	
 	/**
@@ -34,7 +34,9 @@ class Menu
 		$string = file_get_contents($GLOBALS ['cfgPath'] .'mainMenu.json');
 		$this->mainMnu = json_decode($string, true);
 		
-		$this->currOpcId = (isset($_SERVER['PATH_INFO']))? $_SERVER['PATH_INFO']:"";
+		$this->context->subPath = (isset($_SERVER['PATH_INFO']))? $_SERVER['PATH_INFO']:"/";
+		
+		$this->hasOpc = FALSE;
 		$this->setSelectedOpc  ($this->mainMnu);
 	}
 	
@@ -68,6 +70,12 @@ class Menu
 		return $this->currOpc['plg'];
 	}
 	
+	public function hasOpcSelected ()
+	{
+		return $this->hasOpc;
+	}
+	
+	
 	
 	
 	/**
@@ -79,11 +87,12 @@ class Menu
 		$retVal = false;
 		foreach ($arrOpcs as &$opc)
 		{
-			if ($opc['opc'] == $this->currOpcId)
+			if ($opc['opc'] == $this->context->subPath)
 			{
 				$opc['isSelected'] = true;
 				$this->currOpc = &$opc;
 				$retVal = true;
+				$this->hasOpc = TRUE;
 				
 				if (isset($opc['subOpcs']))
 				{

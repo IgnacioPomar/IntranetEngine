@@ -190,9 +190,9 @@ class Installer
     	$installedPLgs = array ();
     	if ($resultado = $this->mysqli->query ('SELECT plgName FROM wePlugins;'))
     	{
-    		while ($plgName = $resultado->fetch_assoc ())
+    		while ($row = $resultado->fetch_assoc ())
     		{
-    			$installedPLgs [] = $plgName;
+    			$installedPLgs [] = $row['plgName'];
     		}
     	}
     	
@@ -229,11 +229,11 @@ class Installer
     			$sql .= "WHERE plgName = \"$plgName\";";
     			if ($this->mysqli->query ($sql) === TRUE)
     			{
-    				$out .= '<div class="ok">New plugin registered: <b>'.$plgName.'</b></div>';
+    				$out .= '<div class="ok">Plugin updated: <b>'.$plgName.'</b></div>';
     			}
     			else
     			{
-    				$out .= '<div class="fail"><b>Error</b>: Unablle to register plugin: <b>' . $plgName . '</b></div>';
+    				$out .= '<div class="fail"><b>Error</b>: Unable to update plugin: <b>' . $plgName . '</b></div>';
     			}
     		}
     		

@@ -3,5 +3,5 @@ class Context
 {
 	public $mysqli;
 	public $userId;
-	
+	public $subPath;
 }

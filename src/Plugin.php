@@ -1,15 +1,15 @@
 <?php 
 abstract class Plugin
 {
-	var $mysqli;
+	var $context;
 	var $uriPrefix;
 	
 	
 	// IdNodoMenu
-	public function __construct ($mysqli)
+	public function __construct (Context &$context)
 	{
-		$this->mysqli = $mysqli;
-		$this->uriPrefix = '?mn=' . $this->idNodoMenu . '&';
+		$this->context = &$context;
+		$this->uriPrefix = $_SERVER ['SCRIPT_NAME'] . $context->subPath;
 	}
 	
 	abstract public function main ();
@@ -84,20 +84,20 @@ abstract class Plugin
 	
 	
 	
-	public static function getExternalCss ()
+	public function getExternalCss ()
 	{
 		$css = array ();
 		return $css;
 	}
 	
 	
-	public static function getJsCall ()
+	public function getJsCall ()
 	{
 		return '';
 	}
 	
 	
-	public static function getExternalJs ()
+	public function getExternalJs ()
 	{
 		$js = array ();
 		return $js;

@@ -79,8 +79,9 @@ class WELauncher
     	$context = new Context ();
     	if (WELauncher::checkInstallation () && WELauncher::connectDb ($context) && WELauncher::checkAuth ($context))
         {
-        	include_once ($GLOBALS['moduleMenu']);
-        	include_once ('src/WebEngine.php');
+        	require_once ($GLOBALS['moduleMenu']);
+        	require_once ('src/Plugin.php');
+        	require_once ('src/WebEngine.php');
         	
         	$mnu = new Menu ($context);
         	
