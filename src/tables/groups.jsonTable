@@ -1,0 +1,10 @@
+{
+	"tablename": "weGroups",
+	"fields": {
+		"idGrp":	{"type": "auto"},
+		"grpName":	{"type": "string","lenght": 50}
+	},
+	"indexes": [
+		{"fields": ["idGrp"],"primary": true}
+	]
+}

@@ -1,0 +1,13 @@
+{
+	"tablename": "wePermissionsGroup",
+	"fields": {
+		"mnuNode":		{"type": "string","lenght": 50},
+		"plgName":		{"type": "string","lenght": 50},
+		"idGrp":		{"type": "int"},
+		"permName":		{"type": "string","lenght": 50},
+		"permValue":	{"type": "int"}
+	},
+	"indexes": [
+		{"fields": ["mnuNode","plgName","idGrp"],"primary": true}
+	]
+}

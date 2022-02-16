@@ -131,7 +131,22 @@ class Installer
 	 */
 	public function createCoreTables ()
 	{
-		return $this->createOrUpdateTables ('./src/tables/');
+		include_once ('dbSchema.php');
+
+		$retVal = '';
+
+		$dir = new FilesystemIterator ('./src/tables/');
+		foreach ($dir as $fileinfo)
+		{
+			if ($fileinfo->getExtension () == 'jsonTable')
+			{
+				$upd = DbSchema::createOrUpdateTable ($this->mysqli, $fileinfo->getPathname ());
+
+				$retVal .= $this->formatDBAction ($upd);
+			}
+		}
+
+		return $retVal;
 	}
 
 
@@ -141,13 +156,14 @@ class Installer
 
 		$retVal = '';
 
-		// La ruta es relativa al index...
-		$dir = new FilesystemIterator ($basePath);
-		foreach ($dir as $fileinfo)
+		$dir = new RecursiveIteratorIterator (new RecursiveDirectoryIterator ($basePath));
+		foreach ($dir as $file)
 		{
-			if ($fileinfo->getExtension () == 'json')
+			if ($file->isDir ())
+				continue;
+			else if ($file->getExtension () == 'jsonTable')
 			{
-				$upd = DbSchema::createOrUpdateTable ($this->mysqli, $fileinfo->getPathname ());
+				$upd = DbSchema::createOrUpdateTable ($this->mysqli, $file->getPathname ());
 
 				$retVal .= $this->formatDBAction ($upd);
 			}
@@ -275,7 +291,7 @@ class Installer
 		}
 
 		// Create or Update PLugins Tables
-		return $out . $this->createOrUpdateTables ($GLOBALS ['plgsPath']);
+		return $out . '<h3>Updating plugin tables</h3>' . $this->createOrUpdateTables ($GLOBALS ['plgsPath']);
 	}
 
 

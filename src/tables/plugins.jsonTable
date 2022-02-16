@@ -1,0 +1,16 @@
+{
+	"tablename": "wePlugins",
+	"fields":			{
+		"idPlg":		{"type": "auto"},
+		"plgName":		{"type": "string","lenght": 50},
+		"plgDescrip":	{"type": "string","lenght": 255},
+		"plgFile":		{"type": "string","lenght": 255},
+		"plgParams":	{"type": "json"},
+		"plgPerms":		{"type": "json"},
+		"isMenu":		{"type": "bool"}
+	},
+	"indexes": [
+		{			"fields": ["idPlg"],"primary": true},
+		{			"fields": ["plgName"],"primary": false}
+	]
+}
