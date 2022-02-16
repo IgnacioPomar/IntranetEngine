@@ -92,7 +92,7 @@ class Menu
 		$retVal = false;
 		foreach ($arrOpcs as &$opc)
 		{
-			if ($opc ['opc'] == $this->context->subPath)
+			if (isset ($opc ['opc']) && $opc ['opc'] == $this->context->subPath)
 			{
 				$opc ['isSelected'] = true;
 				$this->currOpc = &$opc;
@@ -135,10 +135,18 @@ class Menu
 				{
 					$retVal .= ' class="selected"';
 				}
-				$retVal .= '><a href="' . $_SERVER ['SCRIPT_NAME'] . $opc ['opc'] . '">' . $opc ['name'] . '</a>';
+				if (isset ($opc ['opc']))
+				{
+					$retVal .= '><a href="' . $_SERVER ['SCRIPT_NAME'] . $opc ['opc'] . '">' . $opc ['name'] . '</a>';
+				}
+				else
+				{
+					$retVal .= '>' . $opc ['name'];
+				}
+
 				if (isset ($opc ['subOpcs']))
 				{
-					$retVal .= $this->getMnuOpcs ($opc ['subOpcs'], $lvl + 1);
+					$retVal .= $this->getMnuOpcs ($opc ['subOpcs'], $lvl + 1) . '<span class="caret"></span>';
 				}
 				$retVal .= '</li>' . PHP_EOL;
 			}
