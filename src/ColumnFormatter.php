@@ -123,11 +123,13 @@ class FormatterPlainArr
 
 class HelperColor
 {
+
+
 	/**
 	 * Transform from RGB array to its hex form
 	 *
 	 * @param array $rgb
-	 * 			RGB array
+	 *        	RGB array
 	 * @return string Color in Hex format
 	 */
 	private static function rgb2hex ($rgb)
@@ -139,6 +141,8 @@ class HelperColor
 
 		return $hex; // returns the hex value including the number sign (#)
 	}
+
+
 	/**
 	 * Transformamos un color desde su notación hehadecimal a su notación rgb
 	 *
@@ -162,28 +166,28 @@ class HelperColor
 			$g = hexdec (substr ($hex, 2, 2));
 			$b = hexdec (substr ($hex, 4, 2));
 		}
-		$rgb = array ($r,$g,$b);
+		$rgb = array ($r, $g, $b);
 
 		// return implode(",", $rgb); // returns the rgb values separated by commas
 		return $rgb; // returns an array with the rgb values
 	}
 
-	
+
 	/**
- 	* Return a "half way" color
- 	*
- 	* @param string $firstColor
- 	*        	The start color
- 	* @param string $endcolor
- 	*        	The last color
- 	* @param int|float $minValue
- 	*        	The min value
- 	* @param int|float $maxValue
- 	*        	The max Value
- 	* @param int|float $currentValue
- 	*        	The current value
- 	* @return string "Half way" color in hex format
- 	*/
+	 * Return a "half way" color
+	 *
+	 * @param string $firstColor
+	 *        	The start color
+	 * @param string $endcolor
+	 *        	The last color
+	 * @param int|float $minValue
+	 *        	The min value
+	 * @param int|float $maxValue
+	 *        	The max Value
+	 * @param int|float $currentValue
+	 *        	The current value
+	 * @return string "Half way" color in hex format
+	 */
 	public function getGradientColor ($firstColor, $endcolor, $minValue, $maxValue, $currentValue)
 	{
 		if ($currentValue >= $maxValue)
@@ -211,7 +215,6 @@ class HelperColor
 			return self::rgb2hex ($retVal);
 		}
 	}
-
 }
 
 class FormatterBackgroundColor
@@ -220,6 +223,7 @@ class FormatterBackgroundColor
 	private $endcolor;
 	private $minValue;
 	private $maxValue;
+
 
 	public function __construct ($firstColor, $endcolor, $minValue, $maxValue)
 	{
@@ -233,6 +237,6 @@ class FormatterBackgroundColor
 	public function getSpan ($val, $class)
 	{
 		$bgColor = HelperColor::getGradientColor ($this->firstColor, $this->endcolor, $this->minValue, $this->maxValue, $val);
-		return '<span class="' . $class . '" style="background-color: ' .$bgColor . ';">' . $val . '</span>';
+		return '<span class="' . $class . '" style="background-color: ' . $bgColor . ';">' . $val . '</span>';
 	}
 }

@@ -1,15 +1,44 @@
 {
-	"tablename":"weUsers",
+	"tablename": "weUsers",
 	"fields": {
-		"idUser":	{"type":"auto"},
-		"email":		{"type":"string", "lenght":50},
-		"name":		{"type":"string", "lenght":50},
-		"password":		{"type":"string", "lenght":255},
-		"recoveryPass":	{"type":"string", "lenght":50},
-		"recoveryDate":	{"type":"datetime"},
-		"lastLogin":	{"type":"datetime"},
-		"isActive":		{"type":"bool"},
-		"isAdmin":		{"type":"bool"}
+		"idUser": {
+			"type": "auto"
 		},
-	"indexes": [{"fields":["idUser"],"primary":true}]
+		"email": {
+			"type": "string",
+			"lenght": 50
+		},
+		"name": {
+			"type": "string",
+			"lenght": 50
+		},
+		"password": {
+			"type": "string",
+			"lenght": 255
+		},
+		"recoveryPass": {
+			"type": "string",
+			"lenght": 50
+		},
+		"recoveryDate": {
+			"type": "datetime"
+		},
+		"lastLogin": {
+			"type": "datetime"
+		},
+		"isActive": {
+			"type": "bool"
+		},
+		"isAdmin": {
+			"type": "bool"
+		}
+	},
+	"indexes": [
+		{
+			"fields": [
+				"idUser"
+			],
+			"primary": true
+		}
+	]
 }

@@ -8,7 +8,6 @@
 define ('VERSION', '0.1');
 
 
-
 /**
  * Obtenemos la ruta relativa del sitio.
  * S�lo debe invocarse desde el index.php raiz
@@ -17,12 +16,11 @@ define ('VERSION', '0.1');
  */
 function getRelativeSitePath ()
 {
-    $rutaRelativa = $_SERVER ['SCRIPT_NAME'];
-    $rutaRelativa = substr ($rutaRelativa, 0, - 9); // Quitamos index.php
-    
-    return $rutaRelativa;
-}
+	$rutaRelativa = $_SERVER ['SCRIPT_NAME'];
+	$rutaRelativa = substr ($rutaRelativa, 0, - 9); // Quitamos index.php
 
+	return $rutaRelativa;
+}
 
 // Rutas necesarias para poder moevr de directorio de forma transparente
 
@@ -35,7 +33,7 @@ $GLOBALS ['uriPath'] = getRelativeSitePath ();
 function setCfgGlobals ()
 {
 	$GLOBALS ['plgsPath'] = $GLOBALS ['basePath'] . 'plgs' . DIRECTORY_SEPARATOR . $GLOBALS ['plgs'] . DIRECTORY_SEPARATOR;
-	$GLOBALS ['skinPath'] = $GLOBALS ['basePath'] . 'skins' . DIRECTORY_SEPARATOR . $GLOBALS['skin'] .  DIRECTORY_SEPARATOR ;
+	$GLOBALS ['skinPath'] = $GLOBALS ['basePath'] . 'skins' . DIRECTORY_SEPARATOR . $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
 	$GLOBALS ['templatePath'] = $GLOBALS ['skinPath'] . 'tmplt' . DIRECTORY_SEPARATOR;
-	$GLOBALS ['urlSkinPath'] = $GLOBALS ['uriPath']. 'skins' . DIRECTORY_SEPARATOR . $GLOBALS['skin'] .  DIRECTORY_SEPARATOR ;
+	$GLOBALS ['urlSkinPath'] = $GLOBALS ['uriPath'] . 'skins' . DIRECTORY_SEPARATOR . $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
 }

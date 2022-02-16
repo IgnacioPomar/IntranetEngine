@@ -1,9 +1,25 @@
 {
-	"tablename":"wePlgParams",
+	"tablename": "wePlgParams",
 	"fields": {
-		"mnuNode":		{"type":"string", "lenght":50},
-		"plgName":		{"type":"string", "lenght":50},
-		"paramValues":	{"type":"json"}
+		"mnuNode": {
+			"type": "string",
+			"lenght": 50
 		},
-	"indexes": [{"fields":["mnuNode","plgName"],"primary":true}]
+		"plgName": {
+			"type": "string",
+			"lenght": 50
+		},
+		"paramValues": {
+			"type": "json"
+		}
+	},
+	"indexes": [
+		{
+			"fields": [
+				"mnuNode",
+				"plgName"
+			],
+			"primary": true
+		}
+	]
 }

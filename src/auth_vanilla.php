@@ -1,14 +1,15 @@
 <?php
+
 class Auth
 {
 	private $userId;
-    private $mysqli;
-    
-    private $errorInfo;
-    private $errorCode;
+	private $mysqli;
+	private $errorInfo;
+	private $errorCode;
+
 
 	/**
-	 * A login for the admin space. 
+	 * A login for the admin space.
 	 * It wont use the skin at all
 	 */
 	public static function setupLogin ($mysqli)
@@ -19,13 +20,12 @@ class Auth
 		}
 
 		$auth = new Auth ();
-        $auth->userId = NULL;
-        $auth->mysqli = $mysqli;
+		$auth->userId = NULL;
+		$auth->mysqli = $mysqli;
 
 		if ($auth->checkLocallogin ()) return $auth->userId;
 
 		$auth->showSetupLoginForm ();
-
 	}
 
 
@@ -38,11 +38,12 @@ class Auth
 		}
 
 		$auth = new Auth ();
-        $auth->userId = NULL;
-        $auth->mysqli = $mysqli;
+		$auth->userId = NULL;
+		$auth->mysqli = $mysqli;
 
 		// 1.- Comprobar si venimos de otras sesiones
-		if ($auth->checkCookieslogin ()) return $auth->userId;;
+		if ($auth->checkCookieslogin ()) return $auth->userId;
+		;
 
 		// 2.- Comprobar si hay login con cuenta de google o Facebook
 		// 3.- Comprobar si se ha introducido algo en el formulario de login
@@ -134,8 +135,7 @@ class Auth
 
 
 	/**
-	 *DElete old coockies
-	 *
+	 * DElete old coockies
 	 */
 	private function deleteOldCookies ()
 	{
@@ -151,7 +151,7 @@ class Auth
 	 * @param integer $userId
 	 * @return boolean
 	 */
-	private function checkStaticPass ( $staticPass, $extendLifeTime, $useCookie)
+	private function checkStaticPass ($staticPass, $extendLifeTime, $useCookie)
 	{
 		list ($cookieId, $cookiePass) = explode ('@', $staticPass);
 		$cookieId = $this->mysqli->real_escape_string ($cookieId);
@@ -170,12 +170,12 @@ class Auth
 				{
 					$this->userId = $tupla->realUserId;
 					$this->fillSessionData ($tupla->realUserId);
-					
+
 					$retVal = true;
 
 					if ($extendLifeTime)
 					{
-						$this->extendCoockieLife ( $cookieId);
+						$this->extendCoockieLife ($cookieId);
 						if ($useCookie)
 						{
 							setcookie ("SecurityCookie", $cookieId . '@' . $cookiePass, strtotime ('+30 days'));
@@ -219,8 +219,7 @@ class Auth
 				// Primero eliminamos las cookies caducadas
 				$this->deleteOldCookies ();
 
-				$retVal = $this->checkStaticPass ( $_COOKIE ['SecurityCookie'], true, true);
-
+				$retVal = $this->checkStaticPass ($_COOKIE ['SecurityCookie'], true, true);
 			}
 		}
 
@@ -258,7 +257,7 @@ class Auth
 
 			if (strpos ($secureCookie, '@') !== false)
 			{
-				$retVal = $this->checkStaticPass ( $secureCookie,  false, false);
+				$retVal = $this->checkStaticPass ($secureCookie, false, false);
 			}
 		}
 		return $retVal;
@@ -306,7 +305,7 @@ class Auth
 				$keyToken = $_POST ['AppIdToken'];
 				if (strpos ($keyToken, '@') !== false)
 				{
-					if ($this->checkStaticPass ( $keyToken,  true, false))
+					if ($this->checkStaticPass ($keyToken, true, false))
 					{
 						$retval = true;
 					}
@@ -357,7 +356,7 @@ class Auth
 	 * @param integer $userId
 	 *        	Identificador real del usuario
 	 */
-	private function saveCookieSession ( $setCookie)
+	private function saveCookieSession ($setCookie)
 	{
 		// Primero obtenemos los valores unicos para esta sesion
 		$cookieId = uniqid ('', true); // menos de 30 caracteres
@@ -393,7 +392,7 @@ class Auth
 		{
 			$usuario = $this->mysqli->real_escape_string ($_POST ['user']);
 			$consulta = 'SELECT idUser, password, isActive FROM weUsers WHERE email="' . $usuario . '"';
-		
+
 			if ($resultado = $this->mysqli->query ($consulta))
 			{
 				if ($resultado->num_rows > 0)
@@ -447,7 +446,8 @@ class Auth
 		print ($loginForm);
 	}
 
-		/**
+
+	/**
 	 * Mostramos el formulario para poder hacer login
 	 *
 	 * @param string $lang
@@ -456,6 +456,7 @@ class Auth
 	{
 		$this->showFinalLoginForm ($GLOBALS ['skinPath'] . 'html/loginForm.htm');
 	}
+
 
 	public function showSetupLoginForm ()
 	{
@@ -474,9 +475,8 @@ class Auth
 			$this->mysqli->query ($consulta);
 		}
 
-
-		if (!isset ($_SESSION)) session_start ();
-		unset($_SESSION);
+		if (! isset ($_SESSION)) session_start ();
+		unset ($_SESSION);
 		session_unset ();
 		session_destroy ();
 

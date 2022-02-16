@@ -1,4 +1,5 @@
 <?php
+
 class Context
 {
 	public $mysqli;

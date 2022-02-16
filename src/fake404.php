@@ -1,11 +1,13 @@
 <?php
+
 class Fake404
 {
 
+
 	public static function main ()
 	{
-		header ( $_SERVER ["SERVER_PROTOCOL"] . " 404 Not Found", true, 404 );
-		
+		header ($_SERVER ["SERVER_PROTOCOL"] . " 404 Not Found", true, 404);
+
 		?>
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <html>
@@ -19,12 +21,9 @@ class Fake404
 	<address><?=$_SERVER['SERVER_NAME']?>: Port 80</address>
 </body>
 </html>
-<?php 
+<?php
 
 		die ();
-		
 	}
-
-	
 }
 
