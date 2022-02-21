@@ -43,7 +43,6 @@ class WELauncher
 			return false;
 		}
 
-		// Tenemos archivo de configuración
 		include_once ($GLOBALS ['fileCfg']);
 		setCfgGlobals ();
 
@@ -65,11 +64,10 @@ class WELauncher
 	{
 		session_start ();
 
-		// Comprobamos si estamos autenticados
+		// Check Auth
 		include_once ($GLOBALS ['moduleAuth']);
 		$context->userId = Auth::login ($context->mysqli);
 
-		// Mostramos la página de verdad
 		return ($context->userId !== NULL);
 	}
 

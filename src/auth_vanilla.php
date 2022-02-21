@@ -454,7 +454,7 @@ class Auth
 	 */
 	public function showLoginForm ()
 	{
-		$this->showFinalLoginForm ($GLOBALS ['skinPath'] . 'html/loginForm.htm');
+		$this->showFinalLoginForm ($GLOBALS ['skinPath'] . 'tmplt/loginForm.htm');
 	}
 
 
