@@ -52,8 +52,8 @@ class Installer
 		}
 
 		$layout = file_get_contents ('./src/rsc/html/installForm.htm');
-		$layout = str_replace ('@@plgs@@', $options, $layout);
-		$layout = str_replace ('@@skins@@', $skins, $layout);
+		$layout = str_replace ('<option>@@plgs@@</option>', $options, $layout);
+		$layout = str_replace ('<option>@@skins@@</option>', $skins, $layout);
 
 		header ('Content-Type: text/html; charset=utf-8');
 		print ($layout);
