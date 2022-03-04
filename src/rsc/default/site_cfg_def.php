@@ -7,7 +7,7 @@
 $GLOBALS ['Version'] = '0.1';
 
 // Selected modules
-$GLOBALS ['authModule'] = 'src/auth_vanilla.php';
+$GLOBALS ['moduleAuth'] = 'src/auth_vanilla.php';
 $GLOBALS ['moduleMenu'] = 'src/menu_json.php';
 
 // ----------------------------------
