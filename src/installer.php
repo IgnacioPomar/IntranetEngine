@@ -229,17 +229,23 @@ class Installer
 			if (isset ($currentPlgs [$plgName]))
 			{
 				$plgInfo = & $currentPlgs [$plgName];
+				foreach ($plgInfo as &$val)
+				{
+					$val = $this->mysqli->real_escape_string ($val);
+				}
+
 				$sql = 'UPDATE wePlugins SET plgDescrip = "' . $plgInfo ['plgDescription'] . '", ';
 				$sql .= 'plgFile = "' . $plgInfo ['path'] . '", plgParams= "' . $plgInfo ['params'] . '", ';
-				$sql .= 'plgPerms = "$plgName", isMenu = ' . $plgInfo ['isMenu'] . ' ';
+				$sql .= 'plgPerms = "' . $plgInfo ['perms'] . '", isMenu = ' . $plgInfo ['isMenu'] . ' ';
 				$sql .= "WHERE plgName = \"$plgName\";";
+
 				if ($this->mysqli->query ($sql) === TRUE)
 				{
 					$out .= '<div class="ok">Plugin updated: <b>' . $plgName . '</b></div>';
 				}
 				else
 				{
-					$out .= '<div class="fail"><b>Error</b>: Unable to update plugin: <b>' . $plgName . '</b></div>';
+					$out .= '<div class="fail"><b>Error</b>: Unable to update plugin: <b>' . $plgName . '</b</div>';
 				}
 			}
 		}
@@ -249,6 +255,11 @@ class Installer
 		{
 			if (! in_array ($plgName, $installedPLgs))
 			{
+				foreach ($plgInfo as &$val)
+				{
+					$val = $this->mysqli->real_escape_string ($val);
+				}
+
 				$sql = 'INSERT INTO wePlugins (plgName,plgDescrip,plgFile,plgParams,plgPerms,isMenu) VALUES (';
 				$sql .= '"' . $plgName . '","' . $plgInfo ['plgDescription'] . '","' . $plgInfo ['path'] . '",';
 				$sql .= '"' . $plgInfo ['params'] . '","' . $plgInfo ['perms'] . '",' . $plgInfo ['isMenu'] . ');';

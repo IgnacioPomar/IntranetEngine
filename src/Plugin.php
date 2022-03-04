@@ -2,8 +2,10 @@
 
 abstract class Plugin
 {
-	var $context;
-	var $uriPrefix;
+	protected $params = array ();
+	protected $perms = array ();
+	protected $context;
+	protected $uriPrefix;
 
 
 	// IdNodoMenu
@@ -41,49 +43,69 @@ abstract class Plugin
 	// -----------------------------------------------------------------------
 	public function checkParams ()
 	{
-		// TODO: Check the params
-		/*
-		 * $params = array ();
-		 * $sql = 'SELECT pp.idParam, pp.nombre, pp.tipo, IFNULL(np.valor, pp.defaultVal) AS valor FROM grn_plugins_params pp
-		 * INNER JOIN grn_nodosMenu nm ON nm.idPlugin = pp.idPlugin
-		 * LEFT JOIN grn_nodos_params np ON np.idNodo = nm.idNodoMenu AND pp.idParam = np.idParam
-		 * WHERE nm.idNodoMenu = ' . $this->idNodoMenu . ';';
-		 *
-		 * $resultado = CrudModel::executeQuery ($this->mysqli, $sql);
-		 * while ( $actual = $resultado->fetch_assoc () )
-		 * {
-		 * $retVal [$actual ['idParam']] = ['nombre' => $actual ['nombre'], 'tipo' => $actual ['tipo'], 'valor' => $actual ['valor']];
-		 * }
-		 *
-		 * return $retVal;
-		 */
+		// First round: get The database values
+		$sql = 'SELECT paramValues FROM wePlgParams WHERE mnuNode = "' . $this->context->subPath . '" AND plgName="' . get_class () . '";';
+
+		if ($resultado = $this->context->mysqli->query ($sql))
+		{
+			if ($row = $resultado->fetch_assoc ())
+			{
+				$rawParams = json_decode ($row ['paramValues'], true);
+				foreach ($rawParams as $rawParam)
+				{
+					$this->params [$rawParam ['name']] = $rawParam ['value'];
+				}
+			}
+		}
+
+		// Second round: set the default values
+		$info = $this->getPlgInfo ();
+		$infoP = json_decode ($info ['params'], true);
+		foreach ($infoP as $cfgParam)
+		{
+			if (! array_key_exists ($cfgParam ['name'], $this->params))
+			{
+				$this->params [$cfgParam ['name']] = $cfgParam ['defaultValue'];
+			}
+		}
 	}
 
 
-	public function checkPermisos ()
+	public function checkPerms ()
 	{
-		// TODO: Check the Permmisions
-		/*
-		 * $sql = 'SELECT * FROM (
-		 * SELECT idPermiso, MIN(status) minSt FROM (
-		 * SELECT * FROM grn_permisos_grupos WHERE idGrupo IN (SELECT idGrupo FROM grn_usuarios_grupos WHERE idusuario= ' . $_SESSION ['userId'] . ')
-		 * UNION ALL SELECT * FROM grn_permisos_usuarios WHERE idUsuario= ' . $_SESSION ['userId'] . ') a
-		 * WHERE a.idNodo =' . $this->idNodoMenu . ' AND a.idPermiso<>0
-		 * GROUP BY idPermiso) b WHERE b.minSt > 0;';
-		 *
-		 * $resultado = CrudModel::executeQuery ($this->mysqli, $sql);
-		 *
-		 * $retVal = [];
-		 * while ($permiso = $resultado->fetch_assoc())
-		 * {
-		 * $retVal [] = $permiso ['idPermiso'];
-		 * }
-		 *
-		 * return $retVal;
-		 */
+		// In the database we can have 1 for allowed, and -1 for disallowed.
+		// IMPORTANT: We dont have 0 in the database, those records should be erased
+
+		// YAGNI: Create union table with group and user perms
+		$sql = 'SELECT permName, MIN(permValue) val FROM ';
+		$sql .= '((SELECT permName, permValue FROM wePermissionsUsers WHERE idUser=1) UNION ALL ';
+		$sql .= '(SELECT permName, permValue FROM wePermissionsGroup WHERE idGrp IN (SELECT idGrp FROM weUsersGroups WHERE idUser=1))) z ';
+		$sql .= 'GROUP BY permName;';
+
+		if ($resultado = $this->context->mysqli->query ($sql))
+		{
+			while ($row = $resultado->fetch_assoc ())
+			{
+				$this->perms [$row ['permName']] = ($row ['val'] > 0);
+			}
+		}
+
+		// Second round: set as false the unset perms
+		$info = $this->getPlgInfo ();
+		$infoP = json_decode ($info ['perms'], true);
+		foreach ($infoP as $cfgPerm)
+		{
+			if (! array_key_exists ($cfgPerm, $this->perms))
+			{
+				$this->perms [$cfgPerm] = false;
+			}
+		}
 	}
 
 
+	// -----------------------------------------------------------------------
+	// ------------------ Functions to be overriden --------------------
+	// -----------------------------------------------------------------------
 	public function getExternalCss ()
 	{
 		$css = array ();

@@ -84,12 +84,24 @@ class WebEngine
 		}
 
 		$class = $this->mnu->getPlugin ();
-		if ($resultado = $this->context->mysqli->query ("SELECT plgFile FROM wePlugins WHERE plgName='$class';"))
+		if ($resultado = $this->context->mysqli->query ("SELECT plgFile, plgParams, plgPerms FROM wePlugins WHERE plgName='$class';"))
 		{
 			if ($row = $resultado->fetch_assoc ())
 			{
 				require_once ($row ['plgFile']);
-				return new $class ($this->context);
+				$plg = new $class ($this->context);
+
+				if (strlen ($row ['plgParams']) > 2)
+				{
+					$plg->checkParams ();
+				}
+
+				if (strlen ($row ['plgPerms']) > 2)
+				{
+					$plg->checkPerms ();
+				}
+
+				return $plg;
 			}
 		}
 

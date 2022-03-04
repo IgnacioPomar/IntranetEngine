@@ -1,0 +1,10 @@
+{
+	"tablename": "weUsersGroups",
+	"fields": {
+		"idUser":		{"type": "int"},
+		"idGrp":		{"type": "int"}
+	},
+	"indexes": [
+		{"fields": ["idUser","idGrp"],"primary": true}
+	]
+}
