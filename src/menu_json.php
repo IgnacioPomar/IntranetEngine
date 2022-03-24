@@ -28,9 +28,9 @@ class Menu
 	{
 		$this->context = $context;
 
-		// var_dump($GLOBALS);
+		$menuFile = (isset ($GLOBALS ['jsonMenu'])) ? $GLOBALS ['jsonMenu'] : 'mainMenu.json';
 
-		$string = file_get_contents ($GLOBALS ['cfgPath'] . 'mainMenu.json');
+		$string = file_get_contents ($GLOBALS ['cfgPath'] . $menuFile);
 		$this->mainMnu = json_decode ($string, true);
 
 		$this->context->subPath = (isset ($_SERVER ['PATH_INFO'])) ? $_SERVER ['PATH_INFO'] : "/";
