@@ -82,9 +82,9 @@ class DbSchema
 
 	private static function createTable ($mysqli, $tableInfo)
 	{
-		// TODO: Incorporar datos iniciales desde el json
-		// TODO: Hacer el DEFAULT NULL según otro parámetro
-		$sql = 'CREATE TABLE ' . $tableInfo ['tablename'] . '(';
+		// TODO: Add the initial set of data from a JSON
+		// TODO: Consider using DEFAULT NULL as other parameter
+		$sql = 'CREATE TABLE ' . self::getTableName ($tableInfo) . '(';
 		$sperador = '';
 		foreach ($tableInfo ['fields'] as $fieldName => $field)
 		{
@@ -135,13 +135,15 @@ class DbSchema
 
 	private static function alterTable ($mysqli, $tableInfo)
 	{
-		// TODO: Considerar en un futuro también editar los tipos
-		// TODO: Considerar cambiar lso índices
-		// TODO: No se elimuinan columnas antiguas: al reinstalar plugins se eliminarían las dinámicas
+		// TODO: Maybe in the future, alse edit types
+		// TODO: Maybe in teh future, change indexes
+		// TODO: Decide what to do with the old fields (they are never removed)
 
-		// TODO: soportar versiones de tablas para...
-		// TODO: Soportar el uso de "lambdas" par actualizar los datos de la tabla en una migración
-		$sql = 'SHOW COLUMNS FROM ' . $tableInfo ['tablename'];
+		// TODO: Support table version for...
+		// TODO: Support of "lambdas" to update the data in the tables
+		$tablename = self::getTableName ($tableInfo);
+
+		$sql = 'SHOW COLUMNS FROM ' . $tablename;
 		$resultado = $mysqli->query ($sql);
 
 		if (! $resultado) return - 1;
@@ -154,7 +156,7 @@ class DbSchema
 		$resultado->free ();
 
 		$sql = '';
-		$sep = 'ALTER TABLE ' . $tableInfo ['tablename'] . ' ';
+		$sep = 'ALTER TABLE ' . $tablename . ' ';
 
 		$count = 0;
 
@@ -186,18 +188,36 @@ class DbSchema
 	}
 
 
+	public static function getTableName (array $tableInfo)
+	{
+		if (isset ($tableInfo ['varSchema']))
+		{
+			// Defined in a global var
+			return $GLOBALS [$tableInfo ['varSchema']] . '.' . $tableInfo ['tablename'];
+		}
+		else if (isset ($tableInfo ['fixedSchema']))
+		{
+			return $tableInfo ['fixedSchema'] . '.' . $tableInfo ['tablename'];
+		}
+		else
+		{
+			return $tableInfo ['tablename'];
+		}
+	}
+
+
 	/**
 	 *
 	 * @param mysqli $mysqli
 	 * @param array $fileInfo
 	 * @return array: nombre tabla, y código de salida: 1, ok, 0, no accion, -1, error
-	 *        
+	 *
 	 */
 	public static function createOrUpdateTable ($mysqli, $fileInfo)
 	{
 		$tableInfo = json_decode (file_get_contents ($fileInfo), true);
 
-		$sql = 'SELECT 1 FROM ' . $tableInfo ['tablename'] . ' LIMIT 1;';
+		$sql = 'SELECT 1 FROM ' . self::getTableName ($tableInfo) . ' LIMIT 1;';
 
 		if (self::isQuerySucess ($mysqli, $sql))
 		{

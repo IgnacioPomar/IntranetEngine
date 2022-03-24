@@ -13,10 +13,10 @@ class AutoForm
 
 	public function __construct ($jsonFile)
 	{
-		$tableSchema = json_decode (file_get_contents ($jsonFile), true);
+		$tableInfo = json_decode (file_get_contents ($jsonFile), true);
 
-		$this->tableName = $tableSchema ['tablename'];
-		$this->fields = $tableSchema ['fields'];
+		$this->tableName = DbSchema::getTableName ($tableInfo);
+		$this->fields = $tableInfo ['fields'];
 		$this->hiddenFields = array ();
 	}
 
