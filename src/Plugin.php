@@ -44,16 +44,16 @@ abstract class Plugin
 	public function checkParams ()
 	{
 		// First round: get The database values
-		$sql = 'SELECT paramValues FROM wePlgParams WHERE mnuNode = "' . $this->context->subPath . '" AND plgName="' . get_class () . '";';
+		$sql = 'SELECT paramValues FROM wePlgParams WHERE mnuNode = "' . $this->context->subPath . '" AND plgName="' . get_class ($this) . '";';
 
 		if ($resultado = $this->context->mysqli->query ($sql))
 		{
 			if ($row = $resultado->fetch_assoc ())
 			{
 				$rawParams = json_decode ($row ['paramValues'], true);
-				foreach ($rawParams as $rawParam)
+				foreach ($rawParams as $paramName => $paramValue)
 				{
-					$this->params [$rawParam ['name']] = $rawParam ['value'];
+					$this->params [$paramName] = $paramValue;
 				}
 			}
 		}
