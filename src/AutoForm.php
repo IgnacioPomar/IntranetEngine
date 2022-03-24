@@ -1,4 +1,5 @@
 <?php
+include_once ('dbSchema.php');
 
 class AutoForm
 {

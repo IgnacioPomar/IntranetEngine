@@ -22,7 +22,7 @@ class DbSchema
 	{
 		if (! $resultado = $mysqli->query ($sql))
 		{
-			echo "Error: La ejecución de la consulta falló debido a: \n";
+			echo "Error: Execution failied: \n";
 			echo "Query: " . $sql . "\n";
 			echo "Errno: " . $mysqli->errno . "\n";
 			echo "Error: " . $mysqli->error . "\n";
