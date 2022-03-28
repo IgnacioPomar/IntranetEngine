@@ -139,7 +139,7 @@ class AutoForm
 			$retVal .= $this->getFormField ($fieldName, $this->fields [$fieldName], $val, $isDisabled);
 		}
 
-		if ($isDisabled) $retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
+		if (!$isDisabled) $retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
 		$retVal .= '</form>';
 
 		return $retVal;
