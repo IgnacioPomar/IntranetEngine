@@ -35,7 +35,7 @@ class AutoForm
 	}
 
 
-	private function getFormField ($fieldName, $fieldInfo, $val)
+	private function getFormField ($fieldName, $fieldInfo, $val, $id, $inputDisabled)
 	{
 		$formType = (isset ($fieldInfo ['formType'])) ? $fieldInfo ['formType'] : $fieldInfo ['type'];
 		$label = (isset ($fieldInfo ['label'])) ? $fieldInfo ['label'] : $fieldName;
@@ -43,7 +43,9 @@ class AutoForm
 		$prefix = '<div class="field"><label for="' . $fieldName . '">' . $label . '</label><span class="field-inner">';
 		$sufix = '</span></div>' . PHP_EOL;
 
-		$params = '';
+		$params = array ();
+		if ($inputDisabled) $params [] = 'disabled';
+		
 		$type = $formType;
 		switch ($formType)
 		{
@@ -60,14 +62,20 @@ class AutoForm
 			// Inputs que se muestran por pantalla (al salir del switch se usan)
 			case 'string':
 				$type = 'text';
-				$params = 'maxlength="' . $fieldInfo ['lenght'] . '"';
+				$params [] = 'maxlength="' . $fieldInfo ['lenght'] . '"';
 				break;
 			case 'float':
-				$params = ' step="0.01"';
+				$params [] = 'step="0.01"';
 			case 'int':
 			case 'number':
 				$type = 'number';
 				break;
+			case 'datetime':
+			    $type = 'date';
+			    break;
+			case 'checkbox':
+			    if ($val) $params [] = 'checked';
+			    break;
 
 			// Inputs sin ningún tipo de cambio
 			case 'date':
@@ -110,7 +118,7 @@ class AutoForm
 	}
 
 
-	public function generateForm ($rowData)
+	public function generateForm ($rowData, $isDisabled = FALSE)
 	{
 		$action = $_SERVER ['REQUEST_URI'];
 		$retVal = '<form action="' . $action . '" method="post" autocomplete="off">';
@@ -127,10 +135,10 @@ class AutoForm
 			{
 				$val = $this->fields [$fieldName] ['defaultValue'];
 			}
-			$retVal .= $this->getFormField ($fieldName, $this->fields [$fieldName], $val);
+			$retVal .= $this->getFormField ($fieldName, $this->fields [$fieldName], $val, $isDisabled);
 		}
 
-		$retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
+		if ($isDisabled) $retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
 		$retVal .= '</form>';
 
 		return $retVal;

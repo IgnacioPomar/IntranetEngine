@@ -292,7 +292,7 @@ class Auth
 							{
 								$userId = $row ['idUser'];
 								$loginRetval = 'OK:';
-								$loginRetval .= $this->saveCookieSession ($this->mysqli, $userId, false);
+								$loginRetval .= $this->saveCookieSession ($this->mysqli, $userId);
 							}
 						}
 					}
@@ -356,8 +356,10 @@ class Auth
 	 * @param integer $userId
 	 *        	Identificador real del usuario
 	 */
-	private function saveCookieSession ($setCookie)
+	private function saveCookieSession ($setCookie, $userId = NULL)
 	{
+	    $userId = $userId ?? $this->userId;
+	    
 		// Primero obtenemos los valores unicos para esta sesion
 		$cookieId = uniqid ('', true); // menos de 30 caracteres
 		$cookiePass = mt_rand (100000000, 999999999);
@@ -365,7 +367,7 @@ class Auth
 		$browserId = $_SERVER ['HTTP_USER_AGENT'];
 
 		$consulta = "INSERT INTO weSessCookie (cookieId,cookiePass,realUserId,firstAccess,expires,browserInfo)
-		VALUES (\"$cookieId\",\"$cookiePass\",$this->userId,NOW(),NOW() + INTERVAL 30 DAY,\"$browserId\");
+		VALUES (\"$cookieId\",\"$cookiePass\",$userId,NOW(),NOW() + INTERVAL 30 DAY,\"$browserId\");
 		";
 
 		if ($this->mysqli->query ($consulta))
