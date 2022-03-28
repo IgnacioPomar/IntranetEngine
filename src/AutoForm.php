@@ -68,6 +68,12 @@ class AutoForm
 			case 'number':
 				$type = 'number';
 				break;
+			case 'datetime':
+			    $type = 'date';
+			    break;
+			case 'checkbox':
+			    if ($val) $params = 'checked';
+			    break;
 
 			// Inputs sin ningún tipo de cambio
 			case 'date':
