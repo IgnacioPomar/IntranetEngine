@@ -35,7 +35,7 @@ class AutoForm
 	}
 
 
-	private function getFormField ($fieldName, $fieldInfo, $val, $id, $inputDisabled)
+	private function getFormField ($fieldName, $fieldInfo, $val, $inputDisabled)
 	{
 		$formType = (isset ($fieldInfo ['formType'])) ? $fieldInfo ['formType'] : $fieldInfo ['type'];
 		$label = (isset ($fieldInfo ['label'])) ? $fieldInfo ['label'] : $fieldName;
@@ -102,7 +102,7 @@ class AutoForm
 				break;
 		}
 
-		$retVal = '<input id="' . $fieldName . '"  name="' . $fieldName . '"  type="' . $type . '"  value="' . $val . '" ' . $params . '>';
+		$retVal = '<input id="' . $fieldName . '"  name="' . $fieldName . '"  type="' . $type . '"  value="' . $val . '" ' . join(' ', $params) . '>';
 		return $prefix . $retVal . $sufix;
 	}
 
