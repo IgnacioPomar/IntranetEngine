@@ -1,5 +1,5 @@
 <?php
-include_once('dbSchema.php');
+include_once ('dbSchema.php');
 
 class AutoForm
 {
@@ -12,38 +12,42 @@ class AutoForm
 	const COMBO_PREFIX = 'combo@';
 
 
-	public function __construct($jsonFile)
+	public function __construct ($jsonFile)
 	{
-		$tableInfo = json_decode(file_get_contents($jsonFile), true);
+		$tableInfo = json_decode (file_get_contents ($jsonFile), true);
 
-		$this->tableName = DbSchema::getTableName($tableInfo);
-		$this->fields = $tableInfo['fields'];
-		$this->hiddenFields = array();
+		$this->tableName = DbSchema::getTableName ($tableInfo);
+		$this->fields = $tableInfo ['fields'];
+		$this->hiddenFields = array ();
 	}
 
 
-	private function isCombo($type)
+	private function isCombo ($type)
 	{
-		if ((substr($type, 0, strlen(self::COMBO_PREFIX)) === self::COMBO_PREFIX)) {
+		if ((substr ($type, 0, strlen (self::COMBO_PREFIX)) === self::COMBO_PREFIX))
+		{
 			return true;
-		} else {
+		}
+		else
+		{
 			return false;
 		}
 	}
 
 
-	private function getFormField($fieldName, $fieldInfo, $val)
+	private function getFormField ($fieldName, $fieldInfo, $val)
 	{
-		$formType = (isset($fieldInfo['formType'])) ? $fieldInfo['formType'] : $fieldInfo['type'];
-		$label = (isset($fieldInfo['label'])) ? $fieldInfo['label'] : $fieldName;
+		$formType = (isset ($fieldInfo ['formType'])) ? $fieldInfo ['formType'] : $fieldInfo ['type'];
+		$label = (isset ($fieldInfo ['label'])) ? $fieldInfo ['label'] : $fieldName;
 
 		$prefix = '<div class="field"><label for="' . $fieldName . '">' . $label . '</label><span class="field-inner">';
 		$sufix = '</span></div>' . PHP_EOL;
 
 		$params = '';
 		$type = $formType;
-		switch ($formType) {
-				// Casos diferentes (rompen el flujo)
+		switch ($formType)
+		{
+			// Casos diferentes (rompen el flujo)
 			case 'hidden':
 				return '<input type="hidden" name="' . $fieldName . '" value="' . $val . '" />' . PHP_EOL;
 				break;
@@ -53,10 +57,10 @@ class AutoForm
 				return $prefix . $retVal . $sufix;
 				break;
 
-				// Inputs que se muestran por pantalla (al salir del switch se usan)
+			// Inputs que se muestran por pantalla (al salir del switch se usan)
 			case 'string':
 				$type = 'text';
-				$params = 'maxlength="' . $fieldInfo['lenght'] . '"';
+				$params = 'maxlength="' . $fieldInfo ['lenght'] . '"';
 				break;
 			case 'float':
 				$params = ' step="0.01"';
@@ -64,27 +68,23 @@ class AutoForm
 			case 'number':
 				$type = 'number';
 				break;
-			case 'datetime':
-				$type = 'date';
-				break;
-			case 'checkbox':
-				if ($val) $params = 'checked';
-				break;
 
-				// Inputs sin ningún tipo de cambio
+			// Inputs sin ningún tipo de cambio
 			case 'date':
 			case 'email':
 			case 'color':
 				break;
 
-				// Caso especial: los combos incorporados
+			// Caso especial: los combos incorporados
 			default:
-				if ($this->isCombo($type)) {
-					$arrNAme = substr($type, strlen(self::COMBO_PREFIX));
-					$arr = constant($arrNAme);
+				if ($this->isCombo ($type))
+				{
+					$arrNAme = substr ($type, strlen (self::COMBO_PREFIX));
+					$arr = constant ($arrNAme);
 
 					$retVal = '<select class="form-control" id="' . $fieldName . '" name="' . $fieldName . '" >';
-					foreach ($arr as $clave => $valorOp) {
+					foreach ($arr as $clave => $valorOp)
+					{
 						$selected = ($val == $clave) ? 'selected' : '';
 						$retVal .= '<option value="' . $clave . '" ' . $selected . '>' . $valorOp . '</option>';
 					}
@@ -98,10 +98,11 @@ class AutoForm
 	}
 
 
-	private function getExtraHiddenFields()
+	private function getExtraHiddenFields ()
 	{
 		$retVal = '';
-		foreach ($this->hiddenFields as $key => $value) {
+		foreach ($this->hiddenFields as $key => $value)
+		{
 			$retVal .= '<input type="hidden" name="' . $key . '" value="' . $value . '" />' . PHP_EOL;
 		}
 
@@ -109,20 +110,24 @@ class AutoForm
 	}
 
 
-	public function generateForm($rowData)
+	public function generateForm ($rowData)
 	{
-		$action = $_SERVER['REQUEST_URI'];
+		$action = $_SERVER ['REQUEST_URI'];
 		$retVal = '<form action="' . $action . '" method="post" autocomplete="off">';
-		$retVal .= $this->getExtraHiddenFields();
+		$retVal .= $this->getExtraHiddenFields ();
 
-		foreach ($this->set as $fieldName) {
+		foreach ($this->set as $fieldName)
+		{
 			$val = '';
-			if (isset($rowData[$fieldName])) {
-				$val = $rowData[$fieldName];
-			} else if (isset($this->fields[$fieldName]['defaultValue'])) {
-				$val = $this->fields[$fieldName]['defaultValue'];
+			if (isset ($rowData [$fieldName]))
+			{
+				$val = $rowData [$fieldName];
 			}
-			$retVal .= $this->getFormField($fieldName, $this->fields[$fieldName], $val);
+			else if (isset ($this->fields [$fieldName] ['defaultValue']))
+			{
+				$val = $this->fields [$fieldName] ['defaultValue'];
+			}
+			$retVal .= $this->getFormField ($fieldName, $this->fields [$fieldName], $val);
 		}
 
 		$retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
@@ -132,40 +137,43 @@ class AutoForm
 	}
 
 
-	private function getSqlFormatted($val, $fieldInfo)
+	private function getSqlFormatted ($val, $fieldInfo)
 	{
-		switch ($fieldInfo['type']) {
+		switch ($fieldInfo ['type'])
+		{
 			case 'auto':
 			case 'int':
-				return (is_numeric($val)) ? $val : 'NULL';
+				return (is_numeric ($val)) ? $val : 'NULL';
 				break;
 			case 'date': // YAGNI: verificar formato de la fecha
-				return '"' . $this->mysqli->real_escape_string($val) . '"';
+				return '"' . $this->mysqli->real_escape_string ($val) . '"';
 				break;
 			case 'string':
-				return '"' . $this->mysqli->real_escape_string($val) . '"';
+				return '"' . $this->mysqli->real_escape_string ($val) . '"';
 				break;
 		}
 	}
 
 
-	public function setHidden($name, $value)
+	public function setHidden ($name, $value)
 	{
-		$this->hiddenFields[$name] = $value;
+		$this->hiddenFields [$name] = $value;
 	}
 
 
-	public function getInsertSql(array $data)
+	public function getInsertSql (array $data)
 	{
 		$retVal = 'INSERT INTO ' . $this->tableName . ' (';
 		$values = ') VALUES (';
 
 		$sep = '';
 
-		foreach ($this->fields as $fieldName => $fieldInfo) {
-			if (isset($_POST[$fieldName])) {
+		foreach ($this->fields as $fieldName => $fieldInfo)
+		{
+			if (isset ($_POST [$fieldName]))
+			{
 				$retVal .= $sep . $fieldName;
-				$values .= $sep . $this->getSqlFormatted($_POST[$fieldName], $fieldInfo);
+				$values .= $sep . $this->getSqlFormatted ($_POST [$fieldName], $fieldInfo);
 
 				$sep = ', ';
 			}
@@ -174,21 +182,26 @@ class AutoForm
 	}
 
 
-	public function getUpdateSql(array $data, array $idxs)
+	public function getUpdateSql (array $data, array $idxs)
 	{
 		$retVal = 'UPDATE ' . $this->tableName;
 		$where = '';
 
 		$fieldSep = ' SET ';
 		$whereSep = ' WHERE ';
-		foreach ($this->fields as $fieldName => $fieldInfo) {
-			if (isset($_POST[$fieldName])) {
+		foreach ($this->fields as $fieldName => $fieldInfo)
+		{
+			if (isset ($_POST [$fieldName]))
+			{
 
-				if (in_array($fieldName, $idxs)) {
-					$where .= $whereSep . $fieldName . '=' . $this->getSqlFormatted($_POST[$fieldName], $fieldInfo);
+				if (in_array ($fieldName, $idxs))
+				{
+					$where .= $whereSep . $fieldName . '=' . $this->getSqlFormatted ($_POST [$fieldName], $fieldInfo);
 					$whereSep = ' AND ';
-				} else {
-					$retVal .= $fieldSep . $fieldName . '=' . $this->getSqlFormatted($_POST[$fieldName], $fieldInfo);
+				}
+				else
+				{
+					$retVal .= $fieldSep . $fieldName . '=' . $this->getSqlFormatted ($_POST [$fieldName], $fieldInfo);
 
 					$fieldSep = ', ';
 				}
@@ -199,11 +212,11 @@ class AutoForm
 	}
 
 
-	public static function editJsonForm($jsonFile, $rowData, $fieldSet)
+	public static function editJsonForm ($jsonFile, $rowData, $fieldSet)
 	{
-		$autoForm = new AutoForm($jsonFile);
+		$autoForm = new AutoForm ($jsonFile);
 		$autoForm->set = $fieldSet;
 
-		return $autoForm->generateForm($rowData);
+		return $autoForm->generateForm ($rowData);
 	}
 }
