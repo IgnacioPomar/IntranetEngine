@@ -66,8 +66,6 @@ class DbSchema
 			case 'json':
 				return ' json DEFAULT NULL';
 				break;
-			case 'checkbox':
-			    return ' tinyint DEFAULT NULL';
 			case 'string':
 				if (isset ($field ['lenght']))
 				{

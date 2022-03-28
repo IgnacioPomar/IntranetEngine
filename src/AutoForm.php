@@ -74,7 +74,8 @@ class AutoForm
 			case 'datetime':
 			    $type = 'date';
 			    break;
-			case 'checkbox':
+			case 'bool':
+			    $type = 'checkbox';
 			    if ($val) $params [] = 'checked';
 			    break;
 
