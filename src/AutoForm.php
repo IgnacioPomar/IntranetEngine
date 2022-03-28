@@ -62,9 +62,10 @@ class AutoForm
 			// Inputs que se muestran por pantalla (al salir del switch se usan)
 			case 'string':
 				$type = 'text';
-				$params [] = 'maxlength="' . $fieldInfo ['lenght'] . '"';
+				if (!empty($fieldInfo ['lenght'])) $params [] = 'maxlength="' . $fieldInfo ['lenght'] . '"';
 				break;
 			case 'float':
+			case 'double':
 				$params [] = 'step="0.01"';
 			case 'int':
 			case 'number':
