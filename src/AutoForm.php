@@ -35,7 +35,7 @@ class AutoForm
 	}
 
 
-	private function getFormField ($fieldName, $fieldInfo, $val, $id, $inputDisabled)
+	private function getFormField ($fieldName, $fieldInfo, $val, $inputDisabled)
 	{
 		$formType = (isset ($fieldInfo ['formType'])) ? $fieldInfo ['formType'] : $fieldInfo ['type'];
 		$label = (isset ($fieldInfo ['label'])) ? $fieldInfo ['label'] : $fieldName;
@@ -62,9 +62,10 @@ class AutoForm
 			// Inputs que se muestran por pantalla (al salir del switch se usan)
 			case 'string':
 				$type = 'text';
-				$params [] = 'maxlength="' . $fieldInfo ['lenght'] . '"';
+				if (!empty($fieldInfo ['lenght'])) $params [] = 'maxlength="' . $fieldInfo ['lenght'] . '"';
 				break;
 			case 'float':
+			case 'double':
 				$params [] = 'step="0.01"';
 			case 'int':
 			case 'number':
@@ -101,7 +102,7 @@ class AutoForm
 				break;
 		}
 
-		$retVal = '<input id="' . $fieldName . '"  name="' . $fieldName . '"  type="' . $type . '"  value="' . $val . '" ' . $params . '>';
+		$retVal = '<input id="' . $fieldName . '"  name="' . $fieldName . '"  type="' . $type . '"  value="' . $val . '" ' . join(' ', $params) . '>';
 		return $prefix . $retVal . $sufix;
 	}
 
@@ -138,7 +139,7 @@ class AutoForm
 			$retVal .= $this->getFormField ($fieldName, $this->fields [$fieldName], $val, $isDisabled);
 		}
 
-		if ($isDisabled) $retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
+		if (!$isDisabled) $retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
 		$retVal .= '</form>';
 
 		return $retVal;
