@@ -84,9 +84,10 @@ class WELauncher
 			require_once ('src/Plugin.php');
 			require_once ('src/WebEngine.php');
 
-			$mnu = new Menu ($context);
+			$menuLoader = basename ($GLOBALS ['moduleMenu'], '.php');
+			$menuLoader::load ($context);
 
-			WebEngine::launch ($context, $mnu, isset ($_GET ['ajax']));
+			WebEngine::launch ($context, isset ($_GET ['ajax']));
 		}
 	}
 }

@@ -12,11 +12,13 @@ class WebEngine
 	 * @param Menu $mnu
 	 * @param bool $isAjax
 	 */
-	public static function launch (&$context, &$mnu, $isAjax)
+	public static function launch (&$context, $isAjax)
 	{
 		$we = new WebEngine ();
-		$we->context = & $context;
-		$we->mnu = & $mnu;
+		$we->context = &$context;
+
+		require_once ('menu.php');
+		$we->mnu = new Menu ($context->mnu);
 
 		if ($isAjax)
 		{
@@ -52,13 +54,12 @@ class WebEngine
 		$layout = str_replace ('@@userName@@', htmlspecialchars_decode ($_SESSION ['userName']), $layout);
 
 		// ---- Plugin data ----
-
 		$this->setJsCall ($plg->getJsCall (), $layout);
 		$this->setJsHeader ($plg->getExternalJs (), $layout);
 		$this->setCssHeader ($plg->getExternalCss (), $layout);
 
 		// ---- Web Engine base components ----
-		$layout = str_replace ('@@Menu@@', $this->mnu->getMenu (), $layout);
+		$layout = str_replace ('@@Menu@@', $this->mnu->getMenu ($this->context->mnu), $layout);
 		$layout = str_replace ('@@pageTitle@@', $this->mnu->getTitle (), $layout);
 		$layout = str_replace ('@@skinPath@@', $GLOBALS ['urlSkinPath'], $layout);
 

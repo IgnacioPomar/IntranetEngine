@@ -1,8 +1,6 @@
 <?php
 
 /*
- * The Menu - JSon variant means all the users will see the same options
- * (it'll not hide options if we haver give permissions to it)
  *
  * As all the Menu modules, it'll return:
  * - From the selected option:
@@ -13,30 +11,22 @@
  */
 class Menu
 {
-	private $context;
-	private $mainMnu;
 	private $currOpc;
-	public $hasOpc;
+	private $hasOpc;
 
 
 	/**
 	 * Sets the full menu info
 	 *
-	 * @param Context $context
+	 *
+	 * @param array $mainMnu
 	 */
-	function __construct (&$context)
+	function __construct (&$mainMnu)
 	{
-		$this->context = $context;
-
-		$menuFile = (isset ($GLOBALS ['jsonMenu'])) ? $GLOBALS ['jsonMenu'] : 'mainMenu.json';
-
-		$string = file_get_contents ($GLOBALS ['cfgPath'] . $menuFile);
-		$this->mainMnu = json_decode ($string, true);
-
-		$this->context->subPath = (isset ($_SERVER ['PATH_INFO'])) ? $_SERVER ['PATH_INFO'] : "/";
+		$this->subPath = (isset ($_SERVER ['PATH_INFO'])) ? $_SERVER ['PATH_INFO'] : "/";
 
 		$this->hasOpc = FALSE;
-		$this->setSelectedOpc ($this->mainMnu);
+		$this->setSelectedOpc ($mainMnu);
 	}
 
 
@@ -45,10 +35,10 @@ class Menu
 	 *
 	 * @return string
 	 */
-	public function getMenu ()
+	public function getMenu ($mainMnu)
 	{
 		$retVal = '<span id="mainMenu">';
-		$retVal .= $this->getMnuOpcs ($this->mainMnu, 0);
+		$retVal .= $this->getMnuOpcs ($mainMnu, 0);
 		return $retVal . '</span>';
 	}
 
@@ -92,10 +82,10 @@ class Menu
 		$retVal = false;
 		foreach ($arrOpcs as &$opc)
 		{
-			if (isset ($opc ['opc']) && $opc ['opc'] == $this->context->subPath)
+			if (isset ($opc ['opc']) && $opc ['opc'] == $this->subPath)
 			{
 				$opc ['isSelected'] = true;
-				$this->currOpc = &$opc;
+				$this->currOpc = $opc;
 				$retVal = true;
 				$this->hasOpc = TRUE;
 
@@ -123,7 +113,7 @@ class Menu
 	 *
 	 * @return string
 	 */
-	private function getMnuOpcs (&$arrOpcs, $lvl)
+	private function getMnuOpcs ($arrOpcs, $lvl)
 	{
 		$retVal = '<ul class="mnuLvl' . $lvl . '">';
 		foreach ($arrOpcs as $opc)
