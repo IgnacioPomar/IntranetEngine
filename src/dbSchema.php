@@ -42,6 +42,7 @@ class DbSchema
 			case 'auto':
 				return ' int NOT NULL AUTO_INCREMENT';
 				break;
+			case 'checkbox':
 			case 'bool':
 				return ' bool DEFAULT FALSE';
 				break;

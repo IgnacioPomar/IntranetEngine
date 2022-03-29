@@ -76,6 +76,7 @@ class AutoForm
 			    break;
 			case 'bool':
 			    $type = 'checkbox';
+			case 'checkbox':
 			    if ($val) $params [] = 'checked';
 			    break;
 
