@@ -19,14 +19,16 @@ class Menu
 	 * Sets the full menu info
 	 *
 	 *
-	 * @param array $mainMnu
+	 * @param Context $context
 	 */
-	function __construct (&$mainMnu)
+	function __construct (&$context)
 	{
-		$this->subPath = (isset ($_SERVER ['PATH_INFO'])) ? $_SERVER ['PATH_INFO'] : "/";
+		$this->context = $context;
+
+		$this->context->subPath = (isset ($_SERVER ['PATH_INFO'])) ? $_SERVER ['PATH_INFO'] : "/";
 
 		$this->hasOpc = FALSE;
-		$this->setSelectedOpc ($mainMnu);
+		$this->setSelectedOpc ($this->context->mnu);
 	}
 
 
@@ -82,7 +84,7 @@ class Menu
 		$retVal = false;
 		foreach ($arrOpcs as &$opc)
 		{
-			if (isset ($opc ['opc']) && $opc ['opc'] == $this->subPath)
+			if (isset ($opc ['opc']) && $opc ['opc'] == $this->context->subPath)
 			{
 				$opc ['isSelected'] = true;
 				$this->currOpc = $opc;

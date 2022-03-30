@@ -14,7 +14,7 @@ class MenuLoaderJson
 	 * @param Context $context
 	 * @return array
 	 */
-	public function load (&$context)
+	public static function load (&$context)
 	{
 		$menuFile = (isset ($GLOBALS ['jsonMenu'])) ? $GLOBALS ['jsonMenu'] : 'mainMenu.json';
 

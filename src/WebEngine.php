@@ -18,7 +18,7 @@ class WebEngine
 		$we->context = &$context;
 
 		require_once ('menu.php');
-		$we->mnu = new Menu ($context->mnu);
+		$we->mnu = new Menu ($context);
 
 		if ($isAjax)
 		{
