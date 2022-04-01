@@ -139,7 +139,7 @@ class AutoForm
 			{
 				$val = $this->fields [$fieldName] ['defaultValue'];
 			}
-			$retVal .= $this->getFormField ($fieldName, $this->fields [$fieldName], $val, $isDisabled);
+			$retVal .= $this->getFormField ($fieldName, $this->fields [$fieldName] ?? [ 'type' => 'text'], $val, $isDisabled);
 		}
 
 		if (! $isDisabled) $retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
@@ -164,6 +164,7 @@ class AutoForm
 			case 'date': // YAGNI: verificar formato de la fecha
 				return '"' . $this->mysqli->real_escape_string ($val) . '"';
 				break;
+			case 'json':
 			case 'string':
 				return '"' . $this->mysqli->real_escape_string ($val) . '"';
 				break;
