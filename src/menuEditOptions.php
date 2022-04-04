@@ -212,14 +212,22 @@ class EditOptions
 	{
 		$retVal = '';
 
-		$sql = "SELECT paramValues FROM wePlgParams WHERE plgName = '$plgName'";
+		$sql = 'SELECT paramValues, plgParams FROM wePlgParams ';
+		$sql .= "LEFT JOIN wePlugins ON wePlugins.plgName = wePlgParams.plgName WHERE wePlgParams.plgName = '$plgName'";
 		if ($res = $this->mysqli->query ($sql))
 		{
 			if ($plg = $res->fetch_assoc ())
 			{
-				$autoForm = new AutoForm ($this->jsonFile);
-
 				$plg ['paramValues'] = json_decode ($plg ['paramValues'], true) ?? array ();
+				$plg ['plgParams'] = json_decode ($plg ['plgParams'], true) ?? array ();
+				$this->mergeArrayParams ($plg ['plgParams'], $plg ['paramValues']);
+
+				$autoForm = new AutoForm ($this->jsonFile);
+				// We add the fields of the JSONParams so that the autoform formats them
+				foreach ($plg ['plgParams'] as $param)
+				{
+					$autoForm->addCustomField ($param ['name'], $param ['type']);
+				}
 
 				if (! empty ($_POST ['plgName']))
 				{
@@ -243,11 +251,31 @@ class EditOptions
 	}
 
 
+	/**
+	 *
+	 * @param array $params
+	 * @param array $values
+	 */
+	private function mergeArrayParams (&$params, $values)
+	{
+		foreach ($params as &$param)
+		{
+			$param ['value'] = $values [$param ['name']];
+		}
+	}
+
+
+	/**
+	 *
+	 * @param object $autoForm
+	 * @param array $plg
+	 * @return string
+	 */
 	private function updateParams ($autoForm, &$plg)
 	{
 		foreach ($plg ['paramValues'] as $name => &$dataParam)
 		{
-			$dataParam = $_POST [$name];
+			$dataParam = $_POST [$name] ?? 0;
 			unset ($_POST [$name]);
 		}
 
