@@ -1,6 +1,7 @@
 <?php
 include_once ('src/defines.php');
 include_once ('src/Plugin.php');
+include_once ('src/installer.php');
 
 class WebEngineAdmin
 {
@@ -80,7 +81,6 @@ class WebEngineAdmin
 	{
 		if (! file_exists ($GLOBALS ['fileCfg']))
 		{
-			include_once ('src/installer.php');
 			Installer::installFromScratch ();
 
 			return false;
@@ -102,7 +102,6 @@ class WebEngineAdmin
 		if ($GLOBALS ['Version'] != VERSION)
 		{
 			// TODO: instead of force, let the user decide if wants to apply now
-			include_once 'src/installer.php';
 			$installer = new Installer ($this->mysqli);
 			echo $installer->createCoreTables ();
 			echo $installer->registerPlugins ();
@@ -111,7 +110,6 @@ class WebEngineAdmin
 		{
 			if (isset ($_GET ['a']))
 			{
-				include_once 'src/installer.php';
 				$installer = new Installer ($this->mysqli);
 
 				$this->showAdminMnu ();
