@@ -78,8 +78,6 @@ class EditOptions
 	// @formatter:off
 	const COLS_TABLE_MENU = array (
 			'name'			=> array ('w-400', 'Menu name', 'Name displayed in the menu'),
-			'opc'			=> array ('w-300', 'URI', 'Link to page'),
-			'plg' 			=> array ('w-300', 'Plugin', 'Associated plugin'),
 	);
 	// @formatter:on
 	const sentido_VALUES = array (0 => 'buy', 1 => 'sell');
