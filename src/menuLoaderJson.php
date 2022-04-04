@@ -16,12 +16,24 @@ class MenuLoaderJson
 	 */
 	public static function load (&$context)
 	{
+		$menuLoaderJson = new MenuLoaderJson ();
+		$context->mnu = $menuLoaderJson->getArrayMenu ();
+
+		return 0;
+	}
+
+
+	/**
+	 *
+	 * @param mysqli $mysqli
+	 * @return array
+	 */
+	public function getArrayMenu ($mysqli = NULL)
+	{
 		$menuFile = (isset ($GLOBALS ['jsonMenu'])) ? $GLOBALS ['jsonMenu'] : 'mainMenu.json';
 
 		$string = file_get_contents ($GLOBALS ['cfgPath'] . $menuFile);
 
-		$context->mnu = json_decode ($string, true);
-
-		return 0;
+		return json_decode ($string, true);
 	}
 }

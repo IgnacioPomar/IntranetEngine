@@ -12,7 +12,7 @@ class MenuLoaderDB
 	public static function load (&$context)
 	{
 		$menuLoaderDB = new MenuLoaderDB ();
-		$context->mnu = $menuLoaderDB->getArrayMenuFromDB ($context->mysqli);
+		$context->mnu = $menuLoaderDB->getArrayMenu ($context->mysqli);
 
 		return 0;
 	}
@@ -23,13 +23,13 @@ class MenuLoaderDB
 	 * @param mysqli $mysqli
 	 * @return array $orderMenu
 	 */
-	private function getArrayMenuFromDB ($mysqli)
+	public function getArrayMenu ($mysqli)
 	{
 		$query = 'SELECT idNodo, idNodoParent, uri AS opc, plg, isEnable AS "show", name, tmplt ';
 		$query .= 'FROM weMenu WHERE isEnable = 1 ORDER BY idNodoParent, menuOrder';
 		$menuDB = $mysqli->query ($query)->fetch_all (MYSQLI_ASSOC);
-		$orderMenuDb = array ();
 
+		$orderMenuDb = array ();
 		foreach ($menuDB as &$parentItem)
 		{
 			// If the menu contains a parent we stop the loop since it should be assigned.

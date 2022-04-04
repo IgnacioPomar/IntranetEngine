@@ -132,9 +132,9 @@ class WebEngineAdmin
 						require_once 'src/menuEdit.php';
 						echo MenuEdit::main ($this->mysqli);
 						break;
-					case 'params':
-						require_once 'src/editParams.php';
-						echo EditParams::main ($this->mysqli);
+					case 'options':
+						require_once 'src/menuEditOptions.php';
+						echo EditOptions::main ($this->mysqli);
 						break;
 				}
 			}
@@ -162,7 +162,7 @@ class WebEngineAdmin
 		// echo '<a href="?a=users">Admin site users</a><br />';
 		// echo '<a href="?a=rbac">Edit permissions</a><br />';
 
-		echo '<a href="?a=params">Edit params</a><br />';
+		echo '<a href="?a=options">Edit menu options</a><br />';
 
 		// is users menu by json or by database?
 		// echo '<a href="?a=mnu">Edit Mnu</a><br />';
