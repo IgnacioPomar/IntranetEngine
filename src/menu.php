@@ -87,7 +87,7 @@ class Menu
 			if (isset ($opc ['opc']) && $opc ['opc'] == $this->context->subPath)
 			{
 				$opc ['isSelected'] = true;
-				$this->currOpc = $opc;
+				$this->currOpc = &$opc;
 				$retVal = true;
 				$this->hasOpc = TRUE;
 
@@ -115,7 +115,7 @@ class Menu
 	 *
 	 * @return string
 	 */
-	private function getMnuOpcs ($arrOpcs, $lvl)
+	private function getMnuOpcs (&$arrOpcs, $lvl)
 	{
 		$retVal = '<ul class="mnuLvl' . $lvl . '">';
 		foreach ($arrOpcs as $opc)

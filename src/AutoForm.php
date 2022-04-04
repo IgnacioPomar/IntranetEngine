@@ -45,7 +45,7 @@ class AutoForm
 
 		$params = array ();
 		if ($inputDisabled) $params [] = 'disabled';
-
+        
 		$type = $formType;
 		switch ($formType)
 		{

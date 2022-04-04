@@ -127,11 +127,6 @@ class WebEngineAdmin
 						echo '<h1>Reinstalling Plugins</h1>';
 						echo $installer->registerPlugins ();
 						break;
-					case 'mnu':
-						echo '<h1>Edit menu</h1>';
-						require_once 'src/menuEdit.php';
-						echo MenuEdit::main ($this->mysqli);
-						break;
 					case 'options':
 						require_once 'src/menuEditOptions.php';
 						echo EditOptions::main ($this->mysqli);
