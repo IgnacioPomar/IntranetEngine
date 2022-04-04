@@ -78,8 +78,8 @@ abstract class Plugin
 
 		// YAGNI: Create union table with group and user perms
 		$sql = 'SELECT permName, MIN(permValue) val FROM ';
-		$sql .= '((SELECT permName, permValue FROM wePermissionsUsers WHERE idUser=1) UNION ALL ';
-		$sql .= '(SELECT permName, permValue FROM wePermissionsGroup WHERE idGrp IN (SELECT idGrp FROM weUsersGroups WHERE idUser=1))) z ';
+		$sql .= '((SELECT permName, permValue FROM wePermissionsUsers WHERE permValue<>0 AND idUser=' . $this->context->userId . ' AND mnuNode="' . $this->context->subPath . '") UNION ALL ';
+		$sql .= '(SELECT permName, permValue FROM wePermissionsGroup WHERE idGrp IN (SELECT idGrp FROM weUsersGroups WHERE permValue<>0 AND idUser=' . $this->context->userId . ' AND mnuNode="' . $this->context->subPath . '"))) z ';
 		$sql .= 'GROUP BY permName;';
 
 		if ($resultado = $this->context->mysqli->query ($sql))
