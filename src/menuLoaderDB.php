@@ -12,21 +12,29 @@ class MenuLoaderDB
 	public static function load (&$context)
 	{
 		$menuLoaderDB = new MenuLoaderDB ();
-		$context->mnu = $menuLoaderDB->getArrayMenu ($context->mysqli);
+		$context->mnu = $menuLoaderDB->getArrayMenu ($context->mysqli, $context->userId);
 
 		return 0;
 	}
 
 
+
 	/**
-	 *
 	 * @param mysqli $mysqli
-	 * @return array $orderMenu
+	 * @param number $userId
+	 * @return array
 	 */
-	public function getArrayMenu ($mysqli)
+	public function getArrayMenu ($mysqli, $userId = 0)
 	{
-		$query = 'SELECT idNodo, idNodoParent, uri AS opc, plg, isEnable AS "show", name, tmplt ';
-		$query .= 'FROM weMenu WHERE isEnable = 1 ORDER BY idNodoParent, menuOrder';
+		$query = 'SELECT idNodo, idNodoParent, uri AS opc, plg, isEnable AS "show", name, tmplt FROM weMenu ';
+		if ($userId != 0)
+		{
+			$query .= "INNER JOIN wePermissionsUsers ON wePermissionsUsers.mnuNode = uri AND permValue <> -1 AND idUser = {$userId} ";
+			$query .= 'INNER JOIN wePermissionsGroup ON wePermissionsGroup.mnuNode = uri ';
+			$query .= "AND idGrp IN (SELECT idGrp FROM weUsersGroups WHERE wePermissionsGroup.permValue <> -1 AND idUser = {$userId}) ";
+		}
+		$query .= 'WHERE isEnable = 1 ORDER BY idNodoParent, menuOrder';
+
 		$menuDB = $mysqli->query ($query)->fetch_all (MYSQLI_ASSOC);
 
 		$orderMenuDb = array ();
