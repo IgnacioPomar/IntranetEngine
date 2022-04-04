@@ -42,7 +42,6 @@ class DbSchema
 			case 'auto':
 				return ' int NOT NULL AUTO_INCREMENT';
 				break;
-			case 'checkbox':
 			case 'bool':
 				return ' bool DEFAULT FALSE';
 				break;
@@ -212,7 +211,7 @@ class DbSchema
 	 * @param mysqli $mysqli
 	 * @param array $fileInfo
 	 * @return array: nombre tabla, y código de salida: 1, ok, 0, no accion, -1, error
-	 *
+	 *        
 	 */
 	public static function createOrUpdateTable ($mysqli, $fileInfo)
 	{

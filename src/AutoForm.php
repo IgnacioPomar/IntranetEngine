@@ -76,7 +76,6 @@ class AutoForm
 				break;
 			case 'bool':
 				$type = 'checkbox';
-			case 'checkbox':
 				if ($val) $params [] = 'checked';
 				$val = 1;
 				break;
@@ -155,7 +154,6 @@ class AutoForm
 		{
 			case 'double':
 			case 'bool':
-			case 'checkbox':
 			case 'auto':
 			case 'int':
 				return (is_numeric ($val)) ? $val : 'NULL';
