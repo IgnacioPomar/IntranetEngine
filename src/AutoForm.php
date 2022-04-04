@@ -45,7 +45,7 @@ class AutoForm
 
 		$params = array ();
 		if ($inputDisabled) $params [] = 'disabled';
-        
+
 		$type = $formType;
 		switch ($formType)
 		{
@@ -173,6 +173,12 @@ class AutoForm
 	public function setHidden ($name, $value)
 	{
 		$this->hiddenFields [$name] = $value;
+	}
+
+
+	public function addCustomField ($name, $value)
+	{
+		$this->fields [$name] = array ('type' => $value);
 	}
 
 
