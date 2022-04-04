@@ -1,0 +1,16 @@
+{
+	"tablename": "weMenu",
+	"fields": {
+		"idNodo":		{"type": "auto"},
+		"idNodoParent":	{"type": "int", "label": "Nodo padre"},
+		"uri": 			{"type": "string", "lenght": 255, "label": "URL"},
+		"plg":			{"type": "string", "lenght": 255, "label": "Plugin"},
+		"name":			{"type": "string", "lenght": 255, "label": "Nombre"},
+		"tmplt":		{"type": "string", "lenght": 255, "label": "Platilla"},
+		"menuOrder":	{"type": "int"},
+		"isEnable":		{"type": "bool", "label": "Activo"}
+	},
+	"indexes": [
+		{"fields": ["idNodo"], "primary": true}
+	]
+}

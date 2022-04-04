@@ -45,7 +45,7 @@ class AutoForm
 
 		$params = array ();
 		if ($inputDisabled) $params [] = 'disabled';
-		
+        
 		$type = $formType;
 		switch ($formType)
 		{
@@ -62,7 +62,7 @@ class AutoForm
 			// Inputs que se muestran por pantalla (al salir del switch se usan)
 			case 'string':
 				$type = 'text';
-				if (!empty($fieldInfo ['lenght'])) $params [] = 'maxlength="' . $fieldInfo ['lenght'] . '"';
+				if (! empty ($fieldInfo ['lenght'])) $params [] = 'maxlength="' . $fieldInfo ['lenght'] . '"';
 				break;
 			case 'float':
 			case 'double':
@@ -72,11 +72,13 @@ class AutoForm
 				$type = 'number';
 				break;
 			case 'datetime':
-			    $type = 'date';
-			    break;
-			case 'checkbox':
-			    if ($val) $params [] = 'checked';
-			    break;
+				$type = 'date';
+				break;
+			case 'bool':
+				$type = 'checkbox';
+				if ($val) $params [] = 'checked';
+				$val = 1;
+				break;
 
 			// Inputs sin ningún tipo de cambio
 			case 'date':
@@ -102,7 +104,7 @@ class AutoForm
 				break;
 		}
 
-		$retVal = '<input id="' . $fieldName . '"  name="' . $fieldName . '"  type="' . $type . '"  value="' . $val . '" ' . join(' ', $params) . '>';
+		$retVal = '<input id="' . $fieldName . '"  name="' . $fieldName . '"  type="' . $type . '"  value="' . $val . '" ' . join (' ', $params) . '>';
 		return $prefix . $retVal . $sufix;
 	}
 
@@ -136,10 +138,10 @@ class AutoForm
 			{
 				$val = $this->fields [$fieldName] ['defaultValue'];
 			}
-			$retVal .= $this->getFormField ($fieldName, $this->fields [$fieldName], $val, $isDisabled);
+			$retVal .= $this->getFormField ($fieldName, $this->fields [$fieldName] ?? [ 'type' => 'text'], $val, $isDisabled);
 		}
 
-		if (!$isDisabled) $retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
+		if (! $isDisabled) $retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
 		$retVal .= '</form>';
 
 		return $retVal;
@@ -150,13 +152,17 @@ class AutoForm
 	{
 		switch ($fieldInfo ['type'])
 		{
+			case 'double':
+			case 'bool':
 			case 'auto':
 			case 'int':
 				return (is_numeric ($val)) ? $val : 'NULL';
 				break;
+			case 'datetime':
 			case 'date': // YAGNI: verificar formato de la fecha
 				return '"' . $this->mysqli->real_escape_string ($val) . '"';
 				break;
+			case 'json':
 			case 'string':
 				return '"' . $this->mysqli->real_escape_string ($val) . '"';
 				break;

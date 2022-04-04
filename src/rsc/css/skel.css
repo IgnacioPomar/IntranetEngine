@@ -1,0 +1,85 @@
+#mainContainer {
+    display: block;
+    padding: 20px;
+    clear: both;
+    margin: 10px auto;
+}
+
+h1 {
+	font-size: 1.5em;
+	border-bottom: 1px solid #dcb600;
+	padding-bottom: 3px;
+}
+
+.w-25,.w-50,.w-75,.w-100,.w-150,.w-200,.w-300,.w-400,.w-500 {display: inline-block;}
+
+.w-25	{width: 25px;}
+.w-50	{width: 50px;}
+.w-75	{width: 75px;}
+.w-100	{width: 100px;}
+.w-150	{width: 150px;}
+.w-200	{width: 200px;}
+.w-300	{width: 300px;}
+.w-400	{width: 400px;}
+.w-500	{width: 500px;}
+
+.d-flex {
+	display: flex;
+}
+
+.d-flex {
+	display: flex;
+}
+.d-flex-inline {
+	display: inline-flex;
+}
+.flex-column {
+	flex-direction: column;
+}
+
+.head { font-weight: bold; }
+
+.line:hover {
+    opacity: 0.5;
+}
+
+.head, .line {
+    display: block;
+    width: fit-content;
+    padding: 3px;
+    overflow: visible;
+}
+
+input[type="checkbox"] {
+	z-index: 2;
+}
+
+label {
+	width: 150px;
+	display: inline-block;
+    max-width: 100%;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-top: 5px;
+    border: 1px solid transparent !important;   
+    cursor:pointer;
+    text-decoration: none;
+}
+
+.btn.focus, .btn:focus, .btn:hover {
+    color: #333;
+    text-decoration: none;
+}
+a:focus, a:hover {
+    color: #23527c;
+    text-decoration: underline;
+}
+
+.ident {
+	width: 10px;
+}

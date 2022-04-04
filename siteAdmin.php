@@ -127,6 +127,10 @@ class WebEngineAdmin
 						echo '<h1>Reinstalling Plugins</h1>';
 						echo $installer->registerPlugins ();
 						break;
+					case 'options':
+						require_once 'src/menuEditOptions.php';
+						echo EditOptions::main ($this->mysqli);
+						break;
 				}
 			}
 			else
@@ -152,6 +156,8 @@ class WebEngineAdmin
 
 		// echo '<a href="?a=users">Admin site users</a><br />';
 		// echo '<a href="?a=rbac">Edit permissions</a><br />';
+
+		echo '<a href="?a=options">Edit menu options</a><br />';
 
 		// is users menu by json or by database?
 		// echo '<a href="?a=mnu">Edit Mnu</a><br />';

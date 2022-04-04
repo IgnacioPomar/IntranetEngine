@@ -5,7 +5,7 @@
 		"plgName":		{"type": "string","lenght": 50},
 		"plgDescrip":	{"type": "string","lenght": 255},
 		"plgFile":		{"type": "string","lenght": 255},
-		"plgParams":	{"type": "json"},
+		"plgParams":	{"type": "json", "label":"Parametros"},
 		"plgPerms":		{"type": "json"},
 		"isMenu":		{"type": "bool"}
 	},
