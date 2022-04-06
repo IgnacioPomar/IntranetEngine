@@ -22,13 +22,7 @@ class MenuLoaderJson
 		return 0;
 	}
 
-
-	/**
-	 *
-	 * @param mysqli $mysqli
-	 * @return array
-	 */
-	public function getArrayMenu ($mysqli = NULL)
+	public function getArrayMenu ($mysqli = NULL, $userId = NULL)
 	{
 		$menuFile = (isset ($GLOBALS ['jsonMenu'])) ? $GLOBALS ['jsonMenu'] : 'mainMenu.json';
 
