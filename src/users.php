@@ -1,0 +1,226 @@
+<?php
+require_once 'ColumnFormatter.php';
+require_once 'AutoForm.php';
+
+// YAGNI: Include it in the ColumnFormatter class
+class FormatterColumnToCheckbox
+{
+
+
+	/**
+	 *
+	 * @param mixed $val
+	 * @param string $class
+	 * @return string
+	 */
+	public function getSpan ($val, $class)
+	{
+		$retVal = "<div class='$class'>";
+
+		$attributes = [ 'disabled'];
+		if ($val)
+		{
+			$attributes [] = 'checked';
+		}
+
+		$retVal .= '<input type="checkbox"' . join (' ', $attributes) . '>';
+		$retVal .= '</div>';
+		return $retVal;
+	}
+}
+
+class Users
+{
+	private $mysqli;
+	private $jsonFile;
+	private $uriPrefix;
+
+
+	private function __construct ($mysqli)
+	{
+		$this->mysqli = $mysqli;
+		$this->jsonFile = $GLOBALS ['basePath'] . 'src/tables/users.jsonTable';
+		$this->uriPrefix = $_SERVER ["REQUEST_URI"];
+	}
+
+	// @formatter:off
+	const COLS_TABLE_MENU = array (
+			'name'		=> array ('w-400', 'User name', 'Username visible on the platform.'),
+			'email'		=> array ('w-400', 'Email', 'Access email.'),
+			'isActive'	=> array ('w-100 text-center', 'Activo', 'Indicates if the user can access the platform.'),
+			'isAdmin'	=> array ('w-100 text-center', 'Administrador', 'Indicates if the user has administrator access.'),
+	);
+	// @formatter:on
+
+	/**
+	 *
+	 * @return string
+	 */
+	private function showListUsers ()
+	{
+		$query = $this->getQueryUsers ();
+		$resultUsers = $this->mysqli->query ($query);
+
+		$formatter = new ColumnFormatter (self::COLS_TABLE_MENU);
+		$formatter->stylers ['isActive'] = new FormatterColumnToCheckbox ();
+		$formatter->stylers ['isAdmin'] = new FormatterColumnToCheckbox ();
+
+		$retVal = "<a href='{$this->uriPrefix}&newUser' class='btn mb-3'>Add new user</a>";
+		$retVal .= "<div class='head'>{$formatter->getHeaderCols ()}</div>";
+
+		while ($user = $resultUsers->fetch_assoc ())
+		{
+			$retVal .= '<div class="line">';
+
+			$retVal .= $formatter->getStyledBodyCols ($user);
+
+			$retVal .= '<div class="w-100"></div>';
+
+			$link = "{$this->uriPrefix}&idUser={$user['idUser']}";
+			$retVal .= "<a href='$link'><span class='w-50'><svg xmlns='http: // www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-pencil-fill' viewBox='0 0 16 16'><path d='M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z'/></svg></span></a>";
+
+			$retVal .= "</div>";
+		}
+
+		return $retVal;
+	}
+
+
+	/**
+	 *
+	 * @param number $idUser
+	 * @return string
+	 */
+	private function getQueryUsers ($idUser = 0)
+	{
+		// YAGNI: Receive an array with the necessary columns
+		$query = 'SELECT * FROM weUsers';
+		if ($idUser != 0)
+		{
+			$query .= " WHERE idUser = $idUser";
+		}
+		return $query;
+	}
+
+
+	/**
+	 *
+	 * @return string
+	 */
+	private function showUserForm ()
+	{
+		$autoForm = new AutoForm ($this->jsonFile);
+		$fieldSet = array ('email', 'name', 'password', 'isActive', 'isAdmin');
+		// It is necessary to generate the form
+		$autoForm->set = $fieldSet;
+		$retVal = '';
+
+		if (! empty ($_POST))
+		{
+			// TODO: Think about how to remove this for checkbox type data
+			$_POST ['isActive'] = $_POST ['isActive'] ?? 0;
+			$_POST ['isAdmin'] = $_POST ['isAdmin'] ?? 0;
+
+			$_POST ['password'] = password_hash ($_POST ['password'], PASSWORD_DEFAULT);
+
+			if (! empty ($_POST ['idUser']))
+			{
+				$retVal .= $this->updateUser ($autoForm);
+			}
+			else if (! empty ($_POST ['email']))
+			{
+				// YAGNI: Check if there is already a user with that email
+				return $this->insertNewUser ($autoForm);
+			}
+		}
+
+		if (! empty ($_GET ['idUser']))
+		{
+			$query = $this->getQueryUsers ($_GET ['idUser']);
+			if ($resultUser = $this->mysqli->query ($query))
+			{
+				if ($user = $resultUser->fetch_assoc ())
+				{
+					$autoForm->setHidden ('idUser', $user ['idUser']);
+
+					if (empty ($retVal))
+					{
+						$retVal .= '<div class="container"><h1>Edit user</h1>';
+					}
+					$retVal .= $autoForm->generateForm ($user, ! empty ($_POST ['idUser']));
+					$retVal .= '</div>';
+
+					return $retVal;
+				}
+			}
+		}
+
+		$retVal = '<div class="container"><h1>Add new user</h1>';
+		$retVal .= $autoForm->generateForm ($_POST);
+		$retVal .= '</div>';
+
+		return $retVal;
+	}
+
+
+	/**
+	 *
+	 * @param object $autoForm
+	 * @return string
+	 */
+	private function insertNewUser ($autoForm)
+	{
+		$autoForm->mysqli = $this->mysqli;
+		$query = $autoForm->getInsertSql ([ ]);
+		$this->mysqli->query ($query);
+
+		$retVal = '<p>Registro Insertado Correctamente</p>';
+		$icon = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>';
+		$retVal .= '<div class="container"><a class="btn rigth" href="' . strtok ($this->uriPrefix, '&') . '">' . $icon . 'Volver</a></div>';
+		return $retVal;
+	}
+
+
+	/**
+	 *
+	 * @param object $autoForm
+	 * @return string
+	 */
+	private function updateUser ($autoForm)
+	{
+		$autoForm->mysqli = $this->mysqli;
+		$sql = $autoForm->getUpdateSql ([ ], [ 'idUser']);
+
+		$this->mysqli->query ($sql);
+
+		$retVal = "<p>Registro Actualizado Correctamente</p>";
+		$icon = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>';
+		$retVal .= '<div class="container"><a class="btn rigth" href="' . strtok ($this->uriPrefix, '&') . '">' . $icon . 'Volver</a></div>';
+
+		return $retVal;
+	}
+
+
+	/**
+	 *
+	 * @param mysqli $mysqli
+	 * @return string
+	 */
+	public static function main ($mysqli)
+	{
+		$users = new Users ($mysqli);
+
+		if (isset ($_GET ['newUser']) || ! empty ($_GET ['idUser']))
+		{
+			$retVal = $users->showUserForm ();
+		}
+		else
+		{
+			$retVal = $users->showListUsers ();
+		}
+
+		$retVal = str_replace ('@@content@@', $retVal, file_get_contents ($GLOBALS ['basePath'] . 'src/rsc/html/defaultView.htm'));
+
+		return $retVal;
+	}
+}

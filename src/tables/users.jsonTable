@@ -1,15 +1,15 @@
 {
 	"tablename": "weUsers",
 	"fields": {
-		"idUser":		{"type": "auto"},
-		"email":		{"type": "string","lenght": 50},
-		"name":			{"type": "string","lenght": 50},
-		"password": 	{"type": "string","lenght": 255},
+		"idUser":		{"type": "auto", "formType":"hidden"},
+		"email":		{"type": "string","lenght": 50, "label": "Email", "formType":"email"},
+		"name":			{"type": "string","lenght": 50, "label": "User name"},
+		"password": 	{"type": "string","lenght": 255, "label": "Password", "formType":"password"},
 		"recoveryPass":	{"type": "string","lenght": 50},
 		"recoveryDate": {"type": "datetime"},
 		"lastLogin": 	{"type": "datetime"},
-		"isActive": 	{"type": "bool"},
-		"isAdmin": 		{"type": "bool"}
+		"isActive": 	{"type": "bool", "label": "Is active"},
+		"isAdmin": 		{"type": "bool", "label": "Is an administrator"}
 	},
 	"indexes": [
 		{"fields": ["idUser"],"primary": true}
