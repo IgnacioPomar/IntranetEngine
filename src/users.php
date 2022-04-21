@@ -44,7 +44,7 @@ class Users
 	}
 
 	// @formatter:off
-	const COLS_TABLE_MENU = array (
+	const COLS_TABLE_USERS = array (
 			'name'		=> array ('w-400', 'User name', 'Username visible on the platform.'),
 			'email'		=> array ('w-400', 'Email', 'Access email.'),
 			'isActive'	=> array ('w-100 text-center', 'Activo', 'Indicates if the user can access the platform.'),
@@ -61,7 +61,7 @@ class Users
 		$query = $this->getQueryUsers ();
 		$resultUsers = $this->mysqli->query ($query);
 
-		$formatter = new ColumnFormatter (self::COLS_TABLE_MENU);
+		$formatter = new ColumnFormatter (self::COLS_TABLE_USERS);
 		$formatter->stylers ['isActive'] = new FormatterColumnToCheckbox ();
 		$formatter->stylers ['isAdmin'] = new FormatterColumnToCheckbox ();
 
