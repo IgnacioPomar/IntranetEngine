@@ -133,6 +133,10 @@ class WebEngineAdmin
 						require_once 'src/users.php';
 						echo Users::main ($this->mysqli);
 						break;
+					case 'groups':
+						require_once 'src/groups.php';
+						echo Groups::main ($this->mysqli);
+						break;
 				}
 			}
 			else
@@ -157,6 +161,7 @@ class WebEngineAdmin
 		echo '<a href="?a=rePlugins">Reinstall Plugins</a><br />';
 
 		echo '<a href="?a=users">Admin site users</a><br />';
+		echo '<a href="?a=groups">Admin site groups</a><br />';
 		// echo '<a href="?a=rbac">Edit permissions</a><br />';
 
 		echo '<a href="?a=options">Edit menu options</a><br />';
