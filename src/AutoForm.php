@@ -7,8 +7,10 @@ class AutoForm
 	private $fields;
 	private $tableName;
 	private $hiddenFields;
-	public $set;
+	public $set; // Set of fields the autoform is going to show
 	public $mysqli;
+	public $externalHeadHTML;
+	public $externalFooterHTML;
 	const COMBO_PREFIX = 'combo@';
 
 
@@ -93,7 +95,7 @@ class AutoForm
 					$arrNAme = substr ($type, strlen (self::COMBO_PREFIX));
 					$arr = constant ($arrNAme);
 
-					$retVal = '<select class="form-control" id="' . $fieldName . '" name="' . $fieldName . '" >';
+					$retVal = '<select class="form-control" id="' . $fieldName . '" name="' . $fieldName . '">';
 					foreach ($arr as $clave => $valorOp)
 					{
 						$selected = ($val == $clave) ? 'selected' : '';
@@ -127,6 +129,8 @@ class AutoForm
 		$retVal = '<form action="' . $action . '" method="post" autocomplete="off">';
 		$retVal .= $this->getExtraHiddenFields ();
 
+		$retVal .= $this->externalHeadHTML;
+
 		foreach ($this->set as $fieldName)
 		{
 			$val = '';
@@ -140,6 +144,8 @@ class AutoForm
 			}
 			$retVal .= $this->getFormField ($fieldName, $this->fields [$fieldName] ?? [ 'type' => 'text'], $val, $isDisabled);
 		}
+
+		$retVal .= $this->extraFooterHTML;
 
 		if (! $isDisabled) $retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
 		$retVal .= '</form>';
@@ -176,9 +182,13 @@ class AutoForm
 	}
 
 
-	public function addCustomField ($name, $value)
+	public function addCustomField ($name, $value, $label = '')
 	{
 		$this->fields [$name] = array ('type' => $value);
+		if (! empty ($label))
+		{
+			$this->fields [$name] += array ('label' => $label);
+		}
 	}
 
 

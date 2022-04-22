@@ -110,6 +110,8 @@ class Users
 	private function showUserForm ()
 	{
 		$autoForm = new AutoForm ($this->jsonFile);
+
+		// TODO: Fix the separate manifold...
 		$fieldSet = array ('email', 'name', 'password', 'isActive', 'isAdmin');
 		// It is necessary to generate the form
 		$autoForm->set = $fieldSet;
@@ -117,11 +119,7 @@ class Users
 
 		if (! empty ($_POST))
 		{
-			// TODO: Think about how to remove this for checkbox type data
-			$_POST ['isActive'] = $_POST ['isActive'] ?? 0;
-			$_POST ['isAdmin'] = $_POST ['isAdmin'] ?? 0;
-
-			$_POST ['password'] = password_hash ($_POST ['password'], PASSWORD_DEFAULT);
+			$this->prepareDataUser ();
 
 			if (! empty ($_POST ['idUser']))
 			{
@@ -134,6 +132,8 @@ class Users
 			}
 		}
 
+		$this->addMultiselectGroup ($autoForm, ! empty ($_POST ['idUser']));
+
 		if (! empty ($_GET ['idUser']))
 		{
 			$query = $this->getQueryUsers ($_GET ['idUser']);
@@ -142,10 +142,12 @@ class Users
 				if ($user = $resultUser->fetch_assoc ())
 				{
 					$autoForm->setHidden ('idUser', $user ['idUser']);
+					$user ['password'] = '';
 
+					$retVal .= '<div class="container">';
 					if (empty ($retVal))
 					{
-						$retVal .= '<div class="container"><h1>Edit user</h1>';
+						$retVal .= '<h1>Edit user</h1>';
 					}
 					$retVal .= $autoForm->generateForm ($user, ! empty ($_POST ['idUser']));
 					$retVal .= '</div>';
@@ -163,6 +165,54 @@ class Users
 	}
 
 
+	private function addMultiselectGroup (&$autoForm, $isDisabled = true)
+	{
+		// A lo mejor meterlos en una variable de la clase
+		$groups = $this->getGroups ();
+
+		$layout = '<div class="field d-flex"><label>Groups</label>';
+		$layout .= '<div class="d-flex flex-column fw-normal">';
+		foreach ($groups as $group)
+		{
+			$layout .= "<div><label for='{$group['idGrp']}'>{$group ['grpName']}</label>";
+			$checked = ($group ['withIt']) ? 'checked' : '';
+			$disabled = $isDisabled ? 'disabled' : '';
+			$layout .= "<input type='checkbox' id='{$group['idGrp']}' value='{$group['idGrp']}' name='groups[]' $checked $disabled></div>";
+		}
+		$layout .= '</div></div>';
+
+		$autoForm->extraFooterHTML = $layout;
+	}
+
+
+	private function prepareDataUser ()
+	{
+		// TODO: Think about how to remove this for checkbox type data
+		$_POST ['isActive'] = $_POST ['isActive'] ?? 0;
+		$_POST ['isAdmin'] = $_POST ['isAdmin'] ?? 0;
+
+		if (! empty ($_POST ['password']))
+		{
+			$_POST ['password'] = password_hash ($_POST ['password'], PASSWORD_DEFAULT);
+		}
+		else
+		{
+			unset ($_POST ['password']);
+		}
+	}
+
+
+	private function getGroups ()
+	{
+		$query = array ();
+		$query [] = 'SELECT g.*, !ISNULL(u.idUser) AS withIt FROM weGroups g';
+		$query [] = 'LEFT JOIN   weUsersGroups  u ON g.idGrp = u.idGrp AND  idUser=' . ($_GET ['idUser'] ?? 0);
+		$resultGroups = $this->mysqli->query (join (' ', $query));
+
+		return $resultGroups->fetch_all (MYSQLI_ASSOC);
+	}
+
+
 	/**
 	 *
 	 * @param object $autoForm
@@ -173,6 +223,8 @@ class Users
 		$autoForm->mysqli = $this->mysqli;
 		$query = $autoForm->getInsertSql ([ ]);
 		$this->mysqli->query ($query);
+
+		$this->updateTableUsersGroups ($this->mysqli->insert_id);
 
 		$retVal = '<p>Registro Insertado Correctamente</p>';
 		$icon = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>';
@@ -190,14 +242,28 @@ class Users
 	{
 		$autoForm->mysqli = $this->mysqli;
 		$sql = $autoForm->getUpdateSql ([ ], [ 'idUser']);
-
 		$this->mysqli->query ($sql);
+
+		$this->updateTableUsersGroups ($_POST ['idUser']);
 
 		$retVal = "<p>Registro Actualizado Correctamente</p>";
 		$icon = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>';
 		$retVal .= '<div class="container"><a class="btn rigth" href="' . strtok ($this->uriPrefix, '&') . '">' . $icon . 'Volver</a></div>';
 
 		return $retVal;
+	}
+
+
+	private function updateTableUsersGroups ($idUser)
+	{
+		$query = "DELETE FROM weUsersGroups WHERE idUser = $idUser";
+		$this->mysqli->query ($query);
+
+		foreach ($_POST ['groups'] as $idGrp)
+		{
+			$query = "INSERT INTO weUsersGroups (idUser, idGrp) VALUES ($idUser,$idGrp)";
+			$this->mysqli->query ($query);
+		}
 	}
 
 
