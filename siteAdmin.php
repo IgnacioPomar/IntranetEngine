@@ -7,6 +7,7 @@ class WebEngineAdmin
 {
 	private $mysqli;
 	private $userId;
+	public $mnu;
 
 
 	/**
@@ -108,12 +109,16 @@ class WebEngineAdmin
 		}
 		else
 		{
+			echo '<link rel="stylesheet" type="text/css" href="./src/rsc/css/skel.css">';
+
+			$this->showAdminMnu ();
+
+			echo '<div id="mainContainer">';
+
 			if (isset ($_GET ['a']))
 			{
 				$installer = new Installer ($this->mysqli);
 
-				$this->showAdminMnu ();
-				echo '<hr />';
 				switch ($_GET ['a'])
 				{
 					case 'reinstallCore':
@@ -129,13 +134,21 @@ class WebEngineAdmin
 						require_once 'src/menuEditOptions.php';
 						echo EditOptions::main ($this->mysqli);
 						break;
+					case 'users':
+						require_once 'src/users.php';
+						echo Users::main ($this->mysqli);
+						break;
+					case 'groups':
+						require_once 'src/groups.php';
+						echo Groups::main ($this->mysqli);
+						break;
 				}
 			}
 			else
 			{
-				echo 'Version engine matches. <br ><h2>Admin actions</h2>';
-				$this->showAdminMnu ();
+				echo 'Version engine matches.';
 			}
+			echo '</div>';
 		}
 	}
 
@@ -145,20 +158,16 @@ class WebEngineAdmin
 	 */
 	private function showAdminMnu ()
 	{
-		// YAGNI: Improve format
-		// Only DBG
-		echo '<a href="?a=reinstallCore">Reinstall core tables</a><br />';
+		$jsonMenu = './src/rsc/default/adminMenu.json';
+		$this->mnu = json_decode (file_get_contents ($jsonMenu), TRUE);
 
-		// Std Optrions
-		echo '<a href="?a=rePlugins">Reinstall Plugins</a><br />';
+		// This is used to mark the selected menu option from the siteAdmin view
+		$_SERVER ['PATH_INFO'] = '?' . strrev (strtok (strrev ($_SERVER ['REQUEST_URI']), '?'));
 
-		// echo '<a href="?a=users">Admin site users</a><br />';
-		// echo '<a href="?a=rbac">Edit permissions</a><br />';
+		require_once ('./src/menu.php');
+		$menu = new Menu ($this);
 
-		echo '<a href="?a=options">Edit menu options</a><br />';
-
-		// is users menu by json or by database?
-		// echo '<a href="?a=mnu">Edit Mnu</a><br />';
+		echo "<div id='toolbar'>{$menu->getMenu ($this->mnu)}</div>";
 	}
 
 

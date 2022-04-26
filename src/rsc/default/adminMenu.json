@@ -1,0 +1,9 @@
+[
+	{"opc": "?a=reinstallCore", "plg":"","name": "Reinstall core tables","show": true,"tmplt": "skel.htm"},
+	{"opc": "?a=rePlugins", "plg": "","name": "Reinstall Plugins","show": true,"tmplt": "skel.htm"},
+	{"opc": "?a=users", "plg":"", "name": "Users","show": true,"tmplt": "skel.htm"},
+	{"opc": "?a=groups", "plg":"", "name": "Groups","show": true,"tmplt": "skel.htm"},
+	{"opc": "?a=rbac","plg": "", "name": "Edit permissions","show": true,"tmplt": "skel.htm"},
+	{"opc": "?a=options","plg": "", "name": "Edit menu options","show": true,"tmplt": "skel.htm"},
+	{"opc": "?a=mnu","plg": "", "name": "Edit Mnu","show":  false,"tmplt": "skel.htm"}
+]

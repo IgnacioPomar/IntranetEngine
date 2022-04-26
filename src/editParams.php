@@ -67,7 +67,7 @@ class EditParams
 			$retVal .= $editMenu->showPlgs ();
 		}
 
-		$retVal = str_replace ('@@content@@', $retVal, file_get_contents ($GLOBALS ['basePath'] . 'src/rsc/html/editViews.htm'));
+		$retVal = str_replace ('@@content@@', $retVal, file_get_contents ($GLOBALS ['basePath'] . 'src/rsc/html/defaultView.htm'));
 
 		return $retVal;
 	}

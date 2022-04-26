@@ -2,7 +2,7 @@
 	"tablename": "weGroups",
 	"fields": {
 		"idGrp":	{"type": "auto"},
-		"grpName":	{"type": "string","lenght": 50}
+		"grpName":	{"type": "string","lenght": 50, "label":"Name"}
 	},
 	"indexes": [
 		{"fields": ["idGrp"],"primary": true}

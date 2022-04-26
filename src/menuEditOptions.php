@@ -48,33 +48,6 @@ class EditOptions
 		$this->jsonFile = $GLOBALS ['basePath'] . 'src/tables/plgParams.jsonTable';
 	}
 
-
-	/**
-	 *
-	 * @param mysqli $mysqli
-	 * @return mixed
-	 */
-	public static function main ($mysqli)
-	{
-		$editMenu = new EditOptions ($mysqli);
-
-		$retVal = '<h1>Edit params ' . ($_GET ['plgName'] ?? '') . '</h1>';
-
-		if (! empty ($_GET ['plgName']))
-		{
-			$retVal .= $editMenu->showEditView ($_GET ['plgName']);
-		}
-		else
-		{
-			// TODO Consider whether to call the menuLoaderDB file to use its selection and array formatting functions
-			$retVal .= $editMenu->showMenu ();
-		}
-
-		$retVal = str_replace ('@@content@@', $retVal, file_get_contents ($GLOBALS ['basePath'] . 'src/rsc/html/editViews.htm'));
-
-		return $retVal;
-	}
-
 	// @formatter:off
 	const COLS_TABLE_MENU = array (
 			'name'			=> array ('w-400', 'Menu name', 'Name displayed in the menu'),
@@ -292,6 +265,31 @@ class EditOptions
 		$retVal .= '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>';
 		$retVal .= 'Volver</a>';
 		$retVal .= '</div>';
+
+		return $retVal;
+	}
+
+
+	/**
+	 *
+	 * @param mysqli $mysqli
+	 * @return mixed
+	 */
+	public static function main ($mysqli)
+	{
+		$editMenu = new EditOptions ($mysqli);
+
+		$retVal = '<h1>Edit params ' . ($_GET ['plgName'] ?? '') . '</h1>';
+
+		if (! empty ($_GET ['plgName']))
+		{
+			$retVal .= $editMenu->showEditView ($_GET ['plgName']);
+		}
+		else
+		{
+			// TODO Consider whether to call the menuLoaderDB file to use its selection and array formatting functions
+			$retVal .= $editMenu->showMenu ();
+		}
 
 		return $retVal;
 	}
