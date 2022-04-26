@@ -181,7 +181,7 @@ class Users
 		}
 		$layout .= '</div></div>';
 
-		$autoForm->extraFooterHTML = $layout;
+		$autoForm->externalFooterHTML = $layout;
 	}
 
 

@@ -145,7 +145,7 @@ class AutoForm
 			$retVal .= $this->getFormField ($fieldName, $this->fields [$fieldName] ?? [ 'type' => 'text'], $val, $isDisabled);
 		}
 
-		$retVal .= $this->extraFooterHTML;
+		$retVal .= $this->externalFooterHTML;
 
 		if (! $isDisabled) $retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
 		$retVal .= '</form>';
