@@ -208,8 +208,6 @@ class Groups
 			$retVal = $groups->showListGroups ();
 		}
 
-		$retVal = str_replace ('@@content@@', $retVal, file_get_contents ($GLOBALS ['basePath'] . 'src/rsc/html/defaultView.htm'));
-
 		return $retVal;
 	}
 }

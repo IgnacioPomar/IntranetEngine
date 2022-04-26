@@ -285,8 +285,6 @@ class Users
 			$retVal = $users->showListUsers ();
 		}
 
-		$retVal = str_replace ('@@content@@', $retVal, file_get_contents ($GLOBALS ['basePath'] . 'src/rsc/html/defaultView.htm'));
-
 		return $retVal;
 	}
 }
