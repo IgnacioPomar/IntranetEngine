@@ -38,6 +38,12 @@ class Menu
 	}
 
 
+	public function getUriPrefix ()
+	{
+		return $_SERVER ['SCRIPT_NAME'] . $this->subPath . '?';
+	}
+
+
 	/**
 	 * Main Menu.
 	 *

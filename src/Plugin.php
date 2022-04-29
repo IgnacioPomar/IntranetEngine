@@ -12,7 +12,7 @@ abstract class Plugin
 	public function __construct (Context &$context)
 	{
 		$this->context = &$context;
-		$this->uriPrefix = $_SERVER ['SCRIPT_NAME'] . $context->subPath . '?';
+		$this->uriPrefix = $context->mnu->getUriPrefix ();
 	}
 
 
