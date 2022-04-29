@@ -151,6 +151,10 @@ class WebEngineAdmin
 			$plg = new $plgName ($this->context);
 			$retVal .= $plg->main ();
 		}
+		else
+		{
+			$retVal .= '<h1>Admin area</h1><p>You can use the menu.</p>';
+		}
 
 		$retVal .= '</div>';
 		return $retVal;

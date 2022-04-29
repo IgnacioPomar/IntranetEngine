@@ -70,7 +70,14 @@ class Menu
 
 	public function getPlugin ()
 	{
-		return $this->currOpc ['plg'];
+		if (isset ($this->currOpc))
+		{
+			return $this->currOpc ['plg'];
+		}
+		else
+		{
+			return '';
+		}
 	}
 
 
