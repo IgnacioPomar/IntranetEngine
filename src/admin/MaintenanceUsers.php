@@ -18,8 +18,9 @@ class MaintenanceUsers extends Plugin
 	const COLS_TABLE_USERS = array (
 			'name'		=> array ('w-400', 'User name', 'Username visible on the platform.'),
 			'email'		=> array ('w-400', 'Email', 'Access email.'),
-			'isActive'	=> array ('w-100 text-center', 'Active', 'Indicates if the user can access the platform.'),
-			'isAdmin'	=> array ('w-100 text-center', 'Admin', 'Indicates if the user has administrator access.'),
+			'groups'	=> array ('w-400', 'Groups', 'Groups of the user.'),
+			'isActive'	=> array ('w-50 text-center', 'Active', 'Indicates if the user can access the platform.'),
+			'isAdmin'	=> array ('w-50 text-center', 'Admin', 'Indicates if the user has administrator access.'),
 	);
 	// @formatter:on
 
@@ -65,7 +66,9 @@ class MaintenanceUsers extends Plugin
 	private function getQueryUsers ($idUser = 0)
 	{
 		// YAGNI: Receive an array with the necessary columns
-		$query = 'SELECT * FROM weUsers';
+		$query = 'SELECT u.*,g.groups  FROM weUsers u ';
+		$query .= ' INNER JOIN  (SELECT GROUP_CONCAT(grpName  SEPARATOR ", ") AS groups, rel.idUser FROM weGroups g INNER JOIN weUsersGroups rel ON g.idGrp = rel.idGrp GROUP BY rel.idUser) g';
+		$query .= ' ON u.idUser=g.idUser';
 		if ($idUser != 0)
 		{
 			$query .= " WHERE idUser = $idUser";

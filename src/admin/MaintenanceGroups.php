@@ -29,7 +29,7 @@ class FormatterColumnToCheckbox
 	}
 }
 
-class Maintenance extends Plugin
+class MaintenanceGroups extends Plugin
 {
 	private $jsonFile;
 
