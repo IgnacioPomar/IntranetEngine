@@ -11,12 +11,14 @@ class WebEngineAdmin
 	// @formatter:off
     const ADMIN_PLUGINS = array(
         // 'name' => 'path',
-        'ReInstaller' => './src/admin/reInstaller.php',
-        'Users' => './src/admin/users.php',
-        'Groups' => './src/admin/groups.php',
-        'Perms' => './src/admin/editPerm.php',
-        'EditOptions' => './src/admin/menuEditOptions.php',
-        'EditMenu' => './src/admin/EditMenu.php'
+		'ReinstallCore'		=> './src/admin/ReinstallCore.php',
+		'ReinstallPlugins'	=> './src/admin/ReinstallPlugins.php',
+    		
+		'Users' 			=> './src/admin/users.php',
+		'Groups'			=> './src/admin/groups.php',
+		'EditPerms'			=> './src/admin/editPerm.php',
+		'EditOptions'		=> './src/admin/menuEditOptions.php',
+		'EditMenu'			=> './src/admin/EditMenu.php'
     );
 
     // @formatter:on

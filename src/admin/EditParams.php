@@ -2,75 +2,10 @@
 require_once 'ColumnFormatter.php';
 require_once 'AutoForm.php';
 
-class FormatterPlgParamsColumn
-{
-
-
-	/**
-	 *
-	 * @param mixed $val
-	 * @param string $class
-	 * @return string
-	 */
-	public function getSpan ($val, $class)
-	{
-		$params = empty ($val) ? array () : json_decode ($val, true);
-		$retVal = "<div class='$class'>";
-		if (! empty ($params))
-		{
-			$retVal .= '<div class="d-flex flex-column">';
-			foreach ($params as $name => $value)
-			{
-				$retVal .= '<div class="">';
-				$retVal .= "<span class='w-150'><b>Name:</b> $name</span>";
-				$retVal .= "<span class='w-300'><b>Value:</b> $value</span>";
-				$retVal .= '</div>';
-			}
-			$retVal .= '</div>';
-		}
-		$retVal .= "</div>";
-		return $retVal;
-	}
-}
-
 class EditParams
 {
 	private $mysqli;
 	private $jsonFile;
-
-
-	private function __construct ($mysqli)
-	{
-		$this->mysqli = $mysqli;
-		$this->jsonFile = $GLOBALS ['basePath'] . 'src/tables/plgParams.jsonTable';
-	}
-
-
-	/**
-	 *
-	 * @param mysqli $mysqli
-	 * @return mixed
-	 */
-	public static function main ($mysqli)
-	{
-		$editMenu = new EditParams ($mysqli);
-
-		$retVal = '<h1>Edit params ' . ($_GET ['plgName'] ?? '') . '</h1>';
-
-		if (! empty ($_GET ['plgName']))
-		{
-			$retVal .= $editMenu->showEditView ($_GET ['plgName']);
-		}
-		else
-		{
-			// TODO Consider whether to call the menuLoaderDB file to use its selection and array formatting functions
-			$retVal .= $editMenu->showPlgs ();
-		}
-
-		$retVal = str_replace ('@@content@@', $retVal, file_get_contents ($GLOBALS ['basePath'] . 'src/rsc/html/defaultView.htm'));
-
-		return $retVal;
-	}
 
 	// @formatter:off
 	const COLS_TABLE = array (
@@ -78,6 +13,18 @@ class EditParams
 			'paramValues'	=> array ('w-500', 'Parametros', 'Parametros configurados en el plugin'),
 	);
 	// @formatter:on
+
+	/**
+	 * Constructor
+	 *
+	 * @param mysqli $mysqli
+	 */
+	private function __construct ($mysqli)
+	{
+		$this->mysqli = $mysqli;
+		$this->jsonFile = $GLOBALS ['basePath'] . 'src/tables/plgParams.jsonTable';
+	}
+
 
 	/**
 	 *
@@ -184,6 +131,64 @@ class EditParams
 		$retVal .= 'Volver</a>';
 		$retVal .= '</div>';
 
+		return $retVal;
+	}
+
+
+	/**
+	 *
+	 * @param mysqli $mysqli
+	 * @return mixed
+	 */
+	public static function main ($mysqli)
+	{
+		$editMenu = new EditParams ($mysqli);
+
+		$retVal = '<h1>Edit params ' . ($_GET ['plgName'] ?? '') . '</h1>';
+
+		if (! empty ($_GET ['plgName']))
+		{
+			$retVal .= $editMenu->showEditView ($_GET ['plgName']);
+		}
+		else
+		{
+			// TODO Consider whether to call the menuLoaderDB file to use its selection and array formatting functions
+			$retVal .= $editMenu->showPlgs ();
+		}
+
+		$retVal = str_replace ('@@content@@', $retVal, file_get_contents ($GLOBALS ['basePath'] . 'src/rsc/html/defaultView.htm'));
+
+		return $retVal;
+	}
+}
+
+class FormatterPlgParamsColumn
+{
+
+
+	/**
+	 *
+	 * @param mixed $val
+	 * @param string $class
+	 * @return string
+	 */
+	public function getSpan ($val, $class)
+	{
+		$params = empty ($val) ? array () : json_decode ($val, true);
+		$retVal = "<div class='$class'>";
+		if (! empty ($params))
+		{
+			$retVal .= '<div class="d-flex flex-column">';
+			foreach ($params as $name => $value)
+			{
+				$retVal .= '<div class="">';
+				$retVal .= "<span class='w-150'><b>Name:</b> $name</span>";
+				$retVal .= "<span class='w-300'><b>Value:</b> $value</span>";
+				$retVal .= '</div>';
+			}
+			$retVal .= '</div>';
+		}
+		$retVal .= "</div>";
 		return $retVal;
 	}
 }

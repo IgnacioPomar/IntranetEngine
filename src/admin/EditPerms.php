@@ -2,41 +2,7 @@
 require_once $GLOBALS ['basePath'] . 'src/ColumnFormatter.php';
 require_once $GLOBALS ['basePath'] . 'src/AutoForm.php';
 
-class FormatterNameColumn
-{
-	private $ident;
-
-
-	/**
-	 *
-	 * @param int $ident
-	 */
-	public function __construct ($ident)
-	{
-		$this->ident = $ident;
-	}
-
-
-	/**
-	 *
-	 * @param mixed $val
-	 * @param string $class
-	 * @return string
-	 */
-	public function getSpan ($val, $class)
-	{
-		$retVal = "<div class='$class d-flex-inline'>";
-		while (0 < $this->ident --)
-		{
-			$retVal .= '<div class="w-25"></div>';
-		}
-		$retVal .= "<div>$val</div>";
-		$retVal .= '</div>';
-		return $retVal;
-	}
-}
-
-class Perms extends Plugin
+class EditPerms extends Plugin
 {
 	private $jsonFile;
 
@@ -257,3 +223,38 @@ class Perms extends Plugin
 		return $retVal;
 	}
 }
+
+class FormatterNameColumn
+{
+	private $ident;
+
+
+	/**
+	 *
+	 * @param int $ident
+	 */
+	public function __construct ($ident)
+	{
+		$this->ident = $ident;
+	}
+
+
+	/**
+	 *
+	 * @param mixed $val
+	 * @param string $class
+	 * @return string
+	 */
+	public function getSpan ($val, $class)
+	{
+		$retVal = "<div class='$class d-flex-inline'>";
+		while (0 < $this->ident --)
+		{
+			$retVal .= '<div class="w-25"></div>';
+		}
+		$retVal .= "<div>$val</div>";
+		$retVal .= '</div>';
+		return $retVal;
+	}
+}
+

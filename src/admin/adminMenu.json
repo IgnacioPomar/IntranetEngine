@@ -1,7 +1,7 @@
 [
 	{"name": "Database maintenance","show": true,"subOpcs":[
-		{"opc": "/reinstallCore", "plg":"ReInstaller","name": "Reinstall core tables","show": true,"tmplt": ""},
-		{"opc": "/reinstallPlugins", "plg": "ReInstaller","name": "Reinstall Plugins","show": true,"tmplt": ""}
+		{"opc": "/reinstallCore", "plg":"ReinstallCore","name": "Reinstall core tables","show": true,"tmplt": ""},
+		{"opc": "/reinstallPlugins", "plg": "ReinstallPlugins","name": "Reinstall Plugins","show": true,"tmplt": ""}
 	]},
 	{"name": "Setup","show": true,"subOpcs":[
 		{"opc": "/users", "plg":"Users", "name": "Users","show": true,"tmplt": ""},
