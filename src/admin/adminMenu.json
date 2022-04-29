@@ -1,9 +1,13 @@
 [
-	{"opc": "/reinstallCore", "plg":"ReInstaller","name": "Reinstall core tables","show": true,"tmplt": ""},
-	{"opc": "/reinstallPlugins", "plg": "ReInstaller","name": "Reinstall Plugins","show": true,"tmplt": ""},
-	{"opc": "/users", "plg":"Users", "name": "Users","show": true,"tmplt": ""},
-	{"opc": "/groups", "plg":"Groups", "name": "Groups","show": true,"tmplt": ""},
-	{"opc": "/rbac","plg": "Perms", "name": "Edit permissions","show": true,"tmplt": ""},
-	{"opc": "/options","plg": "EditOptions", "name": "Edit menu options","show": true,"tmplt": ""},
-	{"opc": "/mnu","plg": "MenuEdit", "name": "Edit Mnu","show":  false,"tmplt": ""}
+	{"name": "Database maintenance","show": true,"subOpcs":[
+		{"opc": "/reinstallCore", "plg":"ReInstaller","name": "Reinstall core tables","show": true,"tmplt": ""},
+		{"opc": "/reinstallPlugins", "plg": "ReInstaller","name": "Reinstall Plugins","show": true,"tmplt": ""}
+	]},
+	{"name": "Setup","show": true,"subOpcs":[
+		{"opc": "/users", "plg":"Users", "name": "Users","show": true,"tmplt": ""},
+		{"opc": "/groups", "plg":"Groups", "name": "Groups","show": true,"tmplt": ""},
+		{"opc": "/rbac","plg": "Perms", "name": "Edit permissions","show": true,"tmplt": ""},
+		{"opc": "/options","plg": "EditOptions", "name": "Edit menu options","show": true,"tmplt": ""},
+		{"opc": "/mnu","plg": "MenuEdit", "name": "Edit Mnu","show":  false,"tmplt": ""}
+	]}
 ]
