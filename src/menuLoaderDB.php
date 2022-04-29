@@ -13,6 +13,7 @@ class MenuLoaderDB
 	public static function load (&$context, Menu &$menu)
 	{
 		$menu->setMenuOpc (MenuLoaderDB::getArrayMenu ($context->mysqli, $context->userId));
+		$menu->isEditable = true;
 	}
 
 

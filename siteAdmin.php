@@ -16,7 +16,7 @@ class WebEngineAdmin
         'Groups' => './src/admin/groups.php',
         'Perms' => './src/admin/editPerm.php',
         'EditOptions' => './src/admin/menuEditOptions.php',
-        'EditMnu' => './src/admin/menuEdit.php'
+        'EditMenu' => './src/admin/EditMenu.php'
     );
 
     // @formatter:on

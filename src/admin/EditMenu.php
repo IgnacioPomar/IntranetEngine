@@ -1,39 +1,9 @@
 <?php
-require_once 'ColumnFormatter.php';
-require_once 'AutoForm.php';
+require_once $GLOBALS ['basePath'] . 'src/ColumnFormatter.php';
+require_once $GLOBALS ['basePath'] . 'src/AutoForm.php';
 
-class MenuEdit
+class EditMenu extends Plugin
 {
-	private $mysqli;
-	private $jsonFile;
-
-
-	private function __construct ($mysqli)
-	{
-		$this->mysqli = $mysqli;
-		$this->jsonFile = $GLOBALS ['basePath'] . 'src/tables/mainMenu.jsonTable';
-	}
-
-
-	public static function main ($mysqli)
-	{
-		$editMenu = new MenuEdit ($mysqli);
-
-		if (! empty ($_GET ['idItemMenu']))
-		{
-			$retVal = $editMenu->showEditView ($_GET ['idItemMenu']);
-		}
-		else
-		{
-			// TODO Consider whether to call the menuLoaderDB file to use its selection and array formatting functions
-			$retVal = $editMenu->showMenuFromDB ();
-		}
-
-		$retVal = str_replace ('@@content@@', $retVal, file_get_contents ($GLOBALS ['basePath'] . 'src/rsc/html/editViews.htm'));
-
-		return $retVal;
-	}
-
 	// @formatter:off
 	const COLS_TABLE_MENU = array (
 			'name'			=> array ('w-300', 'Nombre', 'Nombre que se mostrará en el menú.'),
@@ -43,6 +13,46 @@ class MenuEdit
 			''				=> array ('',  'Activo', 'Indica si es visible para los usuarios'),
 	);
 	// @formatter:on
+	private $jsonFile;
+
+
+	public function __construct (Context &$context)
+	{
+		parent::__construct ($context);
+		$this->jsonFile = $GLOBALS ['basePath'] . 'src/tables/mainMenu.jsonTable';
+	}
+
+
+	public function main ()
+	{
+		if (! $this->context->mnu->isEditable)
+		{
+			return 'The user Menu is not editable.';
+		}
+		else
+		{
+			// $editMenu = new EditMenu ($context);
+
+			if (! empty ($_GET ['idItemMenu']))
+			{
+				$retVal = $this->showEditView ($_GET ['idItemMenu']);
+			}
+			else
+			{
+				// TODO Consider whether to call the menuLoaderDB file to use its selection and array formatting functions
+				$retVal = $this->showMenuFromDB ();
+			}
+
+			$retVal = str_replace ('@@content@@', $retVal, file_get_contents ($GLOBALS ['basePath'] . 'src/rsc/html/editViews.htm'));
+
+			return $retVal;
+		}
+	}
+
+
+	public static function getPlgInfo (): array
+	{
+	}
 	const sentido_VALUES = array (0 => 'buy', 1 => 'sell');
 
 
