@@ -2,33 +2,6 @@
 require_once $GLOBALS ['basePath'] . 'src/ColumnFormatter.php';
 require_once $GLOBALS ['basePath'] . 'src/AutoForm.php';
 
-// YAGNI: Include it in the ColumnFormatter class
-class FormatterColumnToCheckbox
-{
-
-
-	/**
-	 *
-	 * @param mixed $val
-	 * @param string $class
-	 * @return string
-	 */
-	public function getSpan ($val, $class)
-	{
-		$retVal = "<div class='$class'>";
-
-		$attributes = [ 'disabled'];
-		if ($val)
-		{
-			$attributes [] = 'checked';
-		}
-
-		$retVal .= '<input type="checkbox"' . join (' ', $attributes) . '>';
-		$retVal .= '</div>';
-		return $retVal;
-	}
-}
-
 class Users extends Plugin
 {
 	private $jsonFile;
@@ -291,3 +264,31 @@ class Users extends Plugin
 		return $retVal;
 	}
 }
+
+// YAGNI: Include it in the ColumnFormatter class
+class FormatterColumnToCheckbox
+{
+
+
+	/**
+	 *
+	 * @param mixed $val
+	 * @param string $class
+	 * @return string
+	 */
+	public function getSpan ($val, $class)
+	{
+		$retVal = "<div class='$class'>";
+
+		$attributes = [ 'disabled'];
+		if ($val)
+		{
+			$attributes [] = 'checked';
+		}
+
+		$retVal .= '<input type="checkbox"' . join (' ', $attributes) . '>';
+		$retVal .= '</div>';
+		return $retVal;
+	}
+}
+
