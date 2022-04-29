@@ -1,6 +1,6 @@
 <?php
-require_once 'ColumnFormatter.php';
-require_once 'AutoForm.php';
+require_once $GLOBALS ['basePath'] . 'src/ColumnFormatter.php';
+require_once $GLOBALS ['basePath'] . 'src/AutoForm.php';
 
 // YAGNI: Include it in the ColumnFormatter class
 class FormatterColumnToCheckbox
@@ -29,26 +29,24 @@ class FormatterColumnToCheckbox
 	}
 }
 
-class Users
+class Users extends Plugin
 {
-	private $mysqli;
 	private $jsonFile;
-	private $uriPrefix;
 
 
-	private function __construct ($mysqli)
+	public function __construct (Context $context)
 	{
-		$this->mysqli = $mysqli;
+		parent::__construct ($context);
+
 		$this->jsonFile = $GLOBALS ['basePath'] . 'src/tables/users.jsonTable';
-		$this->uriPrefix = $_SERVER ["REQUEST_URI"];
 	}
 
 	// @formatter:off
 	const COLS_TABLE_USERS = array (
 			'name'		=> array ('w-400', 'User name', 'Username visible on the platform.'),
 			'email'		=> array ('w-400', 'Email', 'Access email.'),
-			'isActive'	=> array ('w-100 text-center', 'Activo', 'Indicates if the user can access the platform.'),
-			'isAdmin'	=> array ('w-100 text-center', 'Administrador', 'Indicates if the user has administrator access.'),
+			'isActive'	=> array ('w-100 text-center', 'Active', 'Indicates if the user can access the platform.'),
+			'isAdmin'	=> array ('w-100 text-center', 'Admin', 'Indicates if the user has administrator access.'),
 	);
 	// @formatter:on
 
@@ -59,13 +57,13 @@ class Users
 	private function showListUsers ()
 	{
 		$query = $this->getQueryUsers ();
-		$resultUsers = $this->mysqli->query ($query);
+		$resultUsers = $this->context->mysqli->query ($query);
 
 		$formatter = new ColumnFormatter (self::COLS_TABLE_USERS);
 		$formatter->stylers ['isActive'] = new FormatterColumnToCheckbox ();
 		$formatter->stylers ['isAdmin'] = new FormatterColumnToCheckbox ();
 
-		$retVal = "<a href='{$this->uriPrefix}&newUser' class='btn mb-3'>Add new user</a>";
+		$retVal = "<a href='{$this->uriPrefix}newUser' class='btn mb-3'>Add new user</a>";
 		$retVal .= "<div class='head'>{$formatter->getHeaderCols ()}</div>";
 
 		while ($user = $resultUsers->fetch_assoc ())
@@ -137,7 +135,7 @@ class Users
 		if (! empty ($_GET ['idUser']))
 		{
 			$query = $this->getQueryUsers ($_GET ['idUser']);
-			if ($resultUser = $this->mysqli->query ($query))
+			if ($resultUser = $this->context->mysqli->query ($query))
 			{
 				if ($user = $resultUser->fetch_assoc ())
 				{
@@ -207,7 +205,7 @@ class Users
 		$query = array ();
 		$query [] = 'SELECT g.*, !ISNULL(u.idUser) AS withIt FROM weGroups g';
 		$query [] = 'LEFT JOIN   weUsersGroups  u ON g.idGrp = u.idGrp AND  idUser=' . ($_GET ['idUser'] ?? 0);
-		$resultGroups = $this->mysqli->query (join (' ', $query));
+		$resultGroups = $this->context->mysqli->query (join (' ', $query));
 
 		return $resultGroups->fetch_all (MYSQLI_ASSOC);
 	}
@@ -220,11 +218,11 @@ class Users
 	 */
 	private function insertNewUser ($autoForm)
 	{
-		$autoForm->mysqli = $this->mysqli;
+		$autoForm->mysqli = $this->context->mysqli;
 		$query = $autoForm->getInsertSql ([ ]);
-		$this->mysqli->query ($query);
+		$this->context->mysqli->query ($query);
 
-		$this->updateTableUsersGroups ($this->mysqli->insert_id);
+		$this->updateTableUsersGroups ($this->context->mysqli->insert_id);
 
 		$retVal = '<p>Registro Insertado Correctamente</p>';
 		$icon = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>';
@@ -240,9 +238,9 @@ class Users
 	 */
 	private function updateUser ($autoForm)
 	{
-		$autoForm->mysqli = $this->mysqli;
+		$autoForm->mysqli = $this->context->mysqli;
 		$sql = $autoForm->getUpdateSql ([ ], [ 'idUser']);
-		$this->mysqli->query ($sql);
+		$this->context->mysqli->query ($sql);
 
 		$this->updateTableUsersGroups ($_POST ['idUser']);
 
@@ -257,32 +255,37 @@ class Users
 	private function updateTableUsersGroups ($idUser)
 	{
 		$query = "DELETE FROM weUsersGroups WHERE idUser = $idUser";
-		$this->mysqli->query ($query);
+		$this->context->mysqli->query ($query);
 
-		foreach ($_POST ['groups'] as $idGrp)
+		if (! empty ($_POST ['groups']))
 		{
-			$query = "INSERT INTO weUsersGroups (idUser, idGrp) VALUES ($idUser,$idGrp)";
-			$this->mysqli->query ($query);
+			foreach ($_POST ['groups'] as $idGrp)
+			{
+				$query = "INSERT INTO weUsersGroups (idUser, idGrp) VALUES ($idUser,$idGrp)";
+				$this->context->mysqli->query ($query);
+			}
 		}
+	}
+
+
+	public static function getPlgInfo (): array
+	{
 	}
 
 
 	/**
 	 *
-	 * @param mysqli $mysqli
 	 * @return string
 	 */
-	public static function main ($mysqli)
+	public function main ()
 	{
-		$users = new Users ($mysqli);
-
 		if (isset ($_GET ['newUser']) || ! empty ($_GET ['idUser']))
 		{
-			$retVal = $users->showUserForm ();
+			$retVal = $this->showUserForm ();
 		}
 		else
 		{
-			$retVal = $users->showListUsers ();
+			$retVal = $this->showListUsers ();
 		}
 
 		return $retVal;

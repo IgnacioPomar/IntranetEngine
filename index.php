@@ -1,6 +1,7 @@
 <?php
 include_once ('src/defines.php');
 include_once ('src/Context.php');
+require_once ('src/menu.php');
 
 class WELauncher
 {
@@ -84,8 +85,10 @@ class WELauncher
 			require_once ('src/Plugin.php');
 			require_once ('src/WebEngine.php');
 
+			// load the web Menu
+			$context->mnu = new Menu ();
 			$menuLoader = basename ($GLOBALS ['moduleMenu'], '.php');
-			$menuLoader::load ($context);
+			$menuLoader::load ($context, $context->mnu);
 
 			WebEngine::launch ($context, isset ($_GET ['ajax']));
 		}

@@ -14,20 +14,15 @@ class MenuLoaderJson
 	 * @param Context $context
 	 * @return array
 	 */
-	public static function load (&$context)
+	public static function load (&$context, Menu &$menu)
 	{
-		$menuLoaderJson = new MenuLoaderJson ();
-		$context->mnu = $menuLoaderJson->getArrayMenu ();
-
-		return 0;
+		$menuFileName = (isset ($GLOBALS ['jsonMenu'])) ? $GLOBALS ['jsonMenu'] : 'mainMenu.json';
+		MenuLoaderJson::loadFromFile ($GLOBALS ['cfgPath'] . $menuFileName, $menu);
 	}
 
-	public function getArrayMenu ($mysqli = NULL, $userId = NULL)
+
+	public static function loadFromFile ($menuFile, Menu &$menu)
 	{
-		$menuFile = (isset ($GLOBALS ['jsonMenu'])) ? $GLOBALS ['jsonMenu'] : 'mainMenu.json';
-
-		$string = file_get_contents ($GLOBALS ['cfgPath'] . $menuFile);
-
-		return json_decode ($string, true);
+		$menu->setMenuOpc (json_decode (file_get_contents ($menuFile), true));
 	}
 }

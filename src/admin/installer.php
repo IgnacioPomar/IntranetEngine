@@ -131,7 +131,7 @@ class Installer
 	 */
 	public function createCoreTables ()
 	{
-		include_once ('dbSchema.php');
+		include_once ($GLOBALS ['basePath'] . 'src/dbSchema.php');
 
 		$retVal = '';
 
@@ -152,7 +152,7 @@ class Installer
 
 	private function createOrUpdateTables ($basePath)
 	{
-		include_once ('dbSchema.php');
+		include_once ($GLOBALS ['basePath'] . 'src/dbSchema.php');
 
 		$retVal = '';
 
@@ -228,7 +228,7 @@ class Installer
 		{
 			if (isset ($currentPlgs [$plgName]))
 			{
-				$plgInfo = & $currentPlgs [$plgName];
+				$plgInfo = &$currentPlgs [$plgName];
 				foreach ($plgInfo as &$val)
 				{
 					$val = $this->mysqli->real_escape_string ($val);

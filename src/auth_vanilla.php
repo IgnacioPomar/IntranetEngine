@@ -358,8 +358,8 @@ class Auth
 	 */
 	private function saveCookieSession ($setCookie, $userId = NULL)
 	{
-	    $userId = $userId ?? $this->userId;
-	    
+		$userId = $userId ?? $this->userId;
+
 		// Primero obtenemos los valores unicos para esta sesion
 		$cookieId = uniqid ('', true); // menos de 30 caracteres
 		$cookiePass = mt_rand (100000000, 999999999);

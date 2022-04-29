@@ -11,8 +11,10 @@
  */
 class Menu
 {
-	private $currOpc;
-	private $hasOpc;
+	public array $arrOpcs;
+	private array $currOpc;
+	private string $subPath;
+	private bool $hasOpc;
 
 
 	/**
@@ -21,14 +23,18 @@ class Menu
 	 *
 	 * @param Context $context
 	 */
-	function __construct (&$context)
+	function __construct ()
 	{
-		$this->context = $context;
-
-		$this->context->subPath = (isset ($_SERVER ['PATH_INFO'])) ? $_SERVER ['PATH_INFO'] : "/";
+		$this->subPath = (isset ($_SERVER ['PATH_INFO'])) ? $_SERVER ['PATH_INFO'] : "/";
 
 		$this->hasOpc = FALSE;
-		$this->setSelectedOpc ($this->context->mnu);
+	}
+
+
+	public function setMenuOpc ($arrOpcs)
+	{
+		$this->arrOpcs = $arrOpcs;
+		$this->setSelectedOpc ();
 	}
 
 
@@ -37,10 +43,10 @@ class Menu
 	 *
 	 * @return string
 	 */
-	public function getMenu ($mainMnu)
+	public function getMenu ()
 	{
 		$retVal = '<span id="mainMenu">';
-		$retVal .= $this->getMnuOpcs ($mainMnu, 0);
+		$retVal .= $this->getMnuOpcs ($this->arrOpcs, 0);
 		return $retVal . '</span>';
 	}
 
@@ -79,12 +85,12 @@ class Menu
 	 *
 	 * @return string
 	 */
-	private function setSelectedOpc (&$arrOpcs)
+	private function setSelectedOpc ()
 	{
 		$retVal = false;
-		foreach ($arrOpcs as &$opc)
+		foreach ($this->arrOpcs as &$opc)
 		{
-			if (isset ($opc ['opc']) && $opc ['opc'] == $this->context->subPath)
+			if (isset ($opc ['opc']) && $opc ['opc'] == $this->subPath)
 			{
 				$opc ['isSelected'] = true;
 				$this->currOpc = &$opc;
@@ -144,20 +150,5 @@ class Menu
 			}
 		}
 		return $retVal . '</ul>';
-	}
-
-
-	/**
-	 * Menu for the user itself
-	 *
-	 * @return string
-	 */
-	public function getUserMnu ()
-	{
-		$retVal = '<a href="' . $GLOBALS ['uriPath'] . '?o=logout">Desconectar</a>';
-
-		// $retVal = '<a href="'.$GLOBALS ['uriPath'].'?o=logout">Perfil</a>'; //Nombre, forma de pago, etc...
-
-		return $retVal;
 	}
 }
