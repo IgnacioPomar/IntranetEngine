@@ -34,7 +34,7 @@ class Menu
 	public function setMenuOpc ($arrOpcs)
 	{
 		$this->arrOpcs = $arrOpcs;
-		$this->setSelectedOpc ();
+		$this->setSelectedOpc ($this->arrOpcs);
 	}
 
 
@@ -92,10 +92,10 @@ class Menu
 	 *
 	 * @return string
 	 */
-	private function setSelectedOpc ()
+	private function setSelectedOpc (&$arrOpcs)
 	{
 		$retVal = false;
-		foreach ($this->arrOpcs as &$opc)
+		foreach ($arrOpcs as &$opc)
 		{
 			if (isset ($opc ['opc']) && $opc ['opc'] == $this->subPath)
 			{
