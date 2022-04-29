@@ -14,7 +14,7 @@ class Menu
 	public array $arrOpcs;
 	public bool $isEditable;
 	private array $currOpc;
-	private string $subPath;
+	public string $subPath;
 	private bool $hasOpc;
 
 

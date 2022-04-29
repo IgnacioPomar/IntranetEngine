@@ -2,8 +2,7 @@
 
 class WebEngine
 {
-	private $context;
-	private $mnu;
+	private Context $context;
 
 
 	/**
@@ -16,9 +15,6 @@ class WebEngine
 	{
 		$we = new WebEngine ();
 		$we->context = &$context;
-
-		require_once ('menu.php');
-		$we->mnu = new Menu ();
 
 		if ($isAjax)
 		{
@@ -48,7 +44,7 @@ class WebEngine
 	{
 		$plg = $this->loadPlugin ();
 
-		$layout = file_get_contents ($GLOBALS ['templatePath'] . $this->mnu->getBaseTemplate ());
+		$layout = file_get_contents ($GLOBALS ['templatePath'] . $this->context->mnu->getBaseTemplate ());
 
 		// ---- Session data ----
 		$layout = str_replace ('@@userName@@', htmlspecialchars_decode ($_SESSION ['userName']), $layout);
@@ -59,8 +55,8 @@ class WebEngine
 		$this->setCssHeader ($plg->getExternalCss (), $layout);
 
 		// ---- Web Engine base components ----
-		$layout = str_replace ('@@Menu@@', $this->mnu->getMenu ($this->context->mnu), $layout);
-		$layout = str_replace ('@@pageTitle@@', $this->mnu->getTitle (), $layout);
+		$layout = str_replace ('@@Menu@@', $this->context->mnu->getMenu (), $layout);
+		$layout = str_replace ('@@pageTitle@@', $this->context->mnu->getTitle (), $layout);
 		$layout = str_replace ('@@skinPath@@', $GLOBALS ['urlSkinPath'], $layout);
 
 		// ---- Finally, the body ----
@@ -78,13 +74,14 @@ class WebEngine
 	 */
 	private function loadPlugin (): Plugin
 	{
-		if (! $this->mnu->hasOpcSelected ())
+		$mnu = &$this->context->mnu;
+		if (! $mnu->hasOpcSelected ())
 		{
 			require_once ('src/fake404.php');
 			Fake404::main ();
 		}
 
-		$class = $this->mnu->getPlugin ();
+		$class = $mnu->getPlugin ();
 		if ($resultado = $this->context->mysqli->query ("SELECT plgFile, plgParams, plgPerms FROM wePlugins WHERE plgName='$class';"))
 		{
 			if ($row = $resultado->fetch_assoc ())

@@ -44,7 +44,7 @@ abstract class Plugin
 	public function checkParams ()
 	{
 		// First round: get The database values
-		$sql = 'SELECT paramValues FROM wePlgParams WHERE mnuNode = "' . $this->context->subPath . '" AND plgName="' . get_class ($this) . '";';
+		$sql = 'SELECT paramValues FROM wePlgParams WHERE mnuNode = "' . $this->context->mnu->subPath . '" AND plgName="' . get_class ($this) . '";';
 
 		if ($resultado = $this->context->mysqli->query ($sql))
 		{
@@ -78,8 +78,8 @@ abstract class Plugin
 
 		// YAGNI: Create union table with group and user perms
 		$sql = 'SELECT permName, MIN(permValue) val FROM ';
-		$sql .= '((SELECT permName, permValue FROM wePermissionsUsers WHERE permValue<>0 AND idUser=' . $this->context->userId . ' AND mnuNode="' . $this->context->subPath . '") UNION ALL ';
-		$sql .= '(SELECT permName, permValue FROM wePermissionsGroup WHERE idGrp IN (SELECT idGrp FROM weUsersGroups WHERE permValue<>0 AND idUser=' . $this->context->userId . ' AND mnuNode="' . $this->context->subPath . '"))) z ';
+		$sql .= '((SELECT permName, permValue FROM wePermissionsUsers WHERE permValue<>0 AND idUser=' . $this->context->userId . ' AND mnuNode="' . $this->context->mnu->subPath . '") UNION ALL ';
+		$sql .= '(SELECT permName, permValue FROM wePermissionsGroup WHERE idGrp IN (SELECT idGrp FROM weUsersGroups WHERE permValue<>0 AND idUser=' . $this->context->userId . ' AND mnuNode="' . $this->context->mnu->subPath . '"))) z ';
 		$sql .= 'GROUP BY permName;';
 
 		if ($resultado = $this->context->mysqli->query ($sql))
