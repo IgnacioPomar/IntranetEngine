@@ -2,7 +2,7 @@
 require_once $GLOBALS ['basePath'] . 'src/ColumnFormatter.php';
 require_once $GLOBALS ['basePath'] . 'src/AutoForm.php';
 
-class Users extends Plugin
+class MaintenanceUsers extends Plugin
 {
 	private $jsonFile;
 

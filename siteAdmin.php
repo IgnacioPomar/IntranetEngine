@@ -14,8 +14,8 @@ class WebEngineAdmin
 		'ReinstallCore'		=> './src/admin/ReinstallCore.php',
 		'ReinstallPlugins'	=> './src/admin/ReinstallPlugins.php',
     		
-		'Users' 			=> './src/admin/users.php',
-		'Groups'			=> './src/admin/groups.php',
+		'MaintenanceUsers' 	=> './src/admin/MaintenanceUsers.php',
+		'MaintenanceGroups'	=> './src/admin/MaintenanceGroups.php',
 		'EditPerms'			=> './src/admin/editPerm.php',
 		'EditOptions'		=> './src/admin/menuEditOptions.php',
 		'EditMenu'			=> './src/admin/EditMenu.php'
