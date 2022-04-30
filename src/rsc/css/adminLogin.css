@@ -1,0 +1,120 @@
+body {
+	text-align: center;
+}
+
+html {
+	font-family: 'MuseoSansRounded-300', sans-serif;
+	background-color: #bbd4b2;
+}
+
+.error {
+	color: #FFA420;
+}
+
+.loginbox {
+	height: 500px;
+	width: 300px;
+	background-color: rgba(255, 255, 255, 0.9);;
+	color: #395614;
+	position: absolute;
+	margin: auto;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border-radius: 15px;
+}
+
+.loginbox  p {
+	text-align: left;
+	padding: 15px;
+}
+
+.logo {
+	height: 150px;
+	width: 300px;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.logo img {
+	width: 155px;
+}
+
+.form input {
+	width: 80%;
+	padding: 12px 40px;
+	margin: 4px 0;
+	box-sizing: border-box;
+	border: none;
+	border-bottom: 1px solid #dadfbe;
+	color: #395614;
+	outline-color: #395614;
+	background-color: transparent;
+}
+
+.form input:focus {
+	/*color: white;*/
+	border-bottom: 1px solid #F8CD8D;
+}
+
+.form input[type=submit] {
+	background-color: #395614;
+	margin: 40px 0;
+	color: #dadfbe;
+}
+
+.form input#user:disabled {
+	color: #dadfbe;
+}
+
+.form input::placeholder {
+	color: #dadfbe;
+}
+
+img.inputIcon {
+	width: 24px;
+	filter: invert(96%) sepia(7%) saturate(758%) hue-rotate(16deg)
+		brightness(93%) contrast(89%);
+	position: absolute;
+	margin-top: 12px;
+}
+
+input:required:valid, textarea:required:valid {
+	background-image:
+		url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAZZJREFUeNpi/P//PwMpgImBRMAy58QshrNPTzP8+vOLIUInisFQyYjhz98/DB9/fmT48/+35v7H+8KNhE2+WclZd+G0gZmJmYGThUNz1fUVMZtvbWT59eUXG9wGZIWMUPj993eJ5VeWxuy8veM/CzPL3yfvH/9H0QBSBDYZyOVm4mGYfn6q4cory5lYmFh+MrEwM/76/YsR7mk2ZjbWP///WP37/y8cqIDhx58fjvtu7XV6//ndT34G/v8FasUsDjKO/+A2PP3wpGLd+TVsfOz8XH6KAT+nHpokcu7h6d9q/BoMxToVbBYqlt9///+1GO4/WVdpXqY/zMqXn13/+vTjI9mj94/y//v9/3e9ZRObvYbDT0Y2xnm///x+wsfHB3GSGLf41jb3rv0O8nbcR66d+HPvxf2/+YZFTHaqjl8YWBnm/vv37yly5LL8+vuLgYuVa3uf/4T/Kd8SnSTZpb6FGUXwcvJxbAPKP2VkZESNOBDx8+9PBm4OwR1TwmYwcfzjsBUQFLjOxs52A2YyKysrXANAgAEA7buhysQuIREAAAAASUVORK5CYII=);
+	background-position: right top;
+	background-repeat: no-repeat;
+}
+
+input:required:invalid, input:focus:invalid, textarea:required:invalid,
+	textarea:focus:invalid {
+	background-image:
+		url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAT1JREFUeNpi/P//PwMpgImBRMACY/x7/uDX39sXt/67cMoDyOVgMjBjYFbV/8kkqcCBrIER5KS/967s+rmkXxzI5wJiRSBm/v8P7NTfHHFFl5mVdIzhGv4+u///x+xmuAlcdXPB9KeqeLgYd3bDU2ZpRRmwH4DOeAI07QXIRKipYPD35184/nn17CO4p/+cOfjl76+/X4GYAYThGn7/g+Mfh/ZZwjUA/aABpJVhpv6+dQUjZP78Z0YEK7OezS2gwltg64GmfTu6i+HL+mUMP34wgvGvL78ZOEysf8M1sGgZvQIqfA1SDAL8iUUMPIFRQLf+AmMQ4DQ0vYYSrL9vXDz2sq9LFsiX4dLRA0t8OX0SHKzi5bXf2HUMBVA0gN356N7p7xdOS3w5fAgcfNxWtn+BJi9gVVBOQfYPQIABABvRq3BwGT3OAAAAAElFTkSuQmCC);
+	background-position: right top;
+	background-repeat: no-repeat;
+	box-shadow: none;
+}
+
+pre.xdebug-var-dump {
+	text-align: left;
+}
+
+.recordar {
+	font-size: 12px;
+	text-align: left;
+	padding: 6px;
+}
+
+.recordar a {
+	color: #3ab512;
+}
+
+#recoverPass input[type="submit"] {
+	background: none !important;
+	border: none;
+	padding: 0 !important;
+	text-decoration: underline;
+	cursor: pointer;
+	color: #3ab512;
+}

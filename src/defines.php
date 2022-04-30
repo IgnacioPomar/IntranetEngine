@@ -17,7 +17,7 @@ define ('VERSION', '0.1');
 function getRelativeSitePath ()
 {
 	$rutaRelativa = $_SERVER ['SCRIPT_NAME'];
-	$rutaRelativa = substr ($rutaRelativa, 0, - 9); // Quitamos index.php
+	$rutaRelativa = dirname ($rutaRelativa) . '/'; // Quitamos index.php
 
 	return $rutaRelativa;
 }

@@ -3,28 +3,24 @@
 <head>
 
 <title>Setup access page</title>
-<!--
-    <link rel="icon" href="./src/rsc/img/favicon.svg" /> 
-    <link rel="stylesheet" href="./src/rsc/css/login.css" />
--->
+	<link rel="stylesheet" href="@@uriPath@@/src/rsc/css/adminLogin.css" />
 
 </head>
 <body>
 	<div class="loginbox">
 		<div class="logo">
-			<!-- <img src="./src/rsc/img/Logo_WebEngine.svg" alt="Webengine setup logo" /> -->
+			<img src="@@uriPath@@/src/rsc/img/Logo_WebEngine.svg" alt="Webengine setup logo" />
 		</div>
 		<div class="form">
 			<form method="post">
 				<div>
-					<!-- <img src="./skin/img/user.svg" class="inputIcon"/> -->
-					@@errorInfo@@ <input type='email' id='user' name='user'
-						required='required' value='' placeholder='user email' />
+					<img src="@@uriPath@@/src/rsc/img/adminLoginUser.svg" class="inputIcon"/>
+					@@errorInfo@@
+					<input type='email' id='user' name='user' required='required' value='' placeholder='user email' />
 				</div>
 				<div>
-					<!-- <img src="./src/rsc/img/padlock.svg" class="inputIcon"/> -->
-					<input type='password' id='password' name='password'
-						required='required' value='' placeholder='Password' />
+					<img src="@@uriPath@@/src/rsc/img/adminLoginPadlock.svg" class="inputIcon"/>
+					<input type='password' id='password' name='password' required='required' value='' placeholder='Password' />
 				</div>
 				<input type='submit' value='Open Setup' />
 			</form>

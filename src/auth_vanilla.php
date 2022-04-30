@@ -441,6 +441,7 @@ class Auth
 	private function showFinalLoginForm ($file)
 	{
 		$loginForm = file_get_contents ($file);
+		$loginForm = str_replace ('@@uriPath@@', $GLOBALS ['uriPath'], $loginForm);
 		$loginForm = str_replace ('@@skinPath@@', $GLOBALS ['urlSkinPath'], $loginForm);
 		$loginForm = str_replace ('@@errorInfo@@', $this->errorInfo, $loginForm);
 
