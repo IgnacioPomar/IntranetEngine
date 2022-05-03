@@ -17,7 +17,6 @@ class WebEngineAdmin
 		'MaintenanceUsers' 	=> './src/admin/MaintenanceUsers.php',
 		'MaintenanceGroups'	=> './src/admin/MaintenanceGroups.php',
 		'EditPermissions'	=> './src/admin/editPermissions.php',
-		'EditOptions'		=> './src/admin/menuEditOptions.php',
 		'EditMenu'			=> './src/admin/EditMenu.php'
     );
 
