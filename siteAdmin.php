@@ -29,6 +29,8 @@ class WebEngineAdmin
 	public function __construct ()
 	{
 		$this->context = new Context ();
+		// we set the userId to get all menu from the db
+		$this->context->userId = - 1;
 		$menuAdminLoader = 'src/menuLoaderJson.php';
 		include_once ($GLOBALS ['moduleMenu']);
 		if (0 != strcmp ($menuAdminLoader, $GLOBALS ['moduleMenu']))
@@ -39,11 +41,6 @@ class WebEngineAdmin
 		// Load the admin Menu
 		$this->mnuAdmin = new Menu ();
 		MenuLoaderJson::loadFromFile ('./src/admin/adminMenu.json', $this->mnuAdmin);
-
-		// load the web Menu
-		$menuLoader = basename ($GLOBALS ['moduleMenu'], '.php');
-		$this->context->mnu = new Menu ();
-		$menuLoader::load ($this->context, $this->context->mnu);
 	}
 
 
@@ -197,6 +194,15 @@ class WebEngineAdmin
 	}
 
 
+	private function loadWebMenu ()
+	{
+		// load the web Men
+		$menuLoader = basename ($GLOBALS ['moduleMenu'], '.php');
+		$this->context->mnu = new Menu ();
+		$menuLoader::load ($this->context, $this->context->mnu);
+	}
+
+
 	/**
 	 * Entry Point
 	 */
@@ -208,6 +214,7 @@ class WebEngineAdmin
 
 			if ($adminModule->checkInstallation () && $adminModule->checkAdminAuth ())
 			{
+				$adminModule->loadWebMenu ();
 				echo $adminModule->showAdminView ();
 			}
 		}
