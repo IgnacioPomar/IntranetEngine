@@ -68,11 +68,11 @@ class MaintenanceUsers extends Plugin
 	{
 		// YAGNI: Receive an array with the necessary columns
 		$query = 'SELECT u.*,g.groups  FROM weUsers u ';
-		$query .= ' INNER JOIN  (SELECT GROUP_CONCAT(grpName  SEPARATOR ", ") AS groups, rel.idUser FROM weGroups g INNER JOIN weUsersGroups rel ON g.idGrp = rel.idGrp GROUP BY rel.idUser) g';
+		$query .= ' LEFT JOIN  (SELECT GROUP_CONCAT(grpName  SEPARATOR ", ") AS groups, rel.idUser FROM weGroups g INNER JOIN weUsersGroups rel ON g.idGrp = rel.idGrp GROUP BY rel.idUser) g';
 		$query .= ' ON u.idUser=g.idUser';
 		if ($idUser != 0)
 		{
-			$query .= " WHERE idUser = $idUser";
+			$query .= " WHERE u.idUser = $idUser";
 		}
 		return $query;
 	}
@@ -102,7 +102,7 @@ class MaintenanceUsers extends Plugin
 			}
 			else if (! empty ($_POST ['email']))
 			{
-				// YAGNI: Check if there is already a user with that email
+				// YAGNI: Check if there is already a user with that emaill
 				return $this->insertNewUser ($autoForm);
 			}
 		}
