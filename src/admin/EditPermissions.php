@@ -216,7 +216,7 @@ class EditPermissions extends Plugin
 		else
 		{
 			require_once 'MaintenanceGroups.php';
-			$groups = new Groups ($this->context);
+			$groups = new MaintenanceGroups ($this->context);
 			$retVal = $groups->main ($this->context->mysqli);
 		}
 
