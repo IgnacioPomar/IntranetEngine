@@ -72,7 +72,7 @@ class MaintenanceUsers extends Plugin
 		$query .= ' ON u.idUser=g.idUser';
 		if ($idUser != 0)
 		{
-			$query .= " WHERE idUser = $idUser";
+			$query .= " WHERE u.idUser = $idUser";
 		}
 		return $query;
 	}
@@ -102,7 +102,7 @@ class MaintenanceUsers extends Plugin
 			}
 			else if (! empty ($_POST ['email']))
 			{
-				// YAGNI: Check if there is already a user with that email
+				// YAGNI: Check if there is already a user with that emaill
 				return $this->insertNewUser ($autoForm);
 			}
 		}
