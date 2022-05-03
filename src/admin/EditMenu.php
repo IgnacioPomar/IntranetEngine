@@ -6,52 +6,21 @@ class EditMenu extends Plugin
 {
 	// @formatter:off
 	const COLS_TABLE_MENU = array (
-			'name'			=> array ('w-300', 'Nombre', 'Nombre que se mostrará en el menú.'),
-			'uri'			=> array ('w-200', 'uri', 'Number of lots executed'),
-			'plg' 			=> array ('w-300', 'Plugin', 'Plugin asociado'),
-			'tmplt'			=> array ('w-200', 'Platilla', 'Platilla utilizada por el plugin'),
+			'name'			=> array ('w-300', 'Name', 'Menu node name.'),
+			'uri'			=> array ('w-200', 'uri', 'uri in the server'),
+			'plg' 			=> array ('w-300', 'Plugin', 'Plugin'),
+			'tmplt'			=> array ('w-200', 'Template', 'Platilla utilizada por el plugin'),
 			''				=> array ('',  'Activo', 'Indica si es visible para los usuarios'),
 	);
 	// @formatter:on
 	private $jsonFile;
+	private bool $isEditable;
 
 
 	public function __construct (Context &$context)
 	{
 		parent::__construct ($context);
 		$this->jsonFile = $GLOBALS ['basePath'] . 'src/tables/mainMenu.jsonTable';
-	}
-
-
-	public function main ()
-	{
-		if (! $this->context->mnu->isEditable)
-		{
-			return 'The user Menu is not editable.';
-		}
-		else
-		{
-			// $editMenu = new EditMenu ($context);
-
-			if (! empty ($_GET ['idItemMenu']))
-			{
-				$retVal = $this->showEditView ($_GET ['idItemMenu']);
-			}
-			else
-			{
-				// TODO Consider whether to call the menuLoaderDB file to use its selection and array formatting functions
-				$retVal = $this->showMenuFromDB ();
-			}
-
-			$retVal = str_replace ('@@content@@', $retVal, file_get_contents ($GLOBALS ['basePath'] . 'src/rsc/html/editViews.htm'));
-
-			return $retVal;
-		}
-	}
-
-
-	public static function getPlgInfo (): array
-	{
 	}
 	const sentido_VALUES = array (0 => 'buy', 1 => 'sell');
 
@@ -193,5 +162,40 @@ class EditMenu extends Plugin
 		}
 
 		return $retVal;
+	}
+
+
+	public function main ()
+	{
+		$this->isEditable = $this->context->mnu->isEditable;
+
+		$retVal = '<h1>Menu maintenance</h1>';
+		if (! $this->isEditable)
+		{
+			$retVal .= '<p class"warning"> This is a fixed Menu. Is possible adjust params.</p>';
+		}
+
+		// $editMenu = new EditMenu ($context);
+		/*
+		 *
+		 * if (! empty ($_GET ['idItemMenu']))
+		 * {
+		 * $retVal .= $this->showEditView ($_GET ['idItemMenu']);
+		 * }
+		 * else
+		 * {
+		 * // TODO Consider whether to call the menuLoaderDB file to use its selection and array formatting functions
+		 * $retVal .= $this->showMenuFromDB ();
+		 * }
+		 *
+		 * $retVal = str_replace ('@@content@@', $retVal, file_get_contents ($GLOBALS ['basePath'] . 'src/rsc/html/editViews.htm'));
+		 */
+
+		return $retVal;
+	}
+
+
+	public static function getPlgInfo (): array
+	{
 	}
 }

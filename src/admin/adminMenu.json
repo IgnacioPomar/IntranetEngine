@@ -6,8 +6,9 @@
 	{"name": "Setup","show": true,"subOpcs":[
 		{"opc": "/users", "plg":"MaintenanceUsers", "name": "Users","show": true,"tmplt": ""},
 		{"opc": "/groups", "plg":"MaintenanceGroups", "name": "Groups","show": true,"tmplt": ""},
-		{"opc": "/rbac","plg": "Perms", "name": "Edit permissions","show": true,"tmplt": ""},
-		{"opc": "/options","plg": "EditOptions", "name": "Edit menu options","show": true,"tmplt": ""},
-		{"opc": "/mnu","plg": "EditMenu", "name": "Edit Mnu","show":  true,"tmplt": ""}
+		{"opc": "/rbac","plg": "EditPermissions", "name": "Edit permissions","show": true,"tmplt": ""},
+		{"opc": "/mnu","plg": "EditMenu", "name": "Edit Menu","show":  true,"tmplt": ""},
+		
+		{"opc": "/options","plg": "EditOptions", "name": "Edit menu options","show": false,"tmplt": ""}
 	]}
 ]

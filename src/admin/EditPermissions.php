@@ -2,7 +2,7 @@
 require_once $GLOBALS ['basePath'] . 'src/ColumnFormatter.php';
 require_once $GLOBALS ['basePath'] . 'src/AutoForm.php';
 
-class EditPerms extends Plugin
+class EditPermissions extends Plugin
 {
 	private $jsonFile;
 
@@ -215,7 +215,7 @@ class EditPerms extends Plugin
 		}
 		else
 		{
-			require_once 'groups.php';
+			require_once 'MaintenanceGroups.php';
 			$groups = new Groups ($this->context);
 			$retVal = $groups->main ($this->context->mysqli);
 		}

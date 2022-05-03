@@ -2,7 +2,7 @@
 require_once 'ColumnFormatter.php';
 require_once 'AutoForm.php';
 
-class EditParams
+class _DeprecatedEditParams
 {
 	private $mysqli;
 	private $jsonFile;
@@ -142,7 +142,7 @@ class EditParams
 	 */
 	public static function main ($mysqli)
 	{
-		$editMenu = new EditParams ($mysqli);
+		$editMenu = new _DeprecatedEditParams ($mysqli);
 
 		$retVal = '<h1>Edit params ' . ($_GET ['plgName'] ?? '') . '</h1>';
 
