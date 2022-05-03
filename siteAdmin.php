@@ -115,7 +115,7 @@ class WebEngineAdmin
 	 *
 	 * @return boolean false if we called the installer
 	 */
-	private function checkFileCfg ()
+	private static function checkFileCfg ()
 	{
 		if (! file_exists ($GLOBALS ['fileCfg']))
 		{
