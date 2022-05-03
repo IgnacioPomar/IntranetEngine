@@ -37,7 +37,7 @@ class AutoForm
 	}
 
 
-	private function getFormField ($fieldName, $fieldInfo, $val, $inputDisabled)
+	public static function getFormField ($fieldName, $fieldInfo, $val, $inputDisabled)
 	{
 		$formType = (isset ($fieldInfo ['formType'])) ? $fieldInfo ['formType'] : $fieldInfo ['type'];
 		$label = (isset ($fieldInfo ['label'])) ? $fieldInfo ['label'] : $fieldName;
@@ -142,7 +142,7 @@ class AutoForm
 			{
 				$val = $this->fields [$fieldName] ['defaultValue'];
 			}
-			$retVal .= $this->getFormField ($fieldName, $this->fields [$fieldName] ?? [ 'type' => 'text'], $val, $isDisabled);
+			$retVal .= self::getFormField ($fieldName, $this->fields [$fieldName] ?? [ 'type' => 'text'], $val, $isDisabled);
 		}
 
 		$retVal .= $this->externalFooterHTML;

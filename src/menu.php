@@ -94,6 +94,33 @@ class Menu
 	}
 
 
+	private function getOpcFromMenuLevel ($node, &$mnu)
+	{
+		foreach ($mnu as $opc)
+		{
+			if (isset ($opc ['opc']) && $opc ['opc'] == $node)
+			{
+				return $opc;
+			}
+			else if (isset ($opc ['subOpcs']))
+			{
+				$retVal = $this->getOpcFromMenuLevel ($node, $opc ['subOpcs']);
+				if (! is_null ($retVal))
+				{
+					return $retVal;
+				}
+			}
+		}
+		return null;
+	}
+
+
+	public function getOpcFromMenu ($node)
+	{
+		return $this->getOpcFromMenuLevel ($node, $this->arrOpcs);
+	}
+
+
 	/**
 	 * Searchs recursively for the selected option
 	 *

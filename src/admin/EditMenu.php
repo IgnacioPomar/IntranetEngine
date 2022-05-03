@@ -4,180 +4,166 @@ require_once $GLOBALS ['basePath'] . 'src/AutoForm.php';
 
 class EditMenu extends Plugin
 {
-	// @formatter:off
-	const COLS_TABLE_MENU = array (
-			'name'			=> array ('w-300', 'Name', 'Menu node name.'),
-			'uri'			=> array ('w-200', 'uri', 'uri in the server'),
-			'plg' 			=> array ('w-300', 'Plugin', 'Plugin'),
-			'tmplt'			=> array ('w-200', 'Template', 'Platilla utilizada por el plugin'),
-			''				=> array ('',  'Activo', 'Indica si es visible para los usuarios'),
-	);
-	// @formatter:on
-	private $jsonFile;
+	private array $plgssWithParams;
+	private array $configuredNodes;
 	private bool $isEditable;
 
 
 	public function __construct (Context &$context)
 	{
 		parent::__construct ($context);
-		$this->jsonFile = $GLOBALS ['basePath'] . 'src/tables/mainMenu.jsonTable';
+		// $this->jsonFile = $GLOBALS ['basePath'] . 'src/tables/mainMenu.jsonTable';
 	}
 	const sentido_VALUES = array (0 => 'buy', 1 => 'sell');
 
 
+	// -----------------------------------------------------------------------------------------------------
+	// ------------------------------------------- EDIT MENU -----------------------------------------------
+	// -----------------------------------------------------------------------------------------------------
+
+	// -----------------------------------------------------------------------------------------------------
+	// ---------------------------------------- EDIT PARAMETERS --------------------------------------------
+	// -----------------------------------------------------------------------------------------------------
 	/**
+	 * Menu for node params editing
 	 *
 	 * @return string
 	 */
-	private function showMenuFromDB ()
+	private function editNodeParams ()
 	{
-		$query = "SELECT * FROM weMenu ORDER BY idNodoParent, menuOrder";
-		$menuDB = $this->mysqli->query ($query)->fetch_all (MYSQLI_ASSOC);
-		$orderMenuDb = array ();
-
-		foreach ($menuDB as &$parentItem)
+		if (isset ($_POST ['node']))
 		{
-			// If the menu contains a parent we stop the loop since it should be assigned.
-			// if ($parentItem ['idNodoParent'] != NULL) break;
-
-			$orderMenuDb [$parentItem ['idNodo']] = $parentItem;
-			// We delete the first element, since it will be the one we just saved in our new array
-			array_shift ($menuDB);
-
-			$childs = $this->addChildsMenuItems ($menuDB, $parentItem ['idNodo']);
-			if (! empty ($childs [$parentItem ['idNodo']]))
-			{
-				$orderMenuDb [$parentItem ['idNodo']] ['subOpcs'] = $childs [$parentItem ['idNodo']];
-			}
+			return $this->editNodeParamsSave () . $this->getMainMenu ();
 		}
-
-		$formatter = new ColumnFormatter (self::COLS_TABLE_MENU);
-
-		$retVal = "<div class='head'>{$formatter->getHeaderCols ()}</div>";
-
-		$retVal .= $this->showMenuItems ($formatter, $orderMenuDb);
-
-		return $retVal;
+		else
+		{
+			return $this->editNodeParamsShowForm ();
+		}
 	}
 
 
 	/**
+	 * Save the results in the database
 	 *
-	 * @param array $menuDB
-	 * @param int $parentId
-	 * @return array $childsOfMenu
-	 */
-	private function addChildsMenuItems (&$menuDB, $parentId)
-	{
-		$childsOfMenu = array ();
-		foreach ($menuDB as $index => $childItem)
-		{
-			if ($childItem ['idNodoParent'] == $parentId)
-			{
-				$childsOfMenu [$parentId] [$childItem ['idNodo']] = $childItem;
-				unset ($menuDB [$index]);
-
-				$childs = $this->addChildsMenuItems ($menuDB, $childItem ['idNodo']);
-				if (! empty ($childs [$childItem ['idNodo']]))
-				{
-					$childsOfMenu [$parentId] [$childItem ['idNodo']] ['subOpcs'] = $childs [$childItem ['idNodo']];
-				}
-			}
-		}
-		if (! empty ($childsOfMenu)) return $childsOfMenu;
-	}
-
-
-	/**
-	 *
-	 * @param object $formatter
-	 * @param array $items
 	 * @return string
 	 */
-	private function showMenuItems ($formatter, $items, $ident = 0)
+	private function editNodeParamsSave ()
 	{
-		$retVal = '';
-		foreach ($items as $itemMenu)
+		$node = base64_decode (strtr ($_POST ['node'], '-_', '+/'));
+		$nodeVals = $this->getNodeParamsValues ($node);
+
+		$paramDef = json_decode ($nodeVals ['definition'], true);
+
+		$paramValues = array ();
+		foreach ($paramDef as $param)
 		{
-			$retVal .= '<div class="d-flex">';
-			$retVal .= '<div class="line" style="transform: translateX(' . $ident . 'px);">';
-			$retVal .= $formatter->getStyledBodyCols ($itemMenu);
-			$retVal .= "</div>";
+			$paramValues [$param ['name']] = $_POST [$param ['name']];
+		}
 
-			$retVal .= '<input type="checkbox" ' . ($itemMenu ['isEnable'] ? 'checked' : '') . ' disabled>';
+		$paramValuesStr = $this->context->mysqli->real_escape_string (json_encode ($paramValues));
+		$plg = $nodeVals ['opc'] ['plg'];
 
-			$retVal .= '<span class="w-100"></span>';
-			$link = "{$_SERVER ["REQUEST_URI"]}&idItemMenu={$itemMenu['idNodo']}";
-			$retVal .= "<a href='$link'><span class='w-50'><svg xmlns='http: // www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-pencil-fill' viewBox='0 0 16 16'><path d='M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z'/></svg></span></a>";
-			$retVal .= "</div>";
+		$sql = 'INSERT INTO wePlgParams (mnuNode,plgName,paramValues)';
+		$sql .= " VALUES ('$node','$plg','$paramValuesStr')";
+		$sql .= "ON DUPLICATE KEY UPDATE paramValues='$paramValuesStr'";
 
-			if (isset ($itemMenu ['subOpcs']))
+		$retVal = "<h1>Saving node parameters [$node]</h1>";
+		if (! $this->context->mysqli->query ($sql))
+		{
+			$retVal .= 'Fail!!';
+		}
+		else
+		{
+			$retVal .= 'Success';
+		}
+
+		return $retVal;
+	}
+
+
+	/**
+	 * Loads the data from the database
+	 *
+	 * @param string $node
+	 * @return array
+	 */
+	private function getNodeParamsValues ($node)
+	{
+		$opc = $this->context->mnu->getOpcFromMenu ($node);
+
+		// Load current Values
+		$vals = '[]';
+		$sql = 'SELECT paramValues FROM wePlgParams WHERE plgName="' . $opc ['plg'] . '" AND mnuNode="' . $node . '";';
+		if ($resultado = $this->context->mysqli->query ($sql))
+		{
+			if ($row = $resultado->fetch_assoc ())
 			{
-				$retVal .= $this->showMenuItems ($formatter, $itemMenu ['subOpcs'], $ident + 15);
+				$vals = $row ['paramValues'];
 			}
 		}
 
-		return $retVal;
+		// Load Parameters definition
+		$definition = '[]';
+		$sql = 'SELECT plgParams FROM wePlugins WHERE plgName="' . $opc ['plg'] . '";';
+		if ($resultado = $this->context->mysqli->query ($sql))
+		{
+			if ($row = $resultado->fetch_assoc ())
+			{
+				$definition = $row ['plgParams'];
+			}
+		}
+
+		return array ('vals' => $vals, 'definition' => $definition, 'opc' => $opc);
 	}
 
 
-	private function showEditView ($idItem)
+	/**
+	 * Show the for to edit the fields
+	 *
+	 * @return string
+	 */
+	private function editNodeParamsShowForm ()
 	{
-		$retVal = '';
+		$node = base64_decode (strtr ($_GET ['node'], '-_', '+/'));
+		$nodeVals = $this->getNodeParamsValues ($node);
+		$paramVals = json_decode ($nodeVals ['vals'], true);
+		$paramDef = json_decode ($nodeVals ['definition'], true);
 
-		$fields = array ('plgName' => '');
+		// Finally, we return the values
+		$retVal = '<h1>Edit node Parameters [' . $node . ']</h1>';
+		$retVal .= '<form action="' . $this->uriPrefix . 'acc=editParams' . '" method="post" autocomplete="off">' . PHP_EOL;
+		$retVal .= '<input type="hidden" name="node" value="' . $_GET ['node'] . '" />' . PHP_EOL;
 
-		$autoForm = new AutoForm ($this->jsonFile);
-
-		if (isset ($_POST ['idNodo']))
+		foreach ($paramDef as $param)
 		{
-			$_POST ['isEnable'] = $_POST ['isEnable'] ?? 0;
+			$currVal = isset ($paramVals [$param ['name']]) ? $paramVals [$param ['name']] : $param ['defaultValue'];
+			$fieldInfo = array ();
+			$fieldInfo ['type'] = $param ['type'];
 
-			$autoForm->mysqli = $this->mysqli;
-			$sql = $autoForm->getUpdateSql ([ ], [ 'idNodo']);
-
-			$this->mysqli->query ($sql);
-			$retVal = "<p>Registro Actualizado Correctamente</p>";
-			$retVal .= '<div class="container">';
-			$retVal .= '<a  class="btn rigth" href=' . strtok ($_SERVER ['REQUEST_URI'], '?') . '?a=mnu><i class="material-icons">replay</i>Volver</a>';
-			$retVal .= '</div>';
-			return $retVal;
+			$retVal .= Autoform::getFormField ($param ['name'], $fieldInfo, $currVal, false);
 		}
 
-		$fields ['idNodo'] = $idItem;
-
-		$sql = "SELECT * FROM weMenu WHERE idNodo = $idItem";
-		if ($res = $this->mysqli->query ($sql))
-		{
-			$itemMenu = $res->fetch_assoc ();
-			$fields = array_merge ($fields, $itemMenu);
-
-			$autoForm->setHidden ('idNodo', $fields ['idNodo']);
-			unset ($fields ['idNodo']);
-			unset ($fields ['menuOrder']);
-			if (empty ($fields ['idNodoParent'])) unset ($fields ['idNodoParent']);
-
-			$autoForm->set = array_keys ($fields);
-			$retVal .= $autoForm->generateForm ($fields);
-		}
+		$retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
+		$retVal .= '</form>';
 
 		return $retVal;
 	}
 
-	// -----------------------------------------------------------------------------------------------------
-	// -----------------------------------------------------------------------------------------------------
-	// -----------------------------------------------------------------------------------------------------
-	private array $plgssWithParams;
-	private array $configuredNodes;
 
+	// -----------------------------------------------------------------------------------------------------
+	// -------------------------------------- SHOW THE MENU EDITOR -----------------------------------------
+	// -----------------------------------------------------------------------------------------------------
 
+	/**
+	 * Loads the Parameters in the database
+	 */
 	private function loadPlgsWithParams ()
 	{
 		$this->plgssWithParams = array ();
 		$sql = 'SELECT plgName, plgParams FROM wePlugins WHERE LENGTH(plgParams) >2;';
 		if ($resultado = $this->context->mysqli->query ($sql))
 		{
-			if ($row = $resultado->fetch_assoc ())
+			while ($row = $resultado->fetch_assoc ())
 			{
 				$this->plgssWithParams [$row ['plgName']] = $row ['plgParams'];
 			}
@@ -187,7 +173,7 @@ class EditMenu extends Plugin
 		$sql = 'SELECT * FROM wePlgParams;';
 		if ($resultado = $this->context->mysqli->query ($sql))
 		{
-			if ($row = $resultado->fetch_assoc ())
+			while ($row = $resultado->fetch_assoc ())
 			{
 				$this->nodesWithOpts [$row ['mnuNode']] [$row ['plgName']] = $row ['paramValues'];
 			}
@@ -195,6 +181,14 @@ class EditMenu extends Plugin
 	}
 
 
+	/**
+	 *
+	 * @param string $paramValues
+	 *        	Values in JSOn format
+	 * @param string $paramDefinition
+	 *        	Parameters definition in JSOn Format
+	 * @return string
+	 */
 	private function showCurrentNodeParams ($paramValues, $paramDefinition)
 	{
 		// YAGNI: USe the definition to bbetr show the results
@@ -228,7 +222,8 @@ class EditMenu extends Plugin
 		{
 			$retVal .= '<li>' . $opc ['name'];
 
-			// TODO: if ($this->isEditable) {//Add Move or delete options}
+			// TODO: Add a span with all the actions, so we can float righ them
+			// TODO: if ($this->isEditable) {//Add links for Delete/Move/Create nodes}
 
 			if (isset ($opc ['opc']) && isset ($opc ['plg']) && isset ($this->plgssWithParams [$opc ['plg']]))
 			{
@@ -288,28 +283,18 @@ class EditMenu extends Plugin
 	}
 
 
+	// -----------------------------------------------------------------------------------------------------
+	// ----------------------------------------- MAIN FUNCTION --------------------------------------------
+	// -----------------------------------------------------------------------------------------------------
 	public function main ()
 	{
-
-		// $editMenu = new EditMenu ($context);
-		/*
-		 *
-		 * if (! empty ($_GET ['idItemMenu']))
-		 * {
-		 * $retVal .= $this->showEditView ($_GET ['idItemMenu']);
-		 * }
-		 * else
-		 * {
-		 * // TODO Consider whether to call the menuLoaderDB file to use its selection and array formatting functions
-		 * $retVal .= $this->showMenuFromDB ();
-		 * }
-		 *
-		 * $retVal = str_replace ('@@content@@', $retVal, file_get_contents ($GLOBALS ['basePath'] . 'src/rsc/html/editViews.htm'));
-		 */
 		if (isset ($_GET ['acc']))
 		{
 			switch ($_GET ['acc'])
 			{
+				case 'editParams':
+					return $this->editNodeParams ();
+					break;
 			}
 		}
 		else
