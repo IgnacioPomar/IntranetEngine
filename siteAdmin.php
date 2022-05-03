@@ -139,7 +139,7 @@ class WebEngineAdmin
 	{
 		// If the installation is done in a subdirectory, it would not load the styles correctly
 		$uriPath = str_replace ('site', '', $GLOBALS ['uriPath']);
-		$retVal = "<link rel='stylesheet' type='text/css' href='{$uriPath}src/rsc/css/skel.css'>";
+		$retVal = "<link rel='stylesheet' type='text/css' href='{$uriPath}src/rsc/css/admin.css'>";
 
 		$retVal .= "<div id='toolbar'>{$this->mnuAdmin->getMenu ($this->context->mnu)}</div>";
 

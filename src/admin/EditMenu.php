@@ -164,16 +164,132 @@ class EditMenu extends Plugin
 		return $retVal;
 	}
 
+	// -----------------------------------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------------------------
+	private array $plgssWithParams;
+	private array $configuredNodes;
 
-	public function main ()
+
+	private function loadPlgsWithParams ()
 	{
+		$this->plgssWithParams = array ();
+		$sql = 'SELECT plgName, plgParams FROM wePlugins WHERE LENGTH(plgParams) >2;';
+		if ($resultado = $this->context->mysqli->query ($sql))
+		{
+			if ($row = $resultado->fetch_assoc ())
+			{
+				$this->plgssWithParams [$row ['plgName']] = $row ['plgParams'];
+			}
+		}
+
+		$this->configuredNodes = array ();
+		$sql = 'SELECT * FROM wePlgParams;';
+		if ($resultado = $this->context->mysqli->query ($sql))
+		{
+			if ($row = $resultado->fetch_assoc ())
+			{
+				$this->nodesWithOpts [$row ['mnuNode']] [$row ['plgName']] = $row ['paramValues'];
+			}
+		}
+	}
+
+
+	private function showCurrentNodeParams ($paramValues, $paramDefinition)
+	{
+		// YAGNI: USe the definition to bbetr show the results
+		$paramValues = json_decode ($paramValues);
+		$retVal = '';
+		foreach ($paramValues as $paramName => $paramValue)
+		{
+			$retVal .= '<b>' . $paramName . '</b>: ' . $paramValue . '<br >';
+		}
+		return $retVal;
+	}
+
+
+	/**
+	 * Show the menu level, with Parameters if the plugin has them
+	 *
+	 * @param int $parentID
+	 * @param array $mnu
+	 * @return string
+	 */
+	private function getMenuLevel (int $parentID, array &$mnu)
+	{
+		$retVal = '<ul>';
+
+		if ($this->isEditable)
+		{
+			$retVal .= '<li><a href="' . $this->uriPrefix . 'acc=newNodo&parent=' . $parentID . '&pos=ini">Add node to beginning</a></li>' . PHP_EOL;
+		}
+
+		foreach ($mnu as $opc)
+		{
+			$retVal .= '<li>' . $opc ['name'];
+
+			// TODO: if ($this->isEditable) {//Add Move or delete options}
+
+			if (isset ($opc ['opc']) && isset ($opc ['plg']) && isset ($this->plgssWithParams [$opc ['plg']]))
+			{
+				$base64Nde = rtrim (strtr (base64_encode ($opc ['opc']), '+/', '-_'), '=');
+				$retVal .= '<a href="' . $this->uriPrefix . 'acc=editParams&node=' . $base64Nde . '">Edit Params <span class="Params">';
+				if (isset ($this->nodesWithOpts [$opc ['opc']] [$opc ['plg']]))
+				{
+					$retVal .= $this->showCurrentNodeParams ($this->nodesWithOpts [$opc ['opc']] [$opc ['plg']], $this->plgssWithParams [$opc ['plg']]);
+				}
+				else
+				{
+					$retVal .= 'Using Default Params';
+				}
+				$retVal .= '</span></a>' . PHP_EOL;
+			}
+
+			$retVal .= '</li>' . PHP_EOL;
+
+			if (isset ($opc ['subOpcs']))
+			{
+				// Only DB has $opc ['idNodo']
+				$idNodo = (isset ($opc ['idNodo'])) ? $opc ['idNodo'] : 0;
+				$retVal .= $this->getMenuLevel ($idNodo, $opc ['subOpcs']);
+			}
+		}
+
+		if ($this->isEditable && count ($mnu) > 0)
+		{
+			$retVal .= '<li><a href="' . $this->uriPrefix . 'acc=newNodo&parent=' . $parentID . '&pos=end">Add node at end</a></li>' . PHP_EOL;
+		}
+
+		return $retVal . '</ul>';
+	}
+
+
+	/**
+	 * Show the full Menu
+	 *
+	 * @return string
+	 */
+	private function getMainMenu ()
+	{
+		// Load the menu params
+		$this->loadPlgsWithParams ();
 		$this->isEditable = $this->context->mnu->isEditable;
 
+		// Finally, show the menu
 		$retVal = '<h1>Menu maintenance</h1>';
 		if (! $this->isEditable)
 		{
 			$retVal .= '<p class"warning"> This is a fixed Menu. Is possible adjust params.</p>';
 		}
+
+		$retVal .= '<div id="mnuEditor">' . $this->getMenuLevel (0, $this->context->mnu->arrOpcs) . '</div>';
+
+		return $retVal;
+	}
+
+
+	public function main ()
+	{
 
 		// $editMenu = new EditMenu ($context);
 		/*
@@ -190,8 +306,16 @@ class EditMenu extends Plugin
 		 *
 		 * $retVal = str_replace ('@@content@@', $retVal, file_get_contents ($GLOBALS ['basePath'] . 'src/rsc/html/editViews.htm'));
 		 */
-
-		return $retVal;
+		if (isset ($_GET ['acc']))
+		{
+			switch ($_GET ['acc'])
+			{
+			}
+		}
+		else
+		{
+			return $this->getMainMenu ();
+		}
 	}
 
 
