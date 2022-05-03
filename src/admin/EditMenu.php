@@ -4,6 +4,8 @@ require_once $GLOBALS ['basePath'] . 'src/AutoForm.php';
 
 class EditMenu extends Plugin
 {
+	private static array $pluginList;
+	private static array $templateList;
 	private array $plgssWithParams;
 	private array $configuredNodes;
 	private bool $isEditable;
@@ -12,14 +14,98 @@ class EditMenu extends Plugin
 	public function __construct (Context &$context)
 	{
 		parent::__construct ($context);
-		// $this->jsonFile = $GLOBALS ['basePath'] . 'src/tables/mainMenu.jsonTable';
 	}
-	const sentido_VALUES = array (0 => 'buy', 1 => 'sell');
 
 
 	// -----------------------------------------------------------------------------------------------------
-	// ------------------------------------------- EDIT MENU -----------------------------------------------
+	// -------------------------------------- ADD NEW NODE TO MENU -----------------------------------------
 	// -----------------------------------------------------------------------------------------------------
+	public static function getPlugins ()
+	{
+		return self::$pluginList;
+	}
+
+
+	public static function getTemplates ()
+	{
+		return self::$templateList;
+	}
+
+
+	private function loadStaticData ()
+	{
+		// Load existing plugins
+		$plgs = array ();
+		$sql = 'SELECT plgName, plgDescrip FROM wePlugins;';
+		if ($resultado = $this->context->mysqli->query ($sql))
+		{
+			while ($row = $resultado->fetch_assoc ())
+			{
+				$plgs [$row ['plgName']] = $row ['plgDescrip'];
+			}
+		}
+		self::$pluginList = $plgs;
+
+		// Load existing templates
+		$tmplts = array ();
+		$files = glob ($GLOBALS ['templatePath'] . '*.htm');
+		foreach ($files as $filePath)
+		{
+			$fileName = basename ($filePath);
+			$tmplts [$fileName] = $fileName;
+		}
+
+		self::$templateList = $tmplts;
+	}
+
+
+	private function addNewNode ()
+	{
+		$mnuSchema = $GLOBALS ['basePath'] . 'src/tables/mainMenu.jsonTable';
+		$retVal = '<h1>New Data Form</h1>';
+
+		// We can select the order and wich fields we want to use to create
+		if (isset ($_POST ['uri']))
+		{
+			// Extra values
+			$_POST ['isEnable'] = true;
+
+			$autoForm = new AutoForm ($mnuSchema);
+			$autoForm->mysqli = $this->context->mysqli;
+			$sql = $autoForm->getInsertSql ($_POST);
+
+			if (! $this->context->mysqli->query ($sql))
+			{
+				$retVal .= 'Fail!!';
+			}
+			else
+			{
+				$retVal .= 'Success';
+			}
+
+			$retVal .= '<a href="' . $this->uriPrefix . '">Go Back</a>';
+		}
+		else
+		{
+			$this->loadStaticData ();
+			$autoForm = new AutoForm ($mnuSchema);
+			$autoForm->set = array ('uri', 'plg', 'name', 'tmplt', 'isVisible');
+
+			$autoForm->setHidden ('idNodoParent', $_GET ['parent']);
+			$autoForm->setHidden ('isEnable', 1);
+			$autoForm->setHidden ('menuOrder', 0);
+
+			// Set default Values
+			$defVals = array ();
+			$defVals ['isVisible'] = 1;
+			$defVals ['tmplt'] = 'skel.htm';
+			$defVals ['uri'] = '/';
+			$retVal .= $autoForm->generateForm ($defVals);
+		}
+
+		return $retVal;
+	}
+
 
 	// -----------------------------------------------------------------------------------------------------
 	// ---------------------------------------- EDIT PARAMETERS --------------------------------------------
@@ -215,7 +301,8 @@ class EditMenu extends Plugin
 
 		if ($this->isEditable)
 		{
-			$retVal .= '<li><a href="' . $this->uriPrefix . 'acc=newNodo&parent=' . $parentID . '&pos=ini">Add node to beginning</a></li>' . PHP_EOL;
+			// $retVal .= '<li><a href="' . $this->uriPrefix . 'acc=newNodo&parent=' . $parentID . '&pos=ini">Add node to beginning</a></li>' . PHP_EOL;
+			$retVal .= '<li><a href="' . $this->uriPrefix . 'acc=newNodo&parent=' . $parentID . '&pos=ini">Add new node</a></li>' . PHP_EOL;
 		}
 
 		foreach ($mnu as $opc)
@@ -242,18 +329,26 @@ class EditMenu extends Plugin
 
 			$retVal .= '</li>' . PHP_EOL;
 
+			// Only DB has $opc ['idNodo']
+			$idNodo = (isset ($opc ['idNodo'])) ? $opc ['idNodo'] : 0;
+
 			if (isset ($opc ['subOpcs']))
 			{
-				// Only DB has $opc ['idNodo']
-				$idNodo = (isset ($opc ['idNodo'])) ? $opc ['idNodo'] : 0;
 				$retVal .= $this->getMenuLevel ($idNodo, $opc ['subOpcs']);
+			}
+			else
+			{
+				$fakeSubOpc = array ();
+				$retVal .= $this->getMenuLevel ($idNodo, $fakeSubOpc);
 			}
 		}
 
-		if ($this->isEditable && count ($mnu) > 0)
-		{
-			$retVal .= '<li><a href="' . $this->uriPrefix . 'acc=newNodo&parent=' . $parentID . '&pos=end">Add node at end</a></li>' . PHP_EOL;
-		}
+		/*
+		 * if ($this->isEditable && count ($mnu) > 0)
+		 * {
+		 * $retVal .= '<li><a href="' . $this->uriPrefix . 'acc=newNodo&parent=' . $parentID . '&pos=end">Add node at end</a></li>' . PHP_EOL;
+		 * }
+		 */
 
 		return $retVal . '</ul>';
 	}
@@ -294,6 +389,9 @@ class EditMenu extends Plugin
 			{
 				case 'editParams':
 					return $this->editNodeParams ();
+					break;
+				case 'newNodo':
+					return $this->addNewNode ();
 					break;
 			}
 		}

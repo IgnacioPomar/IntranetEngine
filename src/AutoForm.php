@@ -24,7 +24,7 @@ class AutoForm
 	}
 
 
-	private function isCombo ($type)
+	private static function isCombo ($type)
 	{
 		if ((substr ($type, 0, strlen (self::COMBO_PREFIX)) === self::COMBO_PREFIX))
 		{
@@ -90,10 +90,17 @@ class AutoForm
 
 			// Caso especial: los combos incorporados
 			default:
-				if ($this->isCombo ($type))
+				if (self::isCombo ($type))
 				{
 					$arrNAme = substr ($type, strlen (self::COMBO_PREFIX));
-					$arr = constant ($arrNAme);
+					if (is_callable ($arrNAme))
+					{
+						$arr = $arrNAme ();
+					}
+					else
+					{
+						$arr = constant ($arrNAme);
+					}
 
 					$retVal = '<select class="form-control" id="' . $fieldName . '" name="' . $fieldName . '">';
 					foreach ($arr as $clave => $valorOp)
@@ -158,8 +165,17 @@ class AutoForm
 	{
 		switch ($fieldInfo ['type'])
 		{
-			case 'double':
 			case 'bool':
+				if (is_bool ($val))
+				{
+					return ($val) ? 1 : 0;
+				}
+				else
+				{
+					return (is_numeric ($val)) ? $val : 'NULL';
+				}
+				break;
+			case 'double':
 			case 'auto':
 			case 'int':
 				return (is_numeric ($val)) ? $val : 'NULL';
