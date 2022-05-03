@@ -24,7 +24,7 @@ class MenuLoaderDB
 	 */
 	public static function getArrayMenu ($mysqli, $userId = self::ONLY_SITE_ADMIN)
 	{
-		$query = 'SELECT idNodo, idNodoParent, uri AS opc, plg, isEnable AS "show", name, tmplt FROM weMenu ';
+		$query = 'SELECT idNodo, idNodoParent, uri AS opc, plg, isVisible AS "show", name, tmplt FROM weMenu ';
 		if ($userId != self::ONLY_SITE_ADMIN)
 		{
 			$query .= 'INNER JOIN (SELECT mnuNode, MIN(permValue) minPermValue FROM';
