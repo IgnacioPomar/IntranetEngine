@@ -208,7 +208,7 @@ class EditPermissions extends Plugin
 		$retVal = "<h1>Permissions Management for $desc</h1>";
 		if (! $this->isEditable)
 		{
-			$retVal .= '<p class="info">This is a fixed menu, however it is possible to adjust the parameters.</p>';
+			$retVal .= '<p class="info">This is a fixed menu, however it is possible to adjust the plugin permissions.</p>';
 		}
 
 		$retVal .= '<form action="' . $this->uriPrefix . '" method="post" autocomplete="off">' . PHP_EOL;
@@ -348,7 +348,7 @@ class EditPermissions extends Plugin
 	{
 		$retVal = '<h1>Permissions Management</h1><div class="adminFrame">';
 
-		$retVal .= '<span class="parmissionGroup"><h2>Groups</h2>';
+		$retVal .= '<span class="permissionGroup"><h2>Groups</h2>';
 		$sql = 'SELECT idGrp, grpName FROM weGroups ORDER BY grpName;';
 		if ($resultado = $this->context->mysqli->query ($sql))
 		{
@@ -359,7 +359,7 @@ class EditPermissions extends Plugin
 		}
 		$retVal .= '</span>';
 
-		$retVal .= '<span class="parmissionGroup"><h2>Users</h2>';
+		$retVal .= '<span class="permissionGroup"><h2>Users</h2>';
 		$sql = 'SELECT u.idUser,u.name,g.groups  FROM weUsers u ';
 		$sql .= ' LEFT JOIN  (SELECT GROUP_CONCAT(grpName  SEPARATOR ", ") AS groups, rel.idUser FROM weGroups g INNER JOIN weUsersGroups rel ON g.idGrp = rel.idGrp GROUP BY rel.idUser) g';
 		$sql .= ' ON u.idUser=g.idUser';

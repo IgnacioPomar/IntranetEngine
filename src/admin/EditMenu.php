@@ -295,62 +295,96 @@ class EditMenu extends Plugin
 	 * @param array $mnu
 	 * @return string
 	 */
-	private function getMenuLevel (int $parentID, array &$mnu)
+	private function getMenuLevel (int $level, int $parentID, array &$mnu)
 	{
-		$retVal = '<ul>';
+		$ident = str_repeat ('<span class="w-25"></span>', $level);
+		$retVal = '';
 
 		if ($this->isEditable)
 		{
-			// $retVal .= '<li><a href="' . $this->uriPrefix . 'acc=newNodo&parent=' . $parentID . '&pos=ini">Add node to beginning</a></li>' . PHP_EOL;
-			$retVal .= '<li><a href="' . $this->uriPrefix . 'acc=newNodo&parent=' . $parentID . '&pos=ini">Add new node</a></li>' . PHP_EOL;
+			$text = ($level == 0) ? 'Add menu root node' : 'Add menu child node';
+			$link = $this->uriPrefix . 'acc=newNodo&parent=' . $parentID . '&pos=ini';
+			$retVal .= '<div class="newNodeLink"><span class="nodeId"></span><span class="nodeName">';
+			$retVal .= "$ident<a href=\"$link\">$text</a></span></div>";
 		}
 
 		foreach ($mnu as $opc)
 		{
-			$retVal .= '<li>' . $opc ['name'];
+			$isEnabled = (isset ($opc [isEnable])) ? (1 == $opc [isEnable]) : true;
+			$extraClass = '';
+			$txtNodeId = $opc ['opc'] ?? '';
 
-			// TODO: Add a span with all the actions, so we can float righ them
-			// TODO: if ($this->isEditable) {//Add links for Delete/Move/Create nodes}
-
-			if (isset ($opc ['opc']) && isset ($opc ['plg']) && isset ($this->plgssWithParams [$opc ['plg']]))
+			if (! $isEnabled)
 			{
-				$base64Nde = rtrim (strtr (base64_encode ($opc ['opc']), '+/', '-_'), '=');
-				$retVal .= '<a href="' . $this->uriPrefix . 'acc=editParams&node=' . $base64Nde . '">Edit Params <span class="Params">';
-				if (isset ($this->nodesWithOpts [$opc ['opc']] [$opc ['plg']]))
-				{
-					$retVal .= $this->showCurrentNodeParams ($this->nodesWithOpts [$opc ['opc']] [$opc ['plg']], $this->plgssWithParams [$opc ['plg']]);
-				}
-				else
-				{
-					$retVal .= 'Using Default Params';
-				}
-				$retVal .= '</span></a>' . PHP_EOL;
+				$extraClass = 'disabled';
+				$txtNodeId .= ' (disabled)';
 			}
 
-			$retVal .= '</li>' . PHP_EOL;
+			$fullInfo = '<b>NodeId</b>:' . $opc ['opc'] . '<br />';
+			$fullInfo .= '<b>Plugin</b>:' . $opc ['plg'] . '<br />';
+			$fullInfo .= '<b>Show In tree</b>:' . (($opc ['show'] == 1) ? 'true' : 'false') . '<br />';
+			$fullInfo .= '<b>title</b>:' . $opc ['name'] . '<br />';
+			$fullInfo .= '<b>template</b>:' . $opc ['tmplt'] . '<br />';
+
+			$retVal .= '<div class="menuNode ' . $extraClass . '"><span class="nodeId">' . $txtNodeId . '</span>';
+			$retVal .= '<span class="nodeName">' . $ident . $opc ['name'] . '<span class="PopupInfo">' . $fullInfo . '</span></span>';
+
+			if (! $isEnabled)
+			{
+				// We may reenable, but nothing else
+				$retVal .= '<span class="nodeOpc">';
+				$retVal .= '<a href="' . $this->uriPrefix . 'acc=enable&nodeId=' . $opc ['idNodo'] . '">Enable </a>';
+				$retVal .= '</span>';
+			}
+			else
+			{
+				// Menu options
+				if ($this->isEditable)
+				{
+					// links for Delete/Move/Create nodes
+					$retVal .= '<span class="nodeOpc">';
+					$retVal .= '<a href="' . $this->uriPrefix . 'acc=edit&nodeId=' . $opc ['idNodo'] . '">Edit</a>';
+					$retVal .= '<a href="' . $this->uriPrefix . 'acc=disable&nodeId=' . $opc ['idNodo'] . '">Disable</a>';
+					$retVal .= '<a href="' . $this->uriPrefix . 'acc=moveUp&nodeId=' . $opc ['idNodo'] . '">Up</a>';
+					$retVal .= '<a href="' . $this->uriPrefix . 'acc=moveDown&nodeId=' . $opc ['idNodo'] . '">Down</a>';
+					$retVal .= '<a href="' . $this->uriPrefix . 'acc=delete&nodeId=' . $opc ['idNodo'] . '">Delete</a>';
+					$retVal .= '</span>';
+				}
+
+				// Params editor
+				if (isset ($opc ['opc']) && isset ($opc ['plg']) && isset ($this->plgssWithParams [$opc ['plg']]))
+				{
+					$base64Nde = rtrim (strtr (base64_encode ($opc ['opc']), '+/', '-_'), '=');
+					$retVal .= '<a href="' . $this->uriPrefix . 'acc=editParams&node=' . $base64Nde . '">Edit Params <span class="PopupInfo">';
+					if (isset ($this->nodesWithOpts [$opc ['opc']] [$opc ['plg']]))
+					{
+						$retVal .= $this->showCurrentNodeParams ($this->nodesWithOpts [$opc ['opc']] [$opc ['plg']], $this->plgssWithParams [$opc ['plg']]);
+					}
+					else
+					{
+						$retVal .= 'Using Default Params';
+					}
+					$retVal .= '</span></a>' . PHP_EOL;
+				}
+			}
+
+			$retVal .= '</div>' . PHP_EOL;
 
 			// Only DB has $opc ['idNodo']
 			$idNodo = (isset ($opc ['idNodo'])) ? $opc ['idNodo'] : 0;
 
 			if (isset ($opc ['subOpcs']))
 			{
-				$retVal .= $this->getMenuLevel ($idNodo, $opc ['subOpcs']);
+				$retVal .= $this->getMenuLevel ($level + 1, $idNodo, $opc ['subOpcs']);
 			}
-			else
+			else if ($this->isEditable && $isEnabled)
 			{
 				$fakeSubOpc = array ();
-				$retVal .= $this->getMenuLevel ($idNodo, $fakeSubOpc);
+				$retVal .= $this->getMenuLevel ($level + 1, $idNodo, $fakeSubOpc);
 			}
 		}
 
-		/*
-		 * if ($this->isEditable && count ($mnu) > 0)
-		 * {
-		 * $retVal .= '<li><a href="' . $this->uriPrefix . 'acc=newNodo&parent=' . $parentID . '&pos=end">Add node at end</a></li>' . PHP_EOL;
-		 * }
-		 */
-
-		return $retVal . '</ul>';
+		return $retVal; // . '</ul>';
 	}
 
 
@@ -369,10 +403,11 @@ class EditMenu extends Plugin
 		$retVal = '<h1>Menu maintenance</h1>';
 		if (! $this->isEditable)
 		{
-			$retVal .= '<p class"warning"> This is a fixed Menu. Is possible adjust params.</p>';
+			$retVal .= '<p class="info">This is a fixed menu, however it is possible to adjust the parameters.</p>';
+			// $retVal .= '<p class"warning"> This is a fixed Menu. Is possible adjust params.</p>';
 		}
 
-		$retVal .= '<div id="mnuEditor">' . $this->getMenuLevel (0, $this->context->mnu->arrOpcs) . '</div>';
+		$retVal .= '<div id="mnuEditor">' . $this->getMenuLevel (0, 0, $this->context->mnu->arrOpcs) . '</div>';
 
 		return $retVal;
 	}

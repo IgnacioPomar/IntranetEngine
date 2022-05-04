@@ -24,19 +24,25 @@ class MenuLoaderDB
 	 */
 	public static function getArrayMenu ($mysqli, $userId = self::ONLY_SITE_ADMIN)
 	{
-		$query = 'SELECT m.idNodo, m.idNodoParent, m.uri AS opc, m.plg, m.isVisible AS "show" , m.name, m.tmplt FROM weMenu m ';
 		if ($userId != self::ONLY_SITE_ADMIN)
 		{
+			$query = 'SELECT m.idNodo, m.idNodoParent, m.uri AS opc, m.plg, m.isVisible AS "show" , m.name, m.tmplt FROM weMenu m ';
 			$query .= 'INNER JOIN (SELECT MIN(permValue) permVal,mnuNode,plgName FROM ';
 			$query .= "(SELECT mnuNode,plgName,permValue,permName FROM wePermissionsGroup WHERE idGrp IN (SELECT idGrp FROM weUsersGroups WHERE idUser = $userId) ";
 			$query .= "UNION ALL SELECT mnuNode,plgName,permValue,permName FROM wePermissionsUsers WHERE idUser=$userId) permUnion WHERE permName='' AND permValue <> 0 ";
 			$query .= 'GROUP BY mnuNode,plgName) up ON m.uri = up.mnuNode AND m.plg = up.plgName WHERE up.permVal=1 AND isEnable=1 ';
 		}
+		else
+		{
+			$query = 'SELECT m.idNodo, m.idNodoParent, m.uri AS opc, m.plg, m.isVisible AS "show" , m.name, m.tmplt, m.isEnable FROM weMenu m ';
+		}
 		$query .= 'ORDER BY idNodoParent,menuOrder;';
 
+		// TODO: The following code is not clear: redo
 		$menuDB = $mysqli->query ($query)->fetch_all (MYSQLI_ASSOC);
 
 		$orderMenuDb = array ();
+
 		foreach ($menuDB as &$parentItem)
 		{
 			// If the menu contains a parent we stop the loop since it should be assigned.

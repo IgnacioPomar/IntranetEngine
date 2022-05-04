@@ -1,6 +1,20 @@
+@font-face { 
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('../fonts/Roboto-Regular.ttf'); } 
+@font-face { 
+	font-family: 'Roboto';
+	font-style: bold;
+	font-weight: 700;
+	font-display: swap;
+	src: url('../fonts/Roboto-Bold.ttf'); }
+
 body {
 	margin: 0;
 	padding: 0;
+	font-family: 'Roboto', sans-serif;
 }
 
 #mainContainer {
@@ -214,9 +228,21 @@ div#header {
 }
 
 /*-------------   Menu Editor --------------- */
-span.Params {display: none;vertical-align: top;text-decoration: none;color: black;}
-#mnuEditor a:hover span.Params {display: inline-block;}
+#mnuEditor span.PopupInfo {
+	display: none; position: absolute;z-index: 1;
+	text-decoration: none;color: black;	
+    padding: 12px 16px; margin: 0px;    
+    box-shadow: 0 4px 10px 0 rgba(0,0,0,0.2),0 4px 20px 0 rgba(0,0,0,0.19);
+    border-radius: 10px;
+    top: 0px; left: 0px; width: 200px;
+    background-color: #fff;
+}
+#mnuEditor .nodename span.PopupInfo {width: 400px;}
+#mnuEditor a, #mnuEditor .nodename {position: relative;}
+#mnuEditor a:hover span.PopupInfo, #mnuEditor .nodename:hover span.PopupInfo {display: block;}
+#mnuEditor .nodeOpc a {font-size: 12px;margin-right: 5px;}
 
+.menuNode.disabled span {color: #deb887;font-size: 12px;}
 
 span.nodeName {display: inline-block;width: 400px;vertical-align: bottom;}
 
@@ -242,4 +268,10 @@ dlight {color: #bbbbbb;}
 hlight {color: #c37e00;}
 
 span.permCombo, span.NoEditable {display: inline-block;width: 150px;}
-span.nodeId {display: inline-block;width: 150px;color: #3e00fd;font-weight: bolder;}
+span.nodeId {display: inline-block;width: 200px;color: #3e00fd;font-weight: bolder;}
+span.permissionGroup {display: inline-block;width: 500px;vertical-align: top;}
+span.permissionGroup a{text-decoration:none;color: #000;font-weight: bold;font-size: 14px;}
+span.permissionGroup a span.groups {color: #a5abc5;}
+span.permissionGroup a:hover {color: #1a5be9;}
+
+div#mnuEditor , .adminFrame {padding: 30px;box-shadow: 0 0 10px rgb(0 0 0 / 13%);border-radius: 10px;display: inline-block;}
