@@ -216,3 +216,24 @@ div#header {
 /*-------------   Menu Editor --------------- */
 span.Params {display: none;vertical-align: top;text-decoration: none;color: black;}
 #mnuEditor a:hover span.Params {display: inline-block;}
+
+
+span.nodeName {display: inline-block;width: 400px;vertical-align: bottom;}
+
+span.pluginPerm {display: inline-block;float: right;width: 100px;margin-right: 50px;}
+.menuNode:not(:first-child) {border-top: 1px solid #50cff5;margin-top: 2px;padding-top: 3px;}
+.menuNode, .pluginNode {padding: 1px;}
+#mnuEditor .NoEditable {color: #8d8d8d;}
+
+p.warning, p.info, p.error, p.success {
+	border: 1px solid #ccc;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    padding: 10px 16px;
+    box-shadow: 0 4px 10px 0 rgba(0,0,0,0.2),0 4px 20px 0 rgba(0,0,0,0.19);
+	}
+	
+p.warning {color: #000; background-color: #ffffcc;}
+p.info { color: #000; background-color: #ddffff;}
+p.error { color: #fff; background-color: #f44336;}
+p.success { color: #000; background-color: #ddffdd;}
