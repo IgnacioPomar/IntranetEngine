@@ -237,3 +237,9 @@ p.warning {color: #000; background-color: #ffffcc;}
 p.info { color: #000; background-color: #ddffff;}
 p.error { color: #fff; background-color: #f44336;}
 p.success { color: #000; background-color: #ddffdd;}
+
+dlight {color: #bbbbbb;}
+hlight {color: #c37e00;}
+
+span.permCombo, span.NoEditable {display: inline-block;width: 150px;}
+span.nodeId {display: inline-block;width: 150px;color: #3e00fd;font-weight: bolder;}

@@ -5,11 +5,13 @@ class EditPermissions extends Plugin
 	const PERM_VALUES = array (- 1 => 'DENIED', 0 => 'NOT SET', 1 => 'ALLOWED');
 	private array $plgssWithPerms;
 	private array $currentPerms;
+	private array $efectivePerms;
+	private bool $showEfectivePerms;
 
 
 	private static function addPermCombo ($id, $defVal)
 	{
-		$retval = '<select name="' . $id . '">';
+		$retval = '<span class="permCombo"><select name="' . $id . '">';
 		foreach (self::PERM_VALUES as $idc => $val)
 		{
 			$sel = '';
@@ -17,7 +19,7 @@ class EditPermissions extends Plugin
 
 			$retval .= "<option value=\"$idc\" $sel>$val</option>";
 		}
-		$retval .= "</select>";
+		$retval .= "</select></span>";
 
 		return $retval;
 	}
@@ -45,10 +47,10 @@ class EditPermissions extends Plugin
 	}
 
 
-	private function saveGrpPerms ()
+	private function savePermsCommon ($sqlStart, $idElem)
 	{
 		$sep = '';
-		$sql = 'INSERT INTO wePermissionsGroup (mnuNode,plgName,idGrp,permName, permValue) VALUES';
+		$sql = $sqlStart;
 		foreach ($_POST as $key => $val)
 		{
 			if (substr ($key, 0, 4) === 'b64@')
@@ -59,7 +61,7 @@ class EditPermissions extends Plugin
 				$sql .= $sep . '(';
 				$sql .= '"' . $this->context->mysqli->real_escape_string ($id ['node']) . '",';
 				$sql .= '"' . $this->context->mysqli->real_escape_string ($id ['plg']) . '",';
-				$sql .= $_POST ['idGrp'] . ',';
+				$sql .= $idElem . ',';
 				$sql .= '"' . $this->context->mysqli->real_escape_string ($id ['perm']) . '",';
 				$sql .= $val . ')';
 
@@ -87,6 +89,20 @@ class EditPermissions extends Plugin
 	}
 
 
+	private function saveGrpPerms ()
+	{
+		$sql = 'INSERT INTO wePermissionsGroup (mnuNode,plgName,idGrp,permName, permValue) VALUES';
+		return $this->savePermsCommon ($sql, $_POST ['idGrp']);
+	}
+
+
+	private function saveUsrPerms ()
+	{
+		$sql = 'INSERT INTO wePermissionsUsers (mnuNode,plgName,idUser,permName, permValue) VALUES';
+		return $this->savePermsCommon ($sql, $_POST ['idUsr']);
+	}
+
+
 	private function getStoredValue ($node, $plugin, $perm)
 	{
 		/*
@@ -105,6 +121,13 @@ class EditPermissions extends Plugin
 	}
 
 
+	private function showEfectivePerm ($node, $plugin, $perm)
+	{
+		$efective = $this->efectivePerms [$node] [$plugin] [$perm] ?? 0;
+		return '<span class="efective">' . self::PERM_VALUES [$efective] . '</span>';
+	}
+
+
 	/**
 	 * Show the menu level, with Parameters if the plugin has them
 	 *
@@ -119,7 +142,7 @@ class EditPermissions extends Plugin
 
 		foreach ($mnu as $opc)
 		{
-			$retVal .= '<div class="menuNode"><span class="nodeName">' . $ident . $opc ['name'] . '</span>';
+			$retVal .= '<div class="menuNode"><span class="nodeId">' . $opc ['opc'] . '</span><span class="nodeName">' . $ident . $opc ['name'] . '</span>';
 
 			if ($this->isEditable)
 			{
@@ -128,12 +151,18 @@ class EditPermissions extends Plugin
 					$defVal = $this->getStoredValue ($opc ['opc'], $opc ['plg'], '');
 					$id = self::inputIdEncode ($opc ['opc'], $opc ['plg'], '');
 					$retVal .= self::addPermCombo ($id, $defVal);
+
+					if ($this->showEfectivePerms)
+					{
+						$retVal .= $this->showEfectivePerm ($opc ['opc'], $opc ['plg'], '');
+					}
 				}
 			}
 			else
 			{
 				$retVal .= '<span class="NoEditable">No Editable</span>';
 			}
+
 			// Aqui el combo selector
 			$retVal .= '</div>';
 
@@ -142,11 +171,15 @@ class EditPermissions extends Plugin
 				$extraPerms = json_decode ($this->plgssWithPerms [$opc ['plg']], true);
 				foreach ($extraPerms as $perm)
 				{
-					$retVal .= '<div class="pluginNode"><span class="nodeName">' . $ident . '<span class="pluginPerm">' . $perm . '</span></span>';
+					$retVal .= '<div class="pluginNode"><span class="nodeId"></span><span class="nodeName">' . $ident . '<span class="pluginPerm">' . $perm . '</span></span>';
 
 					$defVal = $this->getStoredValue ($opc ['opc'], $opc ['plg'], $perm);
 					$id = self::inputIdEncode ($opc ['opc'], $opc ['plg'], $perm);
 					$retVal .= self::addPermCombo ($id, $defVal);
+					if ($this->showEfectivePerms)
+					{
+						$retVal .= $this->showEfectivePerm ($opc ['opc'], $opc ['plg'], $perm);
+					}
 					$retVal .= '</div>';
 				}
 			}
@@ -181,8 +214,19 @@ class EditPermissions extends Plugin
 		$retVal .= '<form action="' . $this->uriPrefix . '" method="post" autocomplete="off">' . PHP_EOL;
 		$retVal .= $hiddenInput . PHP_EOL;
 
-		// YAGNI add the Menu editor HEader
-		$retVal .= '<div id="mnuEditor">' . $this->getMenuLevel (0, $this->context->mnu->arrOpcs) . '</div>';
+		$retVal .= '<div id="mnuEditor">';
+
+		// Menu Editor HEader
+		$retVal .= '<div class="header"><span class="nodeId">Node Id</span><span class="nodeName">Node name</span><span class="NoEditable">Permmision</span>';
+		if ($this->showEfectivePerms)
+		{
+			$retVal .= '<span class="efective">Inherited</span>';
+		}
+		$retVal .= '</div>';
+
+		$retVal .= $this->getMenuLevel (0, $this->context->mnu->arrOpcs);
+		$retVal .= '</div>';
+
 		$retVal .= '<button class="btn" type="submit" value="Save">Save</button>';
 		$retVal .= '</form>';
 
@@ -213,7 +257,7 @@ class EditPermissions extends Plugin
 	private function loadCurrentGroupPerms ($idGrp)
 	{
 		$this->currentPerms = array ();
-		$sql = 'SELECT * FROM wePermissionsGroup WHERE idGrp=' . $_GET ['idGrp'] . ';';
+		$sql = 'SELECT * FROM wePermissionsGroup WHERE idGrp=' . $idGrp . ';';
 		if ($resultado = $this->context->mysqli->query ($sql))
 		{
 			while ($row = $resultado->fetch_assoc ())
@@ -224,11 +268,38 @@ class EditPermissions extends Plugin
 	}
 
 
+	private function loadCurrentUserPerms ($idUsr)
+	{
+		$this->currentPerms = array ();
+		$sql = 'SELECT * FROM wePermissionsUsers WHERE idUser=' . $idUsr . ';';
+		if ($resultado = $this->context->mysqli->query ($sql))
+		{
+			while ($row = $resultado->fetch_assoc ())
+			{
+				$this->currentPerms [$row ['mnuNode']] [$row ['plgName']] [$row ['permName']] = $row ['permValue'];
+			}
+		}
+	}
+
+
+	private function loadEfectivePerms ($idUsr)
+	{
+		$this->efectivePerms = array ();
+		$sql = 'SELECT MIN(permValue) as permValue,mnuNode,plgName,permName ';
+		$sql .= 'FROM wePermissionsGroup WHERE permValue<>0 AND idGrp IN ';
+		$sql .= "(SELECT idGrp FROM weUsersGroups WHERE idUser = $idUsr) GROUP BY mnuNode,plgName,permName;";
+		if ($resultado = $this->context->mysqli->query ($sql))
+		{
+			while ($row = $resultado->fetch_assoc ())
+			{
+				$this->efectivePerms [$row ['mnuNode']] [$row ['plgName']] [$row ['permName']] = $row ['permValue'];
+			}
+		}
+	}
+
+
 	private function showGrpForm ()
 	{
-		$this->loadPlgsWithPerms ();
-		$this->loadCurrentGroupPerms ($_GET ['idGrp']);
-
 		// Load group name
 		$grpName = '';
 		$sql = 'SELECT grpName FROM weGroups WHERE idGrp=' . $_GET ['idGrp'] . ';';
@@ -242,7 +313,29 @@ class EditPermissions extends Plugin
 
 		$hiddenInput = '<input type="hidden" name="idGrp" value="' . $_GET ['idGrp'] . '" />';
 
-		return $this->getMainMenu ('group ' . $grpName, $hiddenInput);
+		return $this->getMainMenu ('group <hlight>' . $grpName . '</hlight>', $hiddenInput);
+	}
+
+
+	private function showUsrForm ()
+	{
+		// Load group name
+		$usrName = '';
+		$sql = 'SELECT u.name,g.groups FROM weUsers u ';
+		$sql .= ' LEFT JOIN  (SELECT GROUP_CONCAT(grpName  SEPARATOR ", ") AS groups, rel.idUser FROM weGroups g INNER JOIN weUsersGroups rel ON g.idGrp = rel.idGrp GROUP BY rel.idUser) g';
+		$sql .= ' ON u.idUser=g.idUser WHERE u.idUser=' . $_GET ['idUsr'] . ';';
+		if ($resultado = $this->context->mysqli->query ($sql))
+		{
+			if ($row = $resultado->fetch_assoc ())
+			{
+				$usrName = $row ['name'];
+				$usrGroups = $row ['groups'];
+			}
+		}
+
+		$hiddenInput = '<input type="hidden" name="idUsr" value="' . $_GET ['idUsr'] . '" />';
+
+		return $this->getMainMenu ('user <hlight>' . $usrName . '</hlight> (<dlight>' . $usrGroups . '</dlight>)', $hiddenInput);
 	}
 
 
@@ -308,10 +401,20 @@ class EditPermissions extends Plugin
 	{
 		if (isset ($_GET ['idGrp']))
 		{
+			$this->showEfectivePerms = false;
+			$this->loadPlgsWithPerms ();
+			$this->loadCurrentGroupPerms ($_GET ['idGrp']);
+
 			return $this->showGrpForm ();
 		}
 		else if (isset ($_GET ['idUsr']))
 		{
+			$this->showEfectivePerms = true;
+			$this->loadPlgsWithPerms ();
+			$this->loadCurrentUserPerms ($_GET ['idUsr']);
+			$this->loadEfectivePerms ($_GET ['idUsr']);
+
+			return $this->showUsrForm ();
 		}
 		else if (isset ($_POST ['idGrp']))
 		{
@@ -319,6 +422,7 @@ class EditPermissions extends Plugin
 		}
 		else if (isset ($_POST ['idUsr']))
 		{
+			return $this->saveUsrPerms ();
 		}
 		else
 		{
