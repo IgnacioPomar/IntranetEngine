@@ -24,16 +24,15 @@ class MenuLoaderDB
 	 */
 	public static function getArrayMenu ($mysqli, $userId = self::ONLY_SITE_ADMIN)
 	{
-		$query = 'SELECT idNodo, idNodoParent, uri AS opc, plg, isVisible AS "show", name, tmplt FROM weMenu ';
+		$query = 'SELECT m.idNodo, m.idNodoParent, m.uri AS opc, m.plg, m.isVisible AS "show" , m.name, m.tmplt FROM weMenu m ';
 		if ($userId != self::ONLY_SITE_ADMIN)
 		{
-			$query .= 'INNER JOIN (SELECT mnuNode, MIN(permValue) minPermValue FROM';
-			$query .= "(SELECT permValue, mnuNode FROM wePermissionsUsers WHERE idUser = $userId ";
-			$query .= 'UNION ALL SELECT permValue, mnuNode FROM wePermissionsGroup WHERE idGrp IN';
-			$query .= "(SELECT idGrp FROM weUsersGroups WHERE idUser = $userId)) permission WHERE permValue <> 0 GROUP BY mnuNode) ";
-			$query .= 'permission ON uri = mnuNode AND minPermValue <> -1 ';
+			$query .= 'INNER JOIN (SELECT MIN(permValue) permVal,mnuNode,plgName FROM ';
+			$query .= "(SELECT mnuNode,plgName,permValue,permName FROM wePermissionsGroup WHERE idGrp IN (SELECT idGrp FROM weUsersGroups WHERE idUser = $userId) ";
+			$query .= "UNION ALL SELECT mnuNode,plgName,permValue,permName FROM wePermissionsUsers WHERE idUser=$userId) permUnion WHERE permName='' AND permValue <> 0 ";
+			$query .= 'GROUP BY mnuNode,plgName) up ON m.uri = up.mnuNode AND m.plg = up.plgName WHERE up.permVal=1 AND isEnable=1 ';
 		}
-		$query .= 'WHERE isEnable = 1 ORDER BY idNodoParent, menuOrder';
+		$query .= 'ORDER BY idNodoParent,menuOrder;';
 
 		$menuDB = $mysqli->query ($query)->fetch_all (MYSQLI_ASSOC);
 
