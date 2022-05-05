@@ -305,7 +305,7 @@ class EditMenu extends Plugin
 	{
 		if (isset ($_POST ['node']))
 		{
-			return $this->editNodeParamsSave () . $this->getMainMenu ();
+			return $this->editNodeParamsSave ();
 		}
 		else
 		{
@@ -543,7 +543,7 @@ class EditMenu extends Plugin
 
 		foreach ($mnu as $opc)
 		{
-			$isEnabled = (isset ($opc [isEnable])) ? (1 == $opc [isEnable]) : true;
+			$isEnabled = (isset ($opc ['isEnable'])) ? (1 == $opc ['isEnable']) : true;
 			$extraClass = '';
 			$txtNodeId = $opc ['opc'] ?? '';
 
