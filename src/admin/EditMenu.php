@@ -84,6 +84,51 @@ class EditMenu extends Plugin
 	}
 
 
+	private function deleteNode ()
+	{
+		if (isset ($_POST ['deleteConfirmed']))
+		{
+			$retVal = "<h1>Node deletion confirmed</h1>";
+			$sql = 'DELETE FROM  weMenu WHERE idNodo=' . intval ($_POST ['nodeId']);
+			if (! $this->context->mysqli->query ($sql))
+			{
+				$retVal .= '<p class="error">Failed to delete node.</p>';
+			}
+			else
+			{
+				$retVal .= '<p class="success">Node deleted.</p>';
+			}
+
+			// Reload the menu
+			$menuLoader = basename ($GLOBALS ['moduleMenu'], '.php');
+			$menuLoader::load ($this->context, $this->context->mnu);
+
+			$retVal .= $this->getMainMenu ();
+		}
+		else
+		{
+			$retVal = "<h1>Delete node</h1>";
+			$retVal .= '<p class="warning">A node deletion will be definitive.</p>';
+
+			$opc = self::getNodeData ($this->context->mnu->arrOpcs, $_GET ['nodeId']);
+			if (is_null ($opc))
+			{
+				$retVal .= '<p class="error">Node not found.</p>';
+			}
+			else
+			{
+				$retVal .= self::getOpcFullInfo ($opc);
+				$retVal .= '<form action="' . $this->uriPrefix . 'acc=delete" method="post" autocomplete="off">' . PHP_EOL;
+				$retVal .= '<input type="hidden" name="nodeId" value="' . $_GET ['nodeId'] . '" />' . PHP_EOL;
+				$retVal .= '<input type="hidden" name="deleteConfirmed" value="confirmed" />' . PHP_EOL;
+				$retVal .= '<button class="btn" type="submit" value="Confirm">Confirm</button>';
+				$retVal .= '</form>';
+			}
+		}
+		return $retVal;
+	}
+
+
 	// -----------------------------------------------------------------------------------------------------
 	// -------------------------------------- ADD NEW NODE TO MENU -----------------------------------------
 	// -----------------------------------------------------------------------------------------------------
@@ -462,6 +507,20 @@ class EditMenu extends Plugin
 	}
 
 
+	private static function getOpcFullInfo (array &$opc)
+	{
+		$fullInfo = '<span class="PopupInfo">';
+		$fullInfo .= '<b>NodeId</b>:' . $opc ['opc'] . '<br />';
+		$fullInfo .= '<b>Plugin</b>:' . $opc ['plg'] . '<br />';
+		$fullInfo .= '<b>Show In tree</b>:' . (($opc ['show'] == 1) ? 'true' : 'false') . '<br />';
+		$fullInfo .= '<b>title</b>:' . $opc ['name'] . '<br />';
+		$fullInfo .= '<b>template</b>:' . $opc ['tmplt'] . '<br />';
+		$fullInfo .= '</span>';
+
+		return $fullInfo;
+	}
+
+
 	/**
 	 * Show the menu level, with Parameters if the plugin has them
 	 *
@@ -494,14 +553,10 @@ class EditMenu extends Plugin
 				$txtNodeId .= ' (disabled)';
 			}
 
-			$fullInfo = '<b>NodeId</b>:' . $opc ['opc'] . '<br />';
-			$fullInfo .= '<b>Plugin</b>:' . $opc ['plg'] . '<br />';
-			$fullInfo .= '<b>Show In tree</b>:' . (($opc ['show'] == 1) ? 'true' : 'false') . '<br />';
-			$fullInfo .= '<b>title</b>:' . $opc ['name'] . '<br />';
-			$fullInfo .= '<b>template</b>:' . $opc ['tmplt'] . '<br />';
+			$fullInfo = self::getOpcFullInfo ($opc);
 
 			$retVal .= '<div class="menuNode ' . $extraClass . '"><span class="nodeId">' . $txtNodeId . '</span>';
-			$retVal .= '<span class="nodeName">' . $ident . $opc ['name'] . '<span class="PopupInfo">' . $fullInfo . '</span></span>';
+			$retVal .= '<span class="nodeName">' . $ident . $opc ['name'] . $fullInfo . '</span>';
 
 			if (! $isEnabled)
 			{
