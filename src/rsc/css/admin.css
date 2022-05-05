@@ -234,10 +234,10 @@ div#header {
     padding: 12px 16px; margin: 0px;    
     box-shadow: 0 4px 10px 0 rgba(0,0,0,0.2),0 4px 20px 0 rgba(0,0,0,0.19);
     border-radius: 10px;
-    top: 0px; left: 0px; width: 200px;
+    top: 0px; left: 0px; width: 400px; 
     background-color: #fff;
 }
-#mnuEditor .nodename span.PopupInfo {width: 400px;}
+#mnuEditor span.PopupInfo b {width: 100px;display: inline-block;}
 #mnuEditor a, #mnuEditor .nodename {position: relative;}
 #mnuEditor a:hover span.PopupInfo, #mnuEditor .nodename:hover span.PopupInfo {display: block;}
 #mnuEditor .nodeOpc a {font-size: 12px;margin-right: 5px;}

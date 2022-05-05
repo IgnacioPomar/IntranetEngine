@@ -18,6 +18,73 @@ class EditMenu extends Plugin
 
 
 	// -----------------------------------------------------------------------------------------------------
+	// ------------------------------------------- NODE UTILS ----------------------------------------------
+	// -----------------------------------------------------------------------------------------------------
+	private function disableNode ()
+	{
+		$retVal = "<h1>Disabbling node</h1>";
+		$sql = 'UPDATE weMenu SET isEnable=0 WHERE idNodo=' . intval ($_GET ['nodeId']);
+		if (! $this->context->mysqli->query ($sql))
+		{
+			$retVal .= '<p class="error">Failed disabling node.</p>';
+		}
+		else
+		{
+			$retVal .= '<p class="success">Node disabled.</p>';
+		}
+
+		// Reload the menu
+		$menuLoader = basename ($GLOBALS ['moduleMenu'], '.php');
+		$menuLoader::load ($this->context, $this->context->mnu);
+
+		return $retVal;
+	}
+
+
+	private function enableNode ()
+	{
+		$retVal = "<h1>Enabling node</h1>";
+		$sql = 'UPDATE weMenu SET isEnable=1 WHERE idNodo=' . intval ($_GET ['nodeId']);
+		if (! $this->context->mysqli->query ($sql))
+		{
+			$retVal .= '<p class="error">Failed enabling node.</p>';
+		}
+		else
+		{
+			$retVal .= '<p class="success">Node enabled.</p>';
+		}
+
+		// Reload the menu
+		$menuLoader = basename ($GLOBALS ['moduleMenu'], '.php');
+		$menuLoader::load ($this->context, $this->context->mnu);
+
+		return $retVal;
+	}
+
+
+	private function changeNodeOrder ()
+	{
+		$retVal = "<h1>Change Node Order</h1>";
+		$dir = (0 == intval ($_GET ['d'])) ? '-1' : '+1';
+		$sql = 'UPDATE weMenu SET menuOrder=menuOrder' . $dir . ' WHERE idNodo=' . intval ($_GET ['nodeId']);
+		if (! $this->context->mysqli->query ($sql))
+		{
+			$retVal .= '<p class="error">Failed enabling node.</p>';
+		}
+		else
+		{
+			$retVal .= '<p class="success">Node enabled.</p>';
+		}
+
+		// Reload the menu
+		$menuLoader = basename ($GLOBALS ['moduleMenu'], '.php');
+		$menuLoader::load ($this->context, $this->context->mnu);
+
+		return $retVal;
+	}
+
+
+	// -----------------------------------------------------------------------------------------------------
 	// -------------------------------------- ADD NEW NODE TO MENU -----------------------------------------
 	// -----------------------------------------------------------------------------------------------------
 	public static function getPlugins ()
@@ -76,14 +143,18 @@ class EditMenu extends Plugin
 
 			if (! $this->context->mysqli->query ($sql))
 			{
-				$retVal .= 'Fail!!';
+				$retVal .= '<p class="error">Failed to add node.</p>';
 			}
 			else
 			{
-				$retVal .= 'Success';
+				$retVal .= '<p class="success">Node added.</p>';
 			}
 
-			$retVal .= '<a href="' . $this->uriPrefix . '">Go Back</a>';
+			// Reload the menu
+			$menuLoader = basename ($GLOBALS ['moduleMenu'], '.php');
+			$menuLoader::load ($this->context, $this->context->mnu);
+
+			$retVal .= $this->getMainMenu ();
 		}
 		else
 		{
@@ -156,12 +227,18 @@ class EditMenu extends Plugin
 		$retVal = "<h1>Saving node parameters [$node]</h1>";
 		if (! $this->context->mysqli->query ($sql))
 		{
-			$retVal .= 'Fail!!';
+			$retVal .= '<p class="error">Failed to save new parameters.</p>';
 		}
 		else
 		{
-			$retVal .= 'Success';
+			$retVal .= '<p class="success">Parameters changed.</p>';
 		}
+
+		// Reload the menu
+		$menuLoader = basename ($GLOBALS ['moduleMenu'], '.php');
+		$menuLoader::load ($this->context, $this->context->mnu);
+
+		$retVal .= $this->getMainMenu ();
 
 		return $retVal;
 	}
@@ -341,12 +418,13 @@ class EditMenu extends Plugin
 				// Menu options
 				if ($this->isEditable)
 				{
+					// YAGNI: convert in FORMs with post send
 					// links for Delete/Move/Create nodes
 					$retVal .= '<span class="nodeOpc">';
 					$retVal .= '<a href="' . $this->uriPrefix . 'acc=edit&nodeId=' . $opc ['idNodo'] . '">Edit</a>';
 					$retVal .= '<a href="' . $this->uriPrefix . 'acc=disable&nodeId=' . $opc ['idNodo'] . '">Disable</a>';
-					$retVal .= '<a href="' . $this->uriPrefix . 'acc=moveUp&nodeId=' . $opc ['idNodo'] . '">Up</a>';
-					$retVal .= '<a href="' . $this->uriPrefix . 'acc=moveDown&nodeId=' . $opc ['idNodo'] . '">Down</a>';
+					$retVal .= '<a href="' . $this->uriPrefix . 'acc=orderCgh&d=0&nodeId=' . $opc ['idNodo'] . '">Up</a>';
+					$retVal .= '<a href="' . $this->uriPrefix . 'acc=orderCgh&d=1&nodeId=' . $opc ['idNodo'] . '">Down</a>';
 					$retVal .= '<a href="' . $this->uriPrefix . 'acc=delete&nodeId=' . $opc ['idNodo'] . '">Delete</a>';
 					$retVal .= '</span>';
 				}
@@ -426,6 +504,21 @@ class EditMenu extends Plugin
 					return $this->editNodeParams ();
 					break;
 				case 'newNodo':
+					return $this->addNewNode ();
+					break;
+				case 'disable':
+					return $this->disableNode () . $this->getMainMenu ();
+					break;
+				case 'enable':
+					return $this->enableNode () . $this->getMainMenu ();
+					break;
+				case 'orderCgh':
+					return $this->changeNodeOrder () . $this->getMainMenu ();
+					break;
+				case 'delete':
+					return $this->addNewNode ();
+					break;
+				case 'edit':
 					return $this->addNewNode ();
 					break;
 			}
