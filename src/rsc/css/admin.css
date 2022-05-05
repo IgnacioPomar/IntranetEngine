@@ -240,7 +240,31 @@ div#header {
 #mnuEditor span.PopupInfo b {width: 100px;display: inline-block;}
 #mnuEditor a, #mnuEditor .nodename {position: relative;}
 #mnuEditor a:hover span.PopupInfo, #mnuEditor .nodename:hover span.PopupInfo {display: block;}
+#mnuEditor .nodeOpc form {display: inline-block;margin: 0px;vertical-align: bottom;}
 #mnuEditor .nodeOpc a {font-size: 12px;margin-right: 5px;}
+
+#mnuEditor .nodeOpc button.btn, #mnuEditor .nodeOpc a {
+    background-repeat: no-repeat; background-size: auto;
+    border: none;
+    width: 23px; height: 19px;
+    cursor: pointer;
+    background-color: transparent;
+    color: transparent;
+    margin: 0px;
+}
+
+#mnuEditor .nodeOpc {vertical-align: bottom;display: inline-block;}
+#mnuEditor .nodeOpc a {display:inline-block;}
+#mnuEditor .nodeOpc a.edit  {background-image: url(../img/solid_pen.svg);}
+#mnuEditor .nodeOpc a.delete  {background-image: url(../img/trash.svg);}
+
+#mnuEditor .nodeOpc button.btn.enable {background-image: url(../img/toggle-off.svg);}
+#mnuEditor .nodeOpc button.btn.disable {background-image: url(../img/toggle-on.svg);}
+#mnuEditor .nodeOpc button.btn.orderCgh.up {background-image: url(../img/arrow_up.svg);}
+#mnuEditor .nodeOpc button.btn.orderCgh.down {background-image: url(../img/arrow_down.svg);}
+
+
+
 
 .menuNode.disabled span {color: #deb887;font-size: 12px;}
 
@@ -268,7 +292,7 @@ dlight {color: #bbbbbb;}
 hlight {color: #c37e00;}
 
 span.permCombo, span.NoEditable {display: inline-block;width: 150px;}
-span.nodeId {display: inline-block;width: 200px;color: #3e00fd;font-weight: bolder;}
+span.nodeId {display: inline-block;width: 200px;color: #3e00fd;font-weight: bolder;vertical-align: bottom;}
 span.permissionGroup {display: inline-block;width: 500px;vertical-align: top;}
 span.permissionGroup a{text-decoration:none;color: #000;font-weight: bold;font-size: 14px;}
 span.permissionGroup a span.groups {color: #a5abc5;}

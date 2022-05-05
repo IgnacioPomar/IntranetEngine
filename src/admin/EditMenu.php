@@ -365,6 +365,33 @@ class EditMenu extends Plugin
 	}
 
 
+	private function actionForm ($action, $idNodo, $text, $hiddenOpcs = '')
+	{
+		$retVal = '<form action="' . $this->uriPrefix . '" method="post" autocomplete="off">' . PHP_EOL;
+		$retVal .= '<input type="hidden" name="acc" value="' . $action . '" />' . PHP_EOL;
+		$retVal .= '<input type="hidden" name="nodeId" value="' . $idNodo . '" />' . PHP_EOL;
+		$extraClass = '';
+		if (is_array ($hiddenOpcs))
+		{
+			foreach ($hiddenOpcs as $opc => $val)
+			{
+				if ($opc == 'cls')
+				{
+					$extraClass = ' ' . $val;
+				}
+				else
+				{
+					$retVal .= '<input type="hidden" name="' . $opc . '" value="' . $val . '" />' . PHP_EOL;
+				}
+			}
+		}
+		$retVal .= '<button class="btn ' . $action . $extraClass . '" type="submit" value="exec" title="' . $text . '">' . $text . '</button>';
+		$retVal .= '</form>';
+
+		return $retVal;
+	}
+
+
 	/**
 	 * Show the menu level, with Parameters if the plugin has them
 	 *
@@ -410,7 +437,7 @@ class EditMenu extends Plugin
 			{
 				// We may reenable, but nothing else
 				$retVal .= '<span class="nodeOpc">';
-				$retVal .= '<a href="' . $this->uriPrefix . 'acc=enable&nodeId=' . $opc ['idNodo'] . '">Enable </a>';
+				$retVal .= $this->actionForm ('enable', $opc ['idNodo'], 'Enable');
 				$retVal .= '</span>';
 			}
 			else
@@ -421,11 +448,12 @@ class EditMenu extends Plugin
 					// YAGNI: convert in FORMs with post send
 					// links for Delete/Move/Create nodes
 					$retVal .= '<span class="nodeOpc">';
-					$retVal .= '<a href="' . $this->uriPrefix . 'acc=edit&nodeId=' . $opc ['idNodo'] . '">Edit</a>';
-					$retVal .= '<a href="' . $this->uriPrefix . 'acc=disable&nodeId=' . $opc ['idNodo'] . '">Disable</a>';
-					$retVal .= '<a href="' . $this->uriPrefix . 'acc=orderCgh&d=0&nodeId=' . $opc ['idNodo'] . '">Up</a>';
-					$retVal .= '<a href="' . $this->uriPrefix . 'acc=orderCgh&d=1&nodeId=' . $opc ['idNodo'] . '">Down</a>';
-					$retVal .= '<a href="' . $this->uriPrefix . 'acc=delete&nodeId=' . $opc ['idNodo'] . '">Delete</a>';
+					$retVal .= $this->actionForm ('disable', $opc ['idNodo'], 'Disable');
+					$retVal .= $this->actionForm ('orderCgh', $opc ['idNodo'], 'Up', array ('d' => 0, 'cls' => 'up'));
+					$retVal .= $this->actionForm ('orderCgh', $opc ['idNodo'], 'Down', array ('d' => 1, 'cls' => 'down'));
+
+					$retVal .= '<a href="' . $this->uriPrefix . 'acc=edit&nodeId=' . $opc ['idNodo'] . '" class="edit" title="Edit Node">Edit</a>';
+					$retVal .= '<a href="' . $this->uriPrefix . 'acc=delete&nodeId=' . $opc ['idNodo'] . '" class="delete" title="Delete Node">Delete</a>';
 					$retVal .= '</span>';
 				}
 
@@ -506,6 +534,18 @@ class EditMenu extends Plugin
 				case 'newNodo':
 					return $this->addNewNode ();
 					break;
+				case 'delete':
+					return $this->addNewNode ();
+					break;
+				case 'edit':
+					return $this->addNewNode ();
+					break;
+			}
+		}
+		else if (isset ($_POST ['acc']))
+		{
+			switch ($_POST ['acc'])
+			{
 				case 'disable':
 					return $this->disableNode () . $this->getMainMenu ();
 					break;
@@ -514,12 +554,6 @@ class EditMenu extends Plugin
 					break;
 				case 'orderCgh':
 					return $this->changeNodeOrder () . $this->getMainMenu ();
-					break;
-				case 'delete':
-					return $this->addNewNode ();
-					break;
-				case 'edit':
-					return $this->addNewNode ();
 					break;
 			}
 		}
