@@ -23,7 +23,7 @@ class EditMenu extends Plugin
 	private function disableNode ()
 	{
 		$retVal = "<h1>Disabbling node</h1>";
-		$sql = 'UPDATE weMenu SET isEnable=0 WHERE idNodo=' . intval ($_GET ['nodeId']);
+		$sql = 'UPDATE weMenu SET isEnable=0 WHERE idNodo=' . intval ($_POST ['nodeId']);
 		if (! $this->context->mysqli->query ($sql))
 		{
 			$retVal .= '<p class="error">Failed disabling node.</p>';
@@ -44,7 +44,7 @@ class EditMenu extends Plugin
 	private function enableNode ()
 	{
 		$retVal = "<h1>Enabling node</h1>";
-		$sql = 'UPDATE weMenu SET isEnable=1 WHERE idNodo=' . intval ($_GET ['nodeId']);
+		$sql = 'UPDATE weMenu SET isEnable=1 WHERE idNodo=' . intval ($_POST ['nodeId']);
 		if (! $this->context->mysqli->query ($sql))
 		{
 			$retVal .= '<p class="error">Failed enabling node.</p>';
@@ -65,8 +65,8 @@ class EditMenu extends Plugin
 	private function changeNodeOrder ()
 	{
 		$retVal = "<h1>Change Node Order</h1>";
-		$dir = (0 == intval ($_GET ['d'])) ? '-1' : '+1';
-		$sql = 'UPDATE weMenu SET menuOrder=menuOrder' . $dir . ' WHERE idNodo=' . intval ($_GET ['nodeId']);
+		$dir = (0 == intval ($_POST ['d'])) ? '-1' : '+1';
+		$sql = 'UPDATE weMenu SET menuOrder=menuOrder' . $dir . ' WHERE idNodo=' . intval ($_POST ['nodeId']);
 		if (! $this->context->mysqli->query ($sql))
 		{
 			$retVal .= '<p class="error">Failed enabling node.</p>';
@@ -171,6 +171,76 @@ class EditMenu extends Plugin
 			$defVals ['isVisible'] = 1;
 			$defVals ['tmplt'] = 'skel.htm';
 			$defVals ['uri'] = '/';
+			$retVal .= $autoForm->generateForm ($defVals);
+		}
+
+		return $retVal;
+	}
+
+
+	private static function getNodeData (array &$opcs, $idNode)
+	{
+		foreach ($opcs as $opc)
+		{
+			if ($opc ['idNodo'] == $idNode)
+			{
+				return $opc;
+			}
+			else if (isset ($opc ['subOpcs']))
+			{
+				$retVal = self::getNodeData ($opc ['subOpcs'], $idNode);
+				if (! is_null ($retVal))
+				{
+					return $retVal;
+				}
+			}
+		}
+		return null;
+	}
+
+
+	private function editNode ()
+	{
+		$mnuSchema = $GLOBALS ['basePath'] . 'src/tables/mainMenu.jsonTable';
+		$retVal = '<h1>New Data Form</h1>';
+
+		// We can select the order and wich fields we want to use to create
+		if (isset ($_POST ['uri']))
+		{
+			// Extra values
+
+			$autoForm = new AutoForm ($mnuSchema);
+			$autoForm->mysqli = $this->context->mysqli;
+			$sql = $autoForm->getUpdateSql ($_POST, array ('idNodo'));
+
+			if (! $this->context->mysqli->query ($sql))
+			{
+				$retVal .= '<p class="error">Failed to edit node.</p>';
+			}
+			else
+			{
+				$retVal .= '<p class="success">Node updated.</p>';
+			}
+
+			// Reload the menu
+			$menuLoader = basename ($GLOBALS ['moduleMenu'], '.php');
+			$menuLoader::load ($this->context, $this->context->mnu);
+
+			$retVal .= $this->getMainMenu ();
+		}
+		else
+		{
+			$this->loadStaticData ();
+			$autoForm = new AutoForm ($mnuSchema);
+			$autoForm->set = array ('uri', 'plg', 'name', 'tmplt', 'isVisible');
+			$autoForm->setHidden ('idNodo', $_GET ['nodeId']);
+
+			// Set default Values
+			$defVals = self::getNodeData ($this->context->mnu->arrOpcs, $_GET ['nodeId']);
+			if (! is_null ($defVals))
+			{
+				$defVals ['uri'] = $defVals ['opc'];
+			}
 			$retVal .= $autoForm->generateForm ($defVals);
 		}
 
@@ -535,10 +605,10 @@ class EditMenu extends Plugin
 					return $this->addNewNode ();
 					break;
 				case 'delete':
-					return $this->addNewNode ();
+					return $this->deleteNode ();
 					break;
 				case 'edit':
-					return $this->addNewNode ();
+					return $this->editNode ();
 					break;
 			}
 		}
