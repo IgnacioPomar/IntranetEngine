@@ -142,7 +142,18 @@ class EditPermissions extends Plugin
 
 		foreach ($mnu as $opc)
 		{
-			$retVal .= '<div class="menuNode"><span class="nodeId">' . $opc ['opc'] . '</span><span class="nodeName">' . $ident . $opc ['name'] . '</span>';
+			$isEnabled = (isset ($opc ['isEnable'])) ? (1 == $opc ['isEnable']) : true;
+			$extraClass = '';
+			$txtNodeId = $opc ['opc'] ?? '';
+
+			if (! $isEnabled)
+			{
+				$extraClass = 'disabled';
+				$txtNodeId .= ' (disabled)';
+			}
+
+			$retVal .= '<div class="menuNode ' . $extraClass . '"><span class="nodeId">' . $txtNodeId . '</span>';
+			$retVal .= '<span class="nodeName">' . $ident . $opc ['name'] . '</span>';
 
 			if ($this->isEditable)
 			{
