@@ -23,6 +23,7 @@ class WebEngineAdmin
     // @formatter:on
 	private Menu $mnuAdmin;
 	private Context $context;
+	private int $userId;
 
 
 	public function __construct ()
