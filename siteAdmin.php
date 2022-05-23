@@ -177,7 +177,7 @@ class WebEngineAdmin
 
 		if ($this->userId !== NULL)
 		{
-			if ($_SESSION ['isAdmin'] == 1)
+		    if (isset($_SESSION ['isAdmin']) && $_SESSION ['isAdmin'] == 1)
 			{
 				return TRUE;
 			}

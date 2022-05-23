@@ -20,12 +20,14 @@ class Auth
 		}
 
 		$auth = new Auth ();
-		$auth->userId = NULL;
+		$auth->userId = -1;
 		$auth->mysqli = $mysqli;
 
 		if ($auth->checkLocallogin ()) return $auth->userId;
 
 		$auth->showSetupLoginForm ();
+		
+		return $auth->userId;
 	}
 
 
