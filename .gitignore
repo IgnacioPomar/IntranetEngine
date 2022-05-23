@@ -3,6 +3,12 @@ plgs/*
 skins/*
 cfg/*
 
+# Except this files
+!plgs/index.htm
+!skins/index.htm
+!cfg/index.htm
+
+
 #force those paths to exists
 !plgs/index.htm
 !skins/index.htm
