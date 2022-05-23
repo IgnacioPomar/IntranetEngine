@@ -510,10 +510,10 @@ class EditMenu extends Plugin
 	private static function getOpcFullInfo (array &$opc)
 	{
 		$fullInfo = '<span class="PopupInfo">';
-		$fullInfo .= '<b>NodeId</b>:' . $opc ['opc'] . '<br />';
-		$fullInfo .= '<b>Plugin</b>:' . $opc ['plg'] . '<br />';
+		$fullInfo .= '<b>NodeId</b>:' . ($opc ['opc']?? 'N/A') . '<br />';
+		$fullInfo .= '<b>Plugin</b>:' . ($opc ['plg']?? 'N/A') . '<br />';
 		$fullInfo .= '<b>Show In tree</b>:' . (($opc ['show'] == 1) ? 'true' : 'false') . '<br />';
-		$fullInfo .= '<b>title</b>:' . $opc ['name'] . '<br />';
+		$fullInfo .= '<b>title</b>:' . ($opc ['name']?? 'N/A') . '<br />';
 		$fullInfo .= '<b>template</b>:' . $opc ['tmplt'] . '<br />';
 		$fullInfo .= '</span>';
 
