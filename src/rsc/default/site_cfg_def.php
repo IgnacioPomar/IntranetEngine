@@ -8,7 +8,7 @@ $GLOBALS ['Version'] = '0.1';
 
 // Selected modules
 $GLOBALS ['moduleAuth'] = 'src/auth_vanilla.php';
-$GLOBALS ['moduleMenu'] = 'src/menu_json.php';
+$GLOBALS ['moduleMenu'] = 'src/@@mnuType@@';
 
 // ----------------------------------
 // Database CFG
