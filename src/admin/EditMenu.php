@@ -514,7 +514,7 @@ class EditMenu extends Plugin
 		$fullInfo .= '<b>Plugin</b>:' . ($opc ['plg']?? 'N/A') . '<br />';
 		$fullInfo .= '<b>Show In tree</b>:' . (($opc ['show'] == 1) ? 'true' : 'false') . '<br />';
 		$fullInfo .= '<b>title</b>:' . ($opc ['name']?? 'N/A') . '<br />';
-		$fullInfo .= '<b>template</b>:' . $opc ['tmplt'] . '<br />';
+		$fullInfo .= '<b>template</b>:' . ($opc ['tmplt']?? 'N/A') . '<br />';
 		$fullInfo .= '</span>';
 
 		return $fullInfo;
