@@ -11,12 +11,14 @@ class AutoForm
 	public $mysqli;
 	public $externalHeadHTML;
 	public $externalFooterHTML;
-	const COMBO_PREFIX = 'combo@';
+	const STD_COMBO_PREFIX = 'combo@';
+	const DB_COMBO_PREFIX = 'dbcombo@';
+	const DB_MULTI_PREFIX = 'dbMulti@';
 
 
 	public function __construct ($jsonFile)
 	{
-		if (is_null ())
+		if (is_null ($jsonFile))
 		{
 			$this->tableName = '';
 			$this->fields = array ();
@@ -31,9 +33,17 @@ class AutoForm
 	}
 
 
-	private function isCombo ($type)
+	public static function newWithMysql ($jsonFile, $mysqli)
 	{
-		if ((substr ($type, 0, strlen (self::COMBO_PREFIX)) === self::COMBO_PREFIX))
+		$obj = new AutoForm ($jsonFile);
+		$obj->mysqli = $mysqli;
+		return $obj;
+	}
+
+
+	private static function isType ($type, $defType)
+	{
+		if ((substr ($type, 0, strlen ($defType)) === $defType))
 		{
 			return true;
 		}
@@ -90,7 +100,7 @@ class AutoForm
 				$val = 1;
 				break;
 
-			// Inputs sin ningún tipo de cambio
+			// Inputs without changes
 			case 'date':
 			case 'email':
 			case 'color':
@@ -98,31 +108,100 @@ class AutoForm
 
 			// Caso especial: los combos incorporados
 			default:
-				if ($this->isCombo ($type))
+				if (self::isType ($type, self::STD_COMBO_PREFIX))
 				{
-					$arrNAme = substr ($type, strlen (self::COMBO_PREFIX));
-					if (is_callable ($arrNAme))
-					{
-						$arr = $arrNAme ();
-					}
-					else
-					{
-						$arr = constant ($arrNAme);
-					}
-
-					$retVal = '<select class="form-control" id="' . $fieldName . '" name="' . $fieldName . '">';
-					foreach ($arr as $clave => $valorOp)
-					{
-						$selected = ($val == $clave) ? 'selected' : '';
-						$retVal .= '<option value="' . $clave . '" ' . $selected . '>' . $valorOp . '</option>';
-					}
-					return $prefix . $retVal . '</select>' . $sufix;
+					return $this->getStdCombo ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix);
+				}
+				if (self::isType ($type, self::DB_COMBO_PREFIX))
+				{
+					return $this->getDbCombo ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix);
+				}
+				if (self::isType ($type, self::DB_MULTI_PREFIX))
+				{
+					return $this->getDbMultiselect ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix);
 				}
 				break;
 		}
 
 		$retVal = '<input id="' . $fieldName . '"  name="' . $fieldName . '"  type="' . $type . '"  value="' . $val . '" ' . join (' ', $params) . '>';
 		return $prefix . $retVal . $sufix;
+	}
+
+
+	private function getStdCombo ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix)
+	{
+		$arrNAme = substr ($type, strlen (self::STD_COMBO_PREFIX));
+		if (is_callable ($arrNAme))
+		{
+			$arr = $arrNAme ();
+		}
+		else
+		{
+			$arr = constant ($arrNAme);
+		}
+		return $this->getCombo ($fieldName, $val, $inputDisabled, $arr, $prefix, $sufix);
+	}
+
+
+	private function getDbCombo ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix)
+	{
+		$arr = $this->loadDataFromDb (substr ($type, strlen (self::DB_COMBO_PREFIX)));
+		return $this->getCombo ($fieldName, $val, $inputDisabled, $arr, $prefix, $sufix);
+	}
+
+
+	private function getDbMultiselect ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix)
+	{
+		$arr = $this->loadDataFromDb (substr ($type, strlen (self::DB_COMBO_PREFIX)));
+		return $this->getMultiselect ($fieldName, $val, $inputDisabled, $arr, $prefix, $sufix);
+	}
+
+
+	/**
+	 * Load data from the database to fill copmbo/select
+	 *
+	 * @param string $dbDescription
+	 *        	has the format table:id:string
+	 */
+	private function loadDataFromDb ($dbDescription)
+	{
+		list ($table, $id, $showVal) = explode (":", $dbDescription);
+		$sql = "SELECT $id,$showVal FROM $table ORDER BY $showVal;";
+
+		$retVal = array ();
+		if ($res = $this->mysqli->query ($sql))
+		{
+			while ($row = $res->fetch_assoc ())
+			{
+				$retVal [$row [$id]] = $row [$showVal];
+			}
+		}
+
+		return $retVal;
+	}
+
+
+	private function getCombo ($fieldName, $val, $inputDisabled, $arr, $prefix, $sufix)
+	{
+		$retVal = '<select class="form-control" id="' . $fieldName . '" name="' . $fieldName . '">';
+		foreach ($arr as $clave => $valorOp)
+		{
+			$selected = ($val == $clave) ? 'selected' : '';
+			$retVal .= '<option value="' . $clave . '" ' . $selected . '>' . $valorOp . '</option>';
+		}
+		return $prefix . $retVal . '</select>' . $sufix;
+	}
+
+
+	private function getMultiselect ($fieldName, $val, $inputDisabled, $arr, $prefix, $sufix)
+	{
+		$retVal = '<select multiple class="form-control" id="' . $fieldName . '" name="' . $fieldName . '[]">';
+		foreach ($arr as $clave => $valorOp)
+		{
+			$selected = ($val == $clave) ? 'selected' : '';
+			$retVal .= '<option value="' . $clave . '" ' . $selected . '>' . $valorOp . '</option>';
+		}
+		return $prefix . $retVal . '</select>' . $sufix;
 	}
 
 
@@ -171,6 +250,11 @@ class AutoForm
 
 	private function getSqlFormatted ($val, $fieldInfo)
 	{
+		if (isset ($fieldInfo ['formType']) && self::isType ($fieldInfo ['formType'], self::DB_MULTI_PREFIX))
+		{
+			$val = json_encode ($val, JSON_NUMERIC_CHECK);
+		}
+
 		switch ($fieldInfo ['type'])
 		{
 			case 'bool':
