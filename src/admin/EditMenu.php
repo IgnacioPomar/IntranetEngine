@@ -412,13 +412,14 @@ class EditMenu extends Plugin
 		$retVal .= '<form action="' . $this->uriPrefix . 'acc=editParams' . '" method="post" autocomplete="off">' . PHP_EOL;
 		$retVal .= '<input type="hidden" name="node" value="' . $_GET ['node'] . '" />' . PHP_EOL;
 
+		$autof = new AutoForm (null);
 		foreach ($paramDef as $param)
 		{
 			$currVal = isset ($paramVals [$param ['name']]) ? $paramVals [$param ['name']] : $param ['defaultValue'];
 			$fieldInfo = array ();
 			$fieldInfo ['type'] = $param ['type'];
 
-			$retVal .= Autoform::getFormField ($param ['name'], $fieldInfo, $currVal, false);
+			$retVal .= $autof->getFormField ($param ['name'], $fieldInfo, $currVal, false);
 		}
 
 		$retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
@@ -510,11 +511,11 @@ class EditMenu extends Plugin
 	private static function getOpcFullInfo (array &$opc)
 	{
 		$fullInfo = '<span class="PopupInfo">';
-		$fullInfo .= '<b>NodeId</b>:' . ($opc ['opc']?? 'N/A') . '<br />';
-		$fullInfo .= '<b>Plugin</b>:' . ($opc ['plg']?? 'N/A') . '<br />';
+		$fullInfo .= '<b>NodeId</b>:' . ($opc ['opc'] ?? 'N/A') . '<br />';
+		$fullInfo .= '<b>Plugin</b>:' . ($opc ['plg'] ?? 'N/A') . '<br />';
 		$fullInfo .= '<b>Show In tree</b>:' . (($opc ['show'] == 1) ? 'true' : 'false') . '<br />';
-		$fullInfo .= '<b>title</b>:' . ($opc ['name']?? 'N/A') . '<br />';
-		$fullInfo .= '<b>template</b>:' . ($opc ['tmplt']?? 'N/A') . '<br />';
+		$fullInfo .= '<b>title</b>:' . ($opc ['name'] ?? 'N/A') . '<br />';
+		$fullInfo .= '<b>template</b>:' . ($opc ['tmplt'] ?? 'N/A') . '<br />';
 		$fullInfo .= '</span>';
 
 		return $fullInfo;

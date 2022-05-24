@@ -61,6 +61,7 @@ class DbSchema
 				return ' DATETIME DEFAULT NULL';
 				break;
 			case 'text':
+			case 'textarea':
 				return ' text DEFAULT NULL';
 				break;
 			case 'json':

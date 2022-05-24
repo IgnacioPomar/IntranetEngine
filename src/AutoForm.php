@@ -16,15 +16,22 @@ class AutoForm
 
 	public function __construct ($jsonFile)
 	{
-		$tableInfo = json_decode (file_get_contents ($jsonFile), true);
-
-		$this->tableName = DbSchema::getTableName ($tableInfo);
-		$this->fields = $tableInfo ['fields'];
+		if (is_null ())
+		{
+			$this->tableName = '';
+			$this->fields = array ();
+		}
+		else
+		{
+			$tableInfo = json_decode (file_get_contents ($jsonFile), true);
+			$this->tableName = DbSchema::getTableName ($tableInfo);
+			$this->fields = $tableInfo ['fields'];
+		}
 		$this->hiddenFields = array ();
 	}
 
 
-	private static function isCombo ($type)
+	private function isCombo ($type)
 	{
 		if ((substr ($type, 0, strlen (self::COMBO_PREFIX)) === self::COMBO_PREFIX))
 		{
@@ -37,7 +44,7 @@ class AutoForm
 	}
 
 
-	public static function getFormField ($fieldName, $fieldInfo, $val, $inputDisabled)
+	public function getFormField ($fieldName, $fieldInfo, $val, $inputDisabled)
 	{
 		$formType = (isset ($fieldInfo ['formType'])) ? $fieldInfo ['formType'] : $fieldInfo ['type'];
 		$label = (isset ($fieldInfo ['label'])) ? $fieldInfo ['label'] : $fieldName;
@@ -56,6 +63,7 @@ class AutoForm
 				return '<input type="hidden" name="' . $fieldName . '" value="' . $val . '" />' . PHP_EOL;
 				break;
 			case 'json':
+			case 'text':
 			case 'textarea':
 				$retVal = '<textarea id="' . $fieldName . '" name="' . $fieldName . '" >' . $val . '</textarea>';
 				return $prefix . $retVal . $sufix;
@@ -90,7 +98,7 @@ class AutoForm
 
 			// Caso especial: los combos incorporados
 			default:
-				if (self::isCombo ($type))
+				if ($this->isCombo ($type))
 				{
 					$arrNAme = substr ($type, strlen (self::COMBO_PREFIX));
 					if (is_callable ($arrNAme))
@@ -133,7 +141,7 @@ class AutoForm
 	public function generateForm ($rowData, $isDisabled = FALSE)
 	{
 		$action = $_SERVER ['REQUEST_URI'];
-		$retVal = '<form action="' . $action . '" method="post" autocomplete="off">';
+		$retVal = '<form action="' . $action . '" method="post" autocomplete="off" class="autoform">';
 		$retVal .= $this->getExtraHiddenFields ();
 
 		$retVal .= $this->externalHeadHTML;
@@ -186,6 +194,8 @@ class AutoForm
 				break;
 			case 'json':
 			case 'string':
+			case 'text':
+			case 'textarea':
 				return '"' . $this->mysqli->real_escape_string ($val) . '"';
 				break;
 		}
