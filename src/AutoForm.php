@@ -248,6 +248,14 @@ class AutoForm
 	}
 
 
+	private function validateDate ($date, $format = 'Y-m-d')
+	{
+		$d = DateTime::createFromFormat ($format, $date);
+		// The Y ( 4 digits year ) returns TRUE for any integer with any number of digits so changing the comparison from == to === fixes the issue.
+		return $d && $d->format ($format) === $date;
+	}
+
+
 	private function getSqlFormatted ($val, $fieldInfo)
 	{
 		if (isset ($fieldInfo ['formType']) && self::isType ($fieldInfo ['formType'], self::DB_MULTI_PREFIX))
@@ -274,7 +282,14 @@ class AutoForm
 				break;
 			case 'datetime':
 			case 'date': // YAGNI: verificar formato de la fecha
-				return '"' . $this->mysqli->real_escape_string ($val) . '"';
+				if ($this->validateDate ($val))
+				{
+					return '"' . $val . '"';
+				}
+				else
+				{
+					return 'NULL';
+				}
 				break;
 			case 'json':
 			case 'string':
@@ -311,7 +326,7 @@ class AutoForm
 
 		foreach ($this->fields as $fieldName => $fieldInfo)
 		{
-			if (isset ($_POST [$fieldName]))
+			if (isset ($data [$fieldName]))
 			{
 				$retVal .= $sep . $fieldName;
 				$values .= $sep . $this->getSqlFormatted ($_POST [$fieldName], $fieldInfo);
@@ -332,7 +347,7 @@ class AutoForm
 		$whereSep = ' WHERE ';
 		foreach ($this->fields as $fieldName => $fieldInfo)
 		{
-			if (isset ($_POST [$fieldName]))
+			if (isset ($data [$fieldName]))
 			{
 
 				if (in_array ($fieldName, $idxs))
