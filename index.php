@@ -1,7 +1,6 @@
 <?php
 include_once ('src/defines.php');
 include_once ('src/Context.php');
-require_once ('src/menu.php');
 
 class WELauncher
 {

@@ -2,7 +2,6 @@
 include_once ('src/defines.php');
 include_once ('src/Context.php');
 include_once ('src/Plugin.php');
-require_once ('src/menu.php');
 include_once ('src/admin/installer.php');
 
 class WebEngineAdmin
@@ -177,7 +176,7 @@ class WebEngineAdmin
 
 		if ($this->userId !== NULL)
 		{
-		    if (isset($_SESSION ['isAdmin']) && $_SESSION ['isAdmin'] == 1)
+			if (isset ($_SESSION ['isAdmin']) && $_SESSION ['isAdmin'] == 1)
 			{
 				return TRUE;
 			}
