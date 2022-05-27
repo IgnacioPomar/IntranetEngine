@@ -2,10 +2,10 @@
 
 abstract class Plugin
 {
-	protected $params = array ();
-	protected $perms = array ();
-	protected $context;
-	protected $uriPrefix;
+	protected array $params = array ();
+	protected array $perms = array ();
+	protected Context $context;
+	protected string $uriPrefix;
 
 
 	// IdNodoMenu

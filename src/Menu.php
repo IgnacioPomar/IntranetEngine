@@ -121,6 +121,33 @@ class Menu
 	}
 
 
+	private function getLinkOpcWithPlgFromMnuLvl (string $plgName, &$mnu)
+	{
+		foreach ($mnu as $opc)
+		{
+			if (isset ($opc ['plg']) && $opc ['plg'] == $plgName)
+			{
+				return $opc ['opc'];
+			}
+			else if (isset ($opc ['subOpcs']))
+			{
+				$retVal = $this->getLinkOpcWithPlgFromMnuLvl ($plgName, $opc ['subOpcs']);
+				if (! is_null ($retVal))
+				{
+					return $retVal;
+				}
+			}
+		}
+		return null;
+	}
+
+
+	public function getLinkOpcWithPlg (string $plgName)
+	{
+		return $_SERVER ['SCRIPT_NAME'] . $this->getLinkOpcWithPlgFromMnuLvl ($plgName, $this->arrOpcs);
+	}
+
+
 	/**
 	 * Searchs recursively for the selected option
 	 *
