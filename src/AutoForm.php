@@ -72,6 +72,9 @@ class AutoForm
 			case 'hidden':
 				return '<input type="hidden" name="' . $fieldName . '" value="' . $val . '" />' . PHP_EOL;
 				break;
+			case 'separator':
+				return '<hr />' . PHP_EOL;
+				break;
 			case 'json':
 			case 'text':
 			case 'textarea':
@@ -125,6 +128,12 @@ class AutoForm
 
 		$retVal = '<input id="' . $fieldName . '"  name="' . $fieldName . '"  type="' . $type . '"  value="' . $val . '" ' . join (' ', $params) . '>';
 		return $prefix . $retVal . $sufix;
+	}
+
+
+	public function appendFields (array $extraFields)
+	{
+		$this->fields = array_merge ($this->fields, $extraFields);
 	}
 
 
@@ -329,12 +338,40 @@ class AutoForm
 			if (isset ($data [$fieldName]))
 			{
 				$retVal .= $sep . $fieldName;
-				$values .= $sep . $this->getSqlFormatted ($_POST [$fieldName], $fieldInfo);
+				$values .= $sep . $this->getSqlFormatted ($data [$fieldName], $fieldInfo);
 
 				$sep = ', ';
 			}
 		}
 		return $retVal . $values . ');';
+	}
+
+
+	public function getInsertSqlDirData (array $data, array $dirDta)
+	{
+		$retVal = 'INSERT INTO ' . $this->tableName . ' (';
+		$values = ') SELECT ';
+
+		$sep = '';
+
+		foreach ($this->fields as $fieldName => $fieldInfo)
+		{
+			if (isset ($dirDta [$fieldName]))
+			{
+				$retVal .= $sep . $fieldName;
+				$values .= $sep . $dirDta [$fieldName];
+
+				$sep = ', ';
+			}
+			else if (isset ($data [$fieldName]))
+			{
+				$retVal .= $sep . $fieldName;
+				$values .= $sep . $this->getSqlFormatted ($data [$fieldName], $fieldInfo);
+
+				$sep = ', ';
+			}
+		}
+		return $retVal . $values . ';';
 	}
 
 
@@ -352,12 +389,12 @@ class AutoForm
 
 				if (in_array ($fieldName, $idxs))
 				{
-					$where .= $whereSep . $fieldName . '=' . $this->getSqlFormatted ($_POST [$fieldName], $fieldInfo);
+					$where .= $whereSep . $fieldName . '=' . $this->getSqlFormatted ($data [$fieldName], $fieldInfo);
 					$whereSep = ' AND ';
 				}
 				else
 				{
-					$retVal .= $fieldSep . $fieldName . '=' . $this->getSqlFormatted ($_POST [$fieldName], $fieldInfo);
+					$retVal .= $fieldSep . $fieldName . '=' . $this->getSqlFormatted ($data [$fieldName], $fieldInfo);
 
 					$fieldSep = ', ';
 				}
@@ -368,11 +405,11 @@ class AutoForm
 	}
 
 
-	public static function editJsonForm ($jsonFile, $rowData, $fieldSet)
+	public static function editJsonForm ($jsonFile, $rowData = null, $fieldSet = null)
 	{
 		$autoForm = new AutoForm ($jsonFile);
-		$autoForm->set = $fieldSet;
+		$autoForm->set = $fieldSet ?? array_keys ($autoForm->fields);
 
-		return $autoForm->generateForm ($rowData);
+		return $autoForm->generateForm ($rowData ?? $_POST);
 	}
 }
