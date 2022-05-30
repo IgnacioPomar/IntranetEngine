@@ -78,7 +78,14 @@ class AutoForm
 			case 'json':
 			case 'text':
 			case 'textarea':
-				$retVal = '<textarea id="' . $fieldName . '" name="' . $fieldName . '" >' . $val . '</textarea>';
+				if ($inputDisabled)
+				{
+					$retVal = '<pre >' . $val . '</pre>';
+				}
+				else
+				{
+					$retVal = '<textarea id="' . $fieldName . '" name="' . $fieldName . '" >' . $val . '</textarea>';
+				}
 				return $prefix . $retVal . $sufix;
 				break;
 
@@ -192,25 +199,53 @@ class AutoForm
 
 	private function getCombo ($fieldName, $val, $inputDisabled, $arr, $prefix, $sufix)
 	{
-		$retVal = '<select class="form-control" id="' . $fieldName . '" name="' . $fieldName . '">';
-		foreach ($arr as $clave => $valorOp)
+		if ($inputDisabled)
 		{
-			$selected = ($val == $clave) ? 'selected' : '';
-			$retVal .= '<option value="' . $clave . '" ' . $selected . '>' . $valorOp . '</option>';
+			return $prefix . '<input   type="string"  value="' . $arr [$val] . '" disabled>' . $sufix;
 		}
-		return $prefix . $retVal . '</select>' . $sufix;
+		else
+		{
+			$retVal = '<select class="form-control" id="' . $fieldName . '" name="' . $fieldName . '">';
+			foreach ($arr as $clave => $valorOp)
+			{
+				$selected = ($val == $clave) ? 'selected' : '';
+				$retVal .= '<option value="' . $clave . '" ' . $selected . '>' . $valorOp . '</option>';
+			}
+			return $prefix . $retVal . '</select>' . $sufix;
+		}
 	}
 
 
 	private function getMultiselect ($fieldName, $val, $inputDisabled, $arr, $prefix, $sufix)
 	{
-		$retVal = '<select multiple class="form-control" id="' . $fieldName . '" name="' . $fieldName . '[]">';
-		foreach ($arr as $clave => $valorOp)
+		if (! is_array ($val))
 		{
-			$selected = ($val == $clave) ? 'selected' : '';
-			$retVal .= '<option value="' . $clave . '" ' . $selected . '>' . $valorOp . '</option>';
+			$val = array ($val);
 		}
-		return $prefix . $retVal . '</select>' . $sufix;
+
+		if ($inputDisabled)
+		{
+			$retVal = '';
+			foreach ($arr as $clave => $valorOp)
+			{
+				if (in_array ($clave, $val))
+				{
+					$retVal .= '<span class="multOpc">' . $valorOp . '</span>';
+				}
+			}
+			return $prefix . $retVal . $sufix;
+		}
+		else
+		{
+
+			$retVal = '<select multiple class="form-control" id="' . $fieldName . '" name="' . $fieldName . '[]">';
+			foreach ($arr as $clave => $valorOp)
+			{
+				$selected = (in_array ($clave, $val)) ? 'selected' : '';
+				$retVal .= '<option value="' . $clave . '" ' . $selected . '>' . $valorOp . '</option>';
+			}
+			return $prefix . $retVal . '</select>' . $sufix;
+		}
 	}
 
 
@@ -307,6 +342,12 @@ class AutoForm
 				return '"' . $this->mysqli->real_escape_string ($val) . '"';
 				break;
 		}
+	}
+
+
+	public function showAllFields ()
+	{
+		$this->set = array_keys ($this->fields);
 	}
 
 
