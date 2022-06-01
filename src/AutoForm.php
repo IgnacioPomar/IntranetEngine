@@ -264,7 +264,8 @@ class AutoForm
 	public function generateForm ($rowData, $isDisabled = FALSE)
 	{
 		$action = $_SERVER ['REQUEST_URI'];
-		$retVal = '<form action="' . $action . '" method="post" autocomplete="off" class="autoform">';
+		$extra = ($isDisabled) ? ' disabled ' : '';
+		$retVal = '<form action="' . $action . '" method="post" autocomplete="off" class="autoform' . $extra . '">';
 		$retVal .= $this->getExtraHiddenFields ();
 
 		$retVal .= $this->externalHeadHTML;
