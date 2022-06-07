@@ -1,5 +1,6 @@
 <?php
 include_once ('dbSchema.php');
+include_once ('SearchBox.php');
 
 class AutoForm
 {
@@ -14,6 +15,7 @@ class AutoForm
 	const STD_COMBO_PREFIX = 'combo@';
 	const DB_COMBO_PREFIX = 'dbcombo@';
 	const DB_MULTI_PREFIX = 'dbMulti@';
+	const SEARCH_BOX = 'searchBox@';
 
 
 	public function __construct ($jsonFile)
@@ -122,13 +124,17 @@ class AutoForm
 				{
 					return $this->getStdCombo ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix);
 				}
-				if (self::isType ($type, self::DB_COMBO_PREFIX))
+				else if (self::isType ($type, self::DB_COMBO_PREFIX))
 				{
 					return $this->getDbCombo ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix);
 				}
-				if (self::isType ($type, self::DB_MULTI_PREFIX))
+				else if (self::isType ($type, self::DB_MULTI_PREFIX))
 				{
 					return $this->getDbMultiselect ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix);
+				}
+				else if (self::isType ($type, self::SEARCH_BOX))
+				{
+					return $this->getSearchBox ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix);
 				}
 				break;
 		}
@@ -141,6 +147,27 @@ class AutoForm
 	public function appendFields (array $extraFields)
 	{
 		$this->fields = array_merge ($this->fields, $extraFields);
+	}
+
+
+	private function getSearchBox ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix)
+	{
+		$className = substr ($type, strlen (self::SEARCH_BOX));
+		$myclass = new $className ();
+
+		$realVal = (is_numeric ($val)) ? $val : 0;
+		// El parametro recibido es una clase con los dtaos necesarios
+		// Un searchBox se compone de un hidden con el ID real, del lable, del input (deahabilitado), y de un boton
+		$retVal = '<input type="hidden" name="' . $fieldName . '" value="' . $realVal . '" />';
+		$retVal .= '<input id="' . $fieldName . '_Text" value="' . $myclass->getTextVal ($this->mysqli, $realVal) . '"  disabled="" class="searchBox">';
+		if (! $inputDisabled)
+		{
+			$retVal .= '<button type="button" id="' . $fieldName . '_Btn" >...</button>';
+		}
+
+		return $prefix . $retVal . $sufix;
+
+		return $retVal;
 	}
 
 
