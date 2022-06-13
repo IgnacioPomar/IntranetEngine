@@ -299,6 +299,11 @@ class AutoForm
 
 		foreach ($this->set as $fieldName)
 		{
+			if (! isset ($this->fields [$fieldName]))
+			{
+				continue;
+			}
+
 			$val = '';
 			if (isset ($rowData [$fieldName]))
 			{
@@ -308,7 +313,7 @@ class AutoForm
 			{
 				$val = $this->fields [$fieldName] ['defaultValue'];
 			}
-			$retVal .= self::getFormField ($fieldName, $this->fields [$fieldName] ?? [ 'type' => 'text'], $val, $isDisabled);
+			$retVal .= self::getFormField ($fieldName, $this->fields [$fieldName], $val, $isDisabled);
 		}
 
 		$retVal .= $this->externalFooterHTML;
