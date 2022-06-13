@@ -158,7 +158,7 @@ class AutoForm
 		$realVal = (is_numeric ($val)) ? $val : 0;
 		// El parametro recibido es una clase con los dtaos necesarios
 		// Un searchBox se compone de un hidden con el ID real, del lable, del input (deahabilitado), y de un boton
-		$retVal = '<input type="hidden" name="' . $fieldName . '" value="' . $realVal . '" />';
+		$retVal = '<input type="hidden" id="' . $fieldName . '" name="' . $fieldName . '" value="' . $realVal . '" />';
 		$retVal .= '<input id="' . $fieldName . '_Text" value="' . $myclass->getTextVal ($this->mysqli, $realVal) . '"  disabled="" class="searchBox">';
 		if (! $inputDisabled)
 		{
