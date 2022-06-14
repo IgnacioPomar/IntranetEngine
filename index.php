@@ -68,7 +68,7 @@ class WELauncher
 		include_once ($GLOBALS ['moduleAuth']);
 		$context->userId = Auth::login ($context->mysqli);
 
-		return ($context->userId !== NULL);
+		return ($context->userId !== - 1);
 	}
 
 

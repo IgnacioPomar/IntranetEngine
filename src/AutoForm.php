@@ -7,6 +7,7 @@ class AutoForm
 	// YAGNI: Considerar separar el comportamiento de los formularios en un json aparte para no "ensuciar" la estructura bd ela tabhla
 	private $fields;
 	private $tableName;
+	private $varSchema;
 	private $hiddenFields;
 	public $set; // Set of fields the autoform is going to show
 	public $mysqli;
@@ -20,6 +21,7 @@ class AutoForm
 
 	public function __construct ($jsonFile)
 	{
+		$this->varSchema = '';
 		if (is_null ($jsonFile))
 		{
 			$this->tableName = '';
@@ -28,6 +30,10 @@ class AutoForm
 		else
 		{
 			$tableInfo = json_decode (file_get_contents ($jsonFile), true);
+			if (isset ($tableInfo ['varSchema']))
+			{
+				$this->varSchema = $GLOBALS [$tableInfo ['varSchema']] . '.';
+			}
 			$this->tableName = DbSchema::getTableName ($tableInfo);
 			$this->fields = $tableInfo ['fields'];
 		}
@@ -209,6 +215,10 @@ class AutoForm
 	private function loadDataFromDb ($dbDescription)
 	{
 		list ($table, $id, $showVal) = explode (":", $dbDescription);
+
+		// TODO: improve and make generic with a unknown schema
+		$table = $this->varSchema . $table;
+
 		$sql = "SELECT $id,$showVal FROM $table ORDER BY $showVal;";
 
 		$retVal = array ();
@@ -286,6 +296,13 @@ class AutoForm
 
 		return $retVal;
 	}
+	private $btnAttr;
+
+
+	public function setSubmitBtn ($name, $text, $class)
+	{
+		$this->btnAttr = array ('nam' => $name, 'val' => $text, 'class' => $class);
+	}
 
 
 	public function generateForm ($rowData, $isDisabled = FALSE)
@@ -318,7 +335,17 @@ class AutoForm
 
 		$retVal .= $this->externalFooterHTML;
 
-		if (! $isDisabled) $retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
+		if (! $isDisabled)
+		{
+			if (isset ($this->btnAttr))
+			{
+				$retVal .= '<button class="btn ' . $this->btnAttr ['class'] . '" name="' . $this->btnAttr ['nam'] . '" type="submit" value="' . $this->btnAttr ['val'] . '">' . $this->btnAttr ['val'] . '</button>';
+			}
+			else
+			{
+				$retVal .= '<button class="btn" type="submit" value="Grabar">Grabar</button>';
+			}
+		}
 		$retVal .= '</form>';
 
 		return $retVal;
@@ -375,6 +402,12 @@ class AutoForm
 				return '"' . $this->mysqli->real_escape_string ($val) . '"';
 				break;
 		}
+	}
+
+
+	public function getFieldKeys (): array
+	{
+		return array_keys ($this->fields);
 	}
 
 
