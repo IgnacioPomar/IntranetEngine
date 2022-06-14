@@ -196,7 +196,7 @@ class MaintenanceUsers extends Plugin
 	private function insertNewUser ($autoForm)
 	{
 		$autoForm->mysqli = $this->context->mysqli;
-		$query = $autoForm->getInsertSql ([ ]);
+		$query = $autoForm->getInsertSql ($_POST);
 		$this->context->mysqli->query ($query);
 
 		$this->updateTableUsersGroups ($this->context->mysqli->insert_id);
