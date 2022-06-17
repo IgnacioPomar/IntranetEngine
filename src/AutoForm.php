@@ -70,7 +70,7 @@ class AutoForm
 		$type = $formType;
 		switch ($formType)
 		{
-			// Casos diferentes (rompen el flujo)
+			// ---------- Must return inmediatlely ------------
 			case 'hidden':
 				return '<input type="hidden" name="' . $fieldName . '" value="' . $val . '" />' . PHP_EOL;
 				break;
@@ -90,7 +90,17 @@ class AutoForm
 				}
 				return $prefix . $retVal . $sufix;
 				break;
+			case 'bool':
+				$type = 'checkbox';
+				$extraTag = ($val) ? 'checked' : '';
+				$val = 1;
 
+				$retVal = '<input id="' . $fieldName . '"  name="' . $fieldName . '"  type="checkbox"  value="' . $val . '" ' . $extraTag . '>';
+				$retVal .= '<input name="' . $fieldName . '"  type="hidden"  value="0">'; // POST wont sent nothingg if disabled
+				return $prefix . $retVal . $sufix;
+				break;
+
+			// ---------- Standar Inputs ------------
 			// Inputs que se muestran por pantalla (al salir del switch se usan)
 			case 'string':
 				$type = 'text';
@@ -105,11 +115,6 @@ class AutoForm
 				break;
 			case 'datetime':
 				$type = 'date';
-				break;
-			case 'bool':
-				$type = 'checkbox';
-				if ($val) $params [] = 'checked';
-				$val = 1;
 				break;
 
 			// Inputs without changes
@@ -342,7 +347,10 @@ class AutoForm
 				{
 					return ($val) ? 1 : 0;
 				}
-				else
+				else if (is_array ($val))
+				{
+					return reset ($val);
+				}
 				{
 					return (is_numeric ($val)) ? $val : 'NULL';
 				}
