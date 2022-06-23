@@ -20,13 +20,13 @@ class Auth
 		}
 
 		$auth = new Auth ();
-		$auth->userId = -1;
+		$auth->userId = - 1;
 		$auth->mysqli = $mysqli;
 
 		if ($auth->checkLocallogin ()) return $auth->userId;
 
 		$auth->showSetupLoginForm ();
-		
+
 		return $auth->userId;
 	}
 
@@ -40,7 +40,7 @@ class Auth
 		}
 
 		$auth = new Auth ();
-		$auth->userId = NULL;
+		$auth->userId = - 1;
 		$auth->mysqli = $mysqli;
 
 		// 1.- Comprobar si venimos de otras sesiones
@@ -63,7 +63,7 @@ class Auth
 		// ---------- No tenemos id de usuario que devolver ----------
 		// 5.- Mostrar el formulario de login
 		$auth->showLoginForm ();
-		return NULL;
+		return - 1;
 	}
 
 

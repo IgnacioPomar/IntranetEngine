@@ -17,9 +17,9 @@ define ('VERSION', '0.1');
 function getRelativeSitePath ()
 {
 	$rutaRelativa = $_SERVER ['SCRIPT_NAME'];
-	$rutaRelativa = dirname ($rutaRelativa) . '/'; // Quitamos index.php
+	$rutaRelativa = dirname ($rutaRelativa); // REmove index.php
 
-	return $rutaRelativa;
+	return rtrim ($rutaRelativa, '/') . '/'; // Force end with slash
 }
 
 // Rutas necesarias para poder moevr de directorio de forma transparente
