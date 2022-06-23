@@ -93,10 +93,9 @@ class AutoForm
 			case 'bool':
 				$type = 'checkbox';
 				$extraTag = ($val) ? 'checked' : '';
-				$val = 1;
 
-				$retVal = '<input id="' . $fieldName . '"  name="' . $fieldName . '"  type="checkbox"  value="' . $val . '" ' . $extraTag . '>';
-				$retVal .= '<input name="' . $fieldName . '"  type="hidden"  value="0">'; // POST wont sent nothingg if disabled
+				$retVal = '<input name="' . $fieldName . '"  type="hidden"  value="0">'; // POST wont sent nothingg if disabled
+				$retVal .= '<input id="' . $fieldName . '"  name="' . $fieldName . '"  type="checkbox"  value="1" ' . $extraTag . '>';
 				return $prefix . $retVal . $sufix;
 				break;
 
@@ -433,14 +432,7 @@ class AutoForm
 
 		foreach ($this->fields as $fieldName => $fieldInfo)
 		{
-			if (isset ($dirDta [$fieldName]))
-			{
-				$retVal .= $sep . $fieldName;
-				$values .= $sep . $dirDta [$fieldName];
-
-				$sep = ', ';
-			}
-			else if (isset ($data [$fieldName]))
+			if (isset ($data [$fieldName]))
 			{
 				$retVal .= $sep . $fieldName;
 				$values .= $sep . $this->getSqlFormatted ($data [$fieldName], $fieldInfo);
@@ -448,6 +440,18 @@ class AutoForm
 				$sep = ', ';
 			}
 		}
+
+		foreach ($this->fields as $fieldName => $fieldInfo)
+		{
+			if (isset ($dirDta [$fieldName]))
+			{
+				$retVal .= $sep . $fieldName;
+				$values .= $sep . $dirDta [$fieldName];
+
+				$sep = ', ';
+			}
+		}
+
 		return $retVal . $values . ';';
 	}
 
