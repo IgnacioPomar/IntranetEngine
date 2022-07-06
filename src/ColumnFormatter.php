@@ -56,6 +56,36 @@ class ColumnFormatter
 	}
 
 
+	public function getHeaderColsWithAutoOrder ($prelink, $orderTag = 'order', $dirTag = 'dir')
+	{
+		$currOrder = $_GET [$orderTag] ?? '';
+		$currDir = $_GET [$dirTag] ?? 'ASC';
+		$retVal = '';
+		foreach ($this->colsDef as $idCol => $col)
+		{
+			$link = $prelink . $orderTag . '=' . $idCol;
+			$class = '';
+			if ($currOrder == $idCol)
+			{
+				$class = ' orderBy';
+				$link .= '&' . $dirTag;
+				if ($currDir == 'ASC')
+				{
+					$class .= ' ordAsc';
+					$link .= '=DESC';
+				}
+				else
+				{
+					$class .= ' ordDesc';
+					$link .= '=ASC';
+				}
+			}
+			$retVal .= '<a href="' . $link . '"><span class="' . $col [0] . $class . '" title="' . $col [2] . '">' . $col [1] . '</span></a>';
+		}
+		return $retVal;
+	}
+
+
 	public function getBodyCols (array $row)
 	{
 		$retVal = '';
