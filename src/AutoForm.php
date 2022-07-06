@@ -64,10 +64,11 @@ class AutoForm
 
 	public function getFormField ($fieldName, $fieldInfo, $val, $inputDisabled)
 	{
-		$formType = (isset ($fieldInfo ['formType'])) ? $fieldInfo ['formType'] : $fieldInfo ['type'];
-		$label = (isset ($fieldInfo ['label'])) ? $fieldInfo ['label'] : $fieldName;
+		$formType = $fieldInfo ['formType'] ?? $fieldInfo ['type'];
+		$label = $fieldInfo ['label'] ?? $fieldName;
+		$class = $fieldInfo ['class'] ?? '';
 
-		$prefix = '<div class="field"><label for="' . $fieldName . '">' . $label . '</label><span class="field-inner">';
+		$prefix = '<div class="field ' . $class . '"><label for="' . $fieldName . '">' . $label . '</label><span class="field-inner">';
 		$sufix = '</span></div>' . PHP_EOL;
 
 		$params = array ();
