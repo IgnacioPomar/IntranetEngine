@@ -457,6 +457,13 @@ class AutoForm
 
 				$sep = ', ';
 			}
+			else if (isset ($fieldInfo ['defaultValue']))
+			{
+				$retVal .= $sep . $fieldName;
+				$values .= $sep . $this->getSqlFormatted ($fieldInfo ['defaultValue'], $fieldInfo);
+
+				$sep = ', ';
+			}
 		}
 		return $retVal . $values . ');';
 	}
