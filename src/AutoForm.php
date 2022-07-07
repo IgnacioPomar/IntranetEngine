@@ -16,6 +16,7 @@ class AutoForm
 	const STD_COMBO_PREFIX = 'combo@';
 	const DB_COMBO_PREFIX = 'dbcombo@';
 	const DB_MULTI_PREFIX = 'dbMulti@';
+	const STD_MULTI_PREFIX = 'stdMulti@';
 	const SEARCH_BOX = 'searchBox@';
 
 
@@ -143,6 +144,10 @@ class AutoForm
 				{
 					return $this->getDbMultiselect ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix);
 				}
+				else if (self::isType ($type, self::STD_MULTI_PREFIX))
+				{
+					return $this->getStdMultiselect ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix);
+				}
 				else if (self::isType ($type, self::SEARCH_BOX))
 				{
 					return $this->getSearchBox ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix);
@@ -182,23 +187,37 @@ class AutoForm
 	}
 
 
-	private function getStdCombo ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix)
+	private function getDefinedData ($type, $size)
 	{
-		$arrNAme = substr ($type, strlen (self::STD_COMBO_PREFIX));
+		$arrNAme = substr ($type, $size);
 		if (is_callable ($arrNAme))
 		{
-			$arr = $arrNAme ();
+			return $arrNAme ();
 		}
 		else
 		{
-			$arr = constant ($arrNAme);
+			return constant ($arrNAme);
 		}
+	}
+
+
+	private function getStdCombo ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix)
+	{
+		$arr = $this->getDefinedData ($type, strlen (self::STD_COMBO_PREFIX));
 		return $this->getCombo ($fieldName, $val, $inputDisabled, $arr, $prefix, $sufix);
+	}
+
+
+	private function getStdMultiselect ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix)
+	{
+		$arr = $this->getDefinedData ($type, strlen (self::STD_MULTI_PREFIX));
+		return $this->getMultiselect ($fieldName, $val, $inputDisabled, $arr, $prefix, $sufix);
 	}
 
 
 	private function getDbCombo ($fieldName, $val, $inputDisabled, $type, $prefix, $sufix)
 	{
+		// TODO: make a function to load only one when is $inputDisabled
 		$arr = $this->loadDataFromDb (substr ($type, strlen (self::DB_COMBO_PREFIX)));
 		return $this->getCombo ($fieldName, $val, $inputDisabled, $arr, $prefix, $sufix);
 	}
@@ -243,7 +262,8 @@ class AutoForm
 	{
 		if ($inputDisabled)
 		{
-			return $prefix . '<input   type="string"  value="' . $arr [$val] . '" disabled>' . $sufix;
+			$inputVal = $arr [$val] ?? '';
+			return $prefix . '<input   type="string"  value="' . $inputVal . '" disabled>' . $sufix;
 		}
 		else
 		{
