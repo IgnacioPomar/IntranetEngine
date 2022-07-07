@@ -98,7 +98,8 @@ class DbSchema
 		// Buscamos la clave primaria
 		foreach ($tableInfo ['indexes'] as $index)
 		{
-			if (isset ($index ['primary']))
+			$isPrimary = $index ['primary'] ?? FALSE;
+			if ($isPrimary)
 			{
 				$sep = '';
 				$sql .= ', PRIMARY KEY (';
@@ -115,10 +116,19 @@ class DbSchema
 		// resto de las claves
 		foreach ($tableInfo ['indexes'] as $idxNum => $index)
 		{
-			if (! isset ($index ['primary']))
+			$isPrimary = $index ['primary'] ?? FALSE;
+			if (! $isPrimary)
 			{
+				$idxType = 'INDEX';
+				if (isset ($index ['type']))
+				{
+					if ($index ['type'] == 'fulltext')
+					{
+						$idxType = 'FULLTEXT INDEX';
+					}
+				}
+				$sql .= ", $idxType k_$idxNum (";
 				$sep = '';
-				$sql .= ', INDEX k_' . $idxNum . '(';
 				foreach ($index ['fields'] as $idxField)
 				{
 					$sql .= $sep . $idxField;
