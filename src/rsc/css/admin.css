@@ -268,9 +268,8 @@ div#header {
 
 .menuNode.disabled span {color: #deb887;font-size: 12px;}
 
-span.nodeName {display: inline-block;width: 400px;vertical-align: bottom;}
-
-span.pluginPerm {display: inline-block;float: right;width: 100px;margin-right: 50px;}
+span.nodeName {display: inline-block;width: 550px;vertical-align: bottom;}
+span.pluginPerm {float: right;width: 250px;margin-right: 50px;}
 .menuNode:not(:first-child) {border-top: 1px solid #50cff5;margin-top: 2px;padding-top: 3px;}
 .menuNode, .pluginNode {padding: 1px;}
 #mnuEditor .NoEditable {color: #8d8d8d;}
