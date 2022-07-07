@@ -147,7 +147,8 @@ class FormatterPlainArr
 
 	public function getSpan ($val, $class)
 	{
-		return '<span class="' . $class . '" >' . $this->arr [$val] . '</span>';
+		$txt = $this->arr [$val] ?? '';
+		return "<span class=\"$class\" >$txt</span>";
 	}
 }
 
