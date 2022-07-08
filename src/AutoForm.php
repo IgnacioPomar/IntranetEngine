@@ -106,6 +106,9 @@ class AutoForm
 				$retVal .= '<input id="' . $fieldName . '"  name="' . $fieldName . '"  type="checkbox"  value="1" ' . $extraTag . '>';
 				return $prefix . $retVal . $sufix;
 				break;
+			case 'rawData':
+				return "<div class=\"field $class\" id=\"$fieldName\">$val</div>" . PHP_EOL;
+				break;
 
 			// ---------- Standar Inputs ------------
 			// Inputs que se muestran por pantalla (al salir del switch se usan)
