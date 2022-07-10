@@ -134,7 +134,7 @@ class MaintenanceGroups extends Plugin
 	private function insertNewGroup ($autoForm)
 	{
 		$autoForm->mysqli = $this->context->mysqli;
-		$query = $autoForm->getInsertSql ([ ]);
+		$query = $autoForm->getInsertSql ($_POST);
 		$this->context->mysqli->query ($query);
 
 		$retVal = '<p>Registro Insertado Correctamente</p>';
@@ -152,7 +152,7 @@ class MaintenanceGroups extends Plugin
 	private function updateGroup ($autoForm)
 	{
 		$autoForm->mysqli = $this->context->mysqli;
-		$sql = $autoForm->getUpdateSql ([ ], [ 'idGrp']);
+		$sql = $autoForm->getUpdateSql ($_POST, [ 'idGrp']);
 
 		$this->context->mysqli->query ($sql);
 
