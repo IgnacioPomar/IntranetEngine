@@ -8,6 +8,6 @@
 		"permValue":	{"type": "int"}
 	},
 	"indexes": [
-		{"fields": ["mnuNode","plgName","idUser"],"primary": true}
+		{"fields": ["mnuNode","plgName","idUser","permName"],"primary": true}
 	]
 }
