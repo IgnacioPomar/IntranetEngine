@@ -24,7 +24,7 @@ function getRelativeSitePath ()
 
 // Rutas necesarias para poder moevr de directorio de forma transparente
 
-$GLOBALS ['basePath'] = getcwd () . DIRECTORY_SEPARATOR;
+$GLOBALS ['basePath'] = dirname (__DIR__) . DIRECTORY_SEPARATOR;
 $GLOBALS ['cfgPath'] = $GLOBALS ['basePath'] . 'cfg' . DIRECTORY_SEPARATOR;
 $GLOBALS ['fileCfg'] = $GLOBALS ['cfgPath'] . 'site_cfg.php';
 $GLOBALS ['uriPath'] = getRelativeSitePath ();
