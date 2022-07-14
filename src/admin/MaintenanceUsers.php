@@ -69,10 +69,14 @@ class MaintenanceUsers extends Plugin
 		// YAGNI: Receive an array with the necessary columns
 		$query = 'SELECT u.*,g.groups  FROM weUsers u ';
 		$query .= ' LEFT JOIN  (SELECT GROUP_CONCAT(grpName  SEPARATOR ", ") AS groups, rel.idUser FROM weGroups g INNER JOIN weUsersGroups rel ON g.idGrp = rel.idGrp GROUP BY rel.idUser) g';
-		$query .= ' ON u.idUser=g.idUser';
+		$query .= ' ON u.idUser=g.idUser ';
 		if ($idUser != 0)
 		{
 			$query .= " WHERE u.idUser = $idUser";
+		}
+		else
+		{
+			$query .= ' ORDER BY isActive DESC, isAdmin DESC, name ';
 		}
 		return $query;
 	}
