@@ -153,7 +153,7 @@ class EditMenu extends Plugin
 		{
 			while ($row = $resultado->fetch_assoc ())
 			{
-				$plgs [$row ['plgName']] = $row ['plgDescrip'];
+				$plgs [$row ['plgName']] = $row ['plgName'] . ' - ' . $row ['plgDescrip'];
 			}
 		}
 		self::$pluginList = $plgs;
