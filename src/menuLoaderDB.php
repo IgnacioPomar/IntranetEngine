@@ -41,10 +41,20 @@ class MenuLoaderDB
 		// TODO: The following code is not clear: redo
 		$menuDB = $mysqli->query ($query)->fetch_all (MYSQLI_ASSOC);
 
+		// Delete not real OPC
+		foreach ($menuDB as &$parentItem)
+		{
+			if (substr ($parentItem ['opc'], 0, 1) == '@')
+			{
+				unset ($parentItem ['opc']);
+			}
+		}
+
 		$orderMenuDb = array ();
 
 		foreach ($menuDB as &$parentItem)
 		{
+
 			// If the menu contains a parent we stop the loop since it should be assigned.
 			// if ($parentItem ['idNodoParent'] != NULL) break;
 

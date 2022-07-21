@@ -58,7 +58,7 @@ class EditPermissions extends Plugin
 
 				$id = self::inputIdDecode ($key);
 
-				$sql .= $sep . '(';
+				$sql .= $sep . PHP_EOL . '(';
 				$sql .= '"' . $this->context->mysqli->real_escape_string ($id ['node']) . '",';
 				$sql .= '"' . $this->context->mysqli->real_escape_string ($id ['plg']) . '",';
 				$sql .= $idElem . ',';
