@@ -4,6 +4,13 @@ class WebEngine
 {
 	private Context $context;
 
+	// @formatter:off
+	const HARDCODED_PLUGINS = array(
+			// 'name' => 'path',
+			'/Logout'		=> ['file' =>'./src/harcoded/Logout.php', 'class' => 'Logout'],
+	);
+	
+	// @formatter:on
 
 	/**
 	 *
@@ -77,8 +84,24 @@ class WebEngine
 		$mnu = &$this->context->mnu;
 		if (! $mnu->hasOpcSelected ())
 		{
-			require_once ('src/fake404.php');
-			Fake404::main ();
+			if (isset (self::HARDCODED_PLUGINS [$mnu->subPath]))
+			{
+				$plgInfo = self::HARDCODED_PLUGINS [$mnu->subPath];
+
+				require_once ($plgInfo ['file']);
+				$plg = new $plgInfo ['class'] ($this->context);
+				// Harcoded plugins dont have nor params nor permmisions
+
+				$mnu->stCurrOpc ([ 'opc' => $mnu->subPath, 'tmplt' => 'skel.htm', 'name' => $plgInfo ['class']]);
+
+				return $plg;
+			}
+			else
+			{
+
+				require_once ('src/fake404.php');
+				Fake404::main ();
+			}
 		}
 
 		$class = $mnu->getPlugin ();

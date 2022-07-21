@@ -88,6 +88,12 @@ class Menu
 	}
 
 
+	public function stCurrOpc (array $currOpc)
+	{
+		$this->currOpc = $currOpc;
+	}
+
+
 	public function hasOpcSelected ()
 	{
 		return $this->hasOpc;
