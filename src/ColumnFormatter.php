@@ -219,7 +219,7 @@ class HelperColor
 	 *        	The current value
 	 * @return string "Half way" color in hex format
 	 */
-	public function getGradientColor ($firstColor, $endcolor, $minValue, $maxValue, $currentValue)
+	public static function getGradientColor ($firstColor, $endcolor, $minValue, $maxValue, $currentValue)
 	{
 		if ($currentValue >= $maxValue)
 		{
