@@ -20,6 +20,12 @@ class ColumnFormatter
 	private $colsDef;
 	public $stylers;
 
+	// ASCII varse
+	private $out;
+	private $browserFileName;
+	const FIELD_DELIMITER = ';';
+	const FIELD_ENCLOSURE = '"';
+
 
 	/**
 	 * Constructor
@@ -31,6 +37,49 @@ class ColumnFormatter
 	{
 		$this->colsDef = $colsDef;
 		$this->stylers = array ();
+	}
+
+
+	public function openAscii ($browserFileName)
+	{
+		$this->out = fopen ('php://memory', 'rw+');
+		$this->browserFileName = $browserFileName;
+
+		fwrite ($this->out, chr (239) . chr (187) . chr (191));
+	}
+
+
+	public function asciiSend ()
+	{
+		header ('Pragma: public');
+		header ('Expires: 0');
+		header ('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+		header ('Cache-Control: private', false); // required for certain browsers.
+		header ('Content-Type: text/csv');
+
+		header ('Content-Disposition: attachment; filename="' . $this->browserFileName . '";');
+		header ('Content-Transfer-Encoding: binary');
+
+		fseek ($this->out, 0);
+		$out = stream_get_contents ($this->out);
+		// $out = str_replace ( '.', ',', $out ); Se hace cuando se generan los resultados
+
+		header ('Content-Length: ' . strlen ($out));
+		print ($out);
+
+		exit ();
+	}
+
+
+	public function asciiAddHeader ()
+	{
+		$cabecera = array ();
+		foreach ($this->colsDef as $col)
+		{
+			$cabecera [] = html_entity_decode ($col [1]);
+		}
+
+		fputcsv ($this->out, $cabecera, self::FIELD_DELIMITER, self::FIELD_ENCLOSURE);
 	}
 
 
@@ -83,6 +132,20 @@ class ColumnFormatter
 			$retVal .= '<a href="' . $link . '"><span class="' . $col [0] . $class . '" title="' . $col [2] . '">' . $col [1] . '</span></a>';
 		}
 		return $retVal;
+	}
+
+
+	public function asciiAddLine (array $row)
+	{
+		$line = array ();
+		foreach ($this->colsDef as $fld => $col)
+		{
+			$val = $row [$fld] ?? '';
+
+			$line [] = html_entity_decode ($val);
+		}
+
+		fputcsv ($this->out, $line, self::FIELD_DELIMITER, self::FIELD_ENCLOSURE);
 	}
 
 
