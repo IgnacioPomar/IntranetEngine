@@ -39,42 +39,54 @@ class DbSchema
 	{
 		switch ($field ['type'])
 		{
+			case 'text':
+			case 'textarea':
+			case 'json':
+			case 'string':
+				$defVal = (isset ($field ['default'])) ? "'{$field ['default']}'" : 'NULL';
+				break;
+			default:
+				$defVal = $field ['default'] ?? 'NULL';
+		}
+
+		switch ($field ['type'])
+		{
 			case 'auto':
 				return ' int NOT NULL AUTO_INCREMENT';
 				break;
 			case 'bool':
-				return ' bool DEFAULT FALSE';
+				return " bool DEFAULT $defVal";
 				break;
 			case 'int':
-				return ' int DEFAULT NULL';
+				return " int DEFAULT $defVal";
 				break;
 			case 'double':
-				return ' double DEFAULT NULL';
+				return " double DEFAULT $defVal";
 				break;
 			case 'decimal':
-				return ' DECIMAL(10, 2) DEFAULT NULL';
+				return " DECIMAL(10, 2) DEFAULT $defVal";
 				break;
 			case 'date':
-				return ' DATE DEFAULT NULL';
+				return " DATE DEFAULT $defVal";
 				break;
 			case 'datetime':
-				return ' DATETIME DEFAULT NULL';
+				return " DATETIME DEFAULT $defVal";
 				break;
 			case 'text':
 			case 'textarea':
-				return ' text DEFAULT NULL';
+				return " text DEFAULT $defVal";
 				break;
 			case 'json':
-				return ' json DEFAULT NULL';
+				return " json DEFAULT $defVal";
 				break;
 			case 'string':
 				if (isset ($field ['lenght']))
 				{
-					return ' varchar(' . $field ['lenght'] . ') DEFAULT NULL';
+					return " varchar({$field ['lenght']}) DEFAULT $defVal";
 				}
 				else
 				{
-					return ' text DEFAULT NULL';
+					return " text DEFAULT $defVal";
 				}
 				break;
 		}
