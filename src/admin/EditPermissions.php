@@ -132,7 +132,7 @@ class EditPermissions extends Plugin
 	private function showEfectivePerm ($node, $plugin, $perm)
 	{
 		$efective = $this->efectivePerms [$node] [$plugin] [$perm] ?? 0;
-		return '<span class="efective">' . self::PERM_VALUES [$efective] . '</span>';
+		return '<span class="efective" style="background-color:' . self::PERM_COLORS [$efective] . ';">' . self::PERM_VALUES [$efective] . '</span>';
 	}
 
 
