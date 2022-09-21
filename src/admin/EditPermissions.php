@@ -2,6 +2,7 @@
 
 class EditPermissions extends Plugin
 {
+	const PERM_COLORS = array (- 1 => '#ffa7a7', 0 => '#c1c1c1', 1 => '#a5ff8b');
 	const PERM_VALUES = array (- 1 => 'DENIED', 0 => 'NOT SET', 1 => 'ALLOWED');
 	private array $plgssWithPerms;
 	private array $currentPerms;
@@ -11,17 +12,24 @@ class EditPermissions extends Plugin
 
 	private static function addPermCombo ($id, $defVal)
 	{
-		$retval = '<span class="permCombo"><select name="' . $id . '">';
+		$retval = '';
+		$selColor = self::PERM_COLORS [0];
 		foreach (self::PERM_VALUES as $idc => $val)
 		{
 			$sel = '';
-			if ($idc == $defVal) $sel = 'selected=""';
+			$color = self::PERM_COLORS [$idc];
 
-			$retval .= "<option value=\"$idc\" $sel>$val</option>";
+			if ($idc == $defVal)
+			{
+				$selColor = $color;
+				$sel = 'selected=""';
+			}
+
+			$retval .= "<option value=\"$idc\" style=\"background-color: $color;\" $sel>$val</option>";
 		}
 		$retval .= "</select></span>";
 
-		return $retval;
+		return '<span class="permCombo"><select name="' . $id . '" style="background-color: ' . $selColor . ';">' . $retval;
 	}
 
 
@@ -385,6 +393,16 @@ class EditPermissions extends Plugin
 		$retVal .= '</span>';
 
 		return $retVal . '</div>';
+	}
+
+
+	public function getExternalJs ()
+	{
+		$js = array ();
+		$js [] = 'jquery-2.2.4.min.js';
+		$js [] = 'admin.js';
+
+		return $js;
 	}
 
 

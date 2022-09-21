@@ -135,11 +135,12 @@ class WebEngineAdmin
 	{
 		// If the installation is done in a subdirectory, it would not load the styles correctly
 		$uriPath = str_replace ('site', '', $GLOBALS ['uriPath']);
-		$retVal = "<link rel='stylesheet' type='text/css' href='{$uriPath}src/rsc/css/admin.css'>";
+		$head = '<head>';
+		$head .= "<link rel='stylesheet' type='text/css' href='{$uriPath}src/rsc/css/admin.css'>";
 
-		$retVal .= "<div id='toolbar'>{$this->mnuAdmin->getMenu ($this->context->mnu)}</div>";
-
-		$retVal .= '<div id="mainContainer">';
+		$body = '</head><body>';
+		$body .= "<div id='toolbar'>{$this->mnuAdmin->getMenu ($this->context->mnu)}</div>";
+		$body .= '<div id="mainContainer">';
 
 		$plgName = $this->mnuAdmin->getPlugin ();
 
@@ -147,15 +148,23 @@ class WebEngineAdmin
 		{
 			require_once (self::ADMIN_PLUGINS [$plgName]);
 			$plg = new $plgName ($this->context);
-			$retVal .= $plg->main ();
+
+			// Add admin module javascript
+			foreach ($plg->getExternalJs () as $jsFile)
+			{
+				$head .= "<script type='text/javascript' src='{$uriPath}src/rsc/js/$jsFile' ></script>";
+			}
+
+			// Show module
+			$body .= $plg->main ();
 		}
 		else
 		{
-			$retVal .= '<h1>Admin area</h1><p>You can use the menu.</p>';
+			$body .= '<h1>Admin area</h1><p>You can use the menu.</p>';
 		}
 
-		$retVal .= '</div>';
-		return $retVal;
+		$body .= '</div>';
+		return $head . $body;
 	}
 
 

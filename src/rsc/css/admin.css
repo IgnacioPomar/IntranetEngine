@@ -264,7 +264,7 @@ div#header {
 #mnuEditor .nodeOpc button.btn.orderCgh.down {background-image: url(../img/arrow_down.svg);}
 
 
-
+.pluginNode:hover, .menuNode:hover {  background-color: aliceblue;}
 
 .menuNode.disabled span {color: #deb887;font-size: 12px;}
 
