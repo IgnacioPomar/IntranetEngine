@@ -180,7 +180,15 @@ class WebEngine
 				$jsPath = $GLOBALS ['urlSkinPath'] . "js/$jsFile";
 			}
 
-			$jsHeader .= '<script type="text/javascript" src="' . $jsPath . '"></script>' . PHP_EOL;
+			$extension = substr (strrchr ($jsPath, '.'), 1);
+			if ($extension == 'mjs')
+			{
+				$jsHeader .= '<script type="module" src="' . $jsPath . '"></script>' . PHP_EOL;
+			}
+			else
+			{
+				$jsHeader .= '<script type="text/javascript" src="' . $jsPath . '"></script>' . PHP_EOL;
+			}
 		}
 
 		$output = str_replace ('</head>', $jsHeader . '</head>', $output);
