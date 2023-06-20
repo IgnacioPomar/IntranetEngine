@@ -65,6 +65,7 @@ class WebEngine
 		$layout = str_replace ('@@Menu@@', $this->context->mnu->getMenu (), $layout);
 		$layout = str_replace ('@@pageTitle@@', $this->context->mnu->getTitle (), $layout);
 		$layout = str_replace ('@@skinPath@@', $GLOBALS ['urlSkinPath'], $layout);
+		$layout = str_replace ('@@uriPath@@', $GLOBALS ['uriPath'], $layout);
 
 		// ---- Finally, the body ----
 		$plgBody = $plg->main ();
