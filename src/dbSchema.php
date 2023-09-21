@@ -20,17 +20,28 @@ class DbSchema
 
 	private static function isExecutionSucess ($mysqli, $sql)
 	{
-		if (! $resultado = $mysqli->query ($sql))
+		try
+		{
+			if (! $resultado = $mysqli->query ($sql))
+			{
+				echo "Error: Execution failied: \n";
+				echo "Query: " . $sql . "\n";
+				echo "Errno: " . $mysqli->errno . "\n";
+				echo "Error: " . $mysqli->error . "\n";
+				exit ();
+			}
+			else
+			{
+				return $resultado === TRUE;
+			}
+		}
+		catch (mysqli_sql_exception $e)
 		{
 			echo "Error: Execution failied: \n";
 			echo "Query: " . $sql . "\n";
 			echo "Errno: " . $mysqli->errno . "\n";
 			echo "Error: " . $mysqli->error . "\n";
 			exit ();
-		}
-		else
-		{
-			return $resultado === TRUE;
 		}
 	}
 
@@ -242,12 +253,20 @@ class DbSchema
 
 		$sql = 'SELECT 1 FROM ' . self::getTableName ($tableInfo) . ' LIMIT 1;';
 
-		if (self::isQuerySucess ($mysqli, $sql))
+		try
 		{
-			$retVal = self::alterTable ($mysqli, $tableInfo);
+			if (self::isQuerySucess ($mysqli, $sql))
+			{
+				$retVal = self::alterTable ($mysqli, $tableInfo);
+			}
+			else
+			{
+				$retVal = (self::createTable ($mysqli, $tableInfo)) ? 1 : - 1;
+			}
 		}
-		else
+		catch (mysqli_sql_exception $t)
 		{
+			// Executed only in PHP 7 and more
 			$retVal = (self::createTable ($mysqli, $tableInfo)) ? 1 : - 1;
 		}
 

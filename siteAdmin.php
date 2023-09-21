@@ -92,16 +92,25 @@ class WebEngineAdmin
 	private function checkBaseTables ()
 	{
 		$sql = 'SELECT 1 FROM weUsers LIMIT 1;';
-		if (! $resultado = $this->context->mysqli->query ($sql))
+		try
+		{
+			if (! $resultado = $this->context->mysqli->query ($sql))
+			{
+				$installer = new Installer ($this->context->mysqli);
+				$installer->installWithConfigFile ();
+				return false;
+			}
+			else
+			{
+				$resultado->close ();
+				return true;
+			}
+		}
+		catch (mysqli_sql_exception $t)
 		{
 			$installer = new Installer ($this->context->mysqli);
 			$installer->installWithConfigFile ();
 			return false;
-		}
-		else
-		{
-			$resultado->close ();
-			return true;
 		}
 	}
 
