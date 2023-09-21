@@ -50,20 +50,18 @@ class Installer
 			$filename = str_replace ("./skins/", "", $filename);
 			$skins .= '<option value="' . $filename . '">' . $filename . '</option>';
 		}
-		
+
 		$mnuLoaders = '';
 		foreach (glob ("./src/menuLoader*") as $filename)
 		{
-		    $filename = str_replace ("./src/", "", $filename);
-		    $mnuLoaders .= '<option value="' . $filename . '">' . $filename . '</option>';
+			$filename = str_replace ("./src/", "", $filename);
+			$mnuLoaders .= '<option value="' . $filename . '">' . $filename . '</option>';
 		}
-		
 
 		$layout = file_get_contents ('./src/rsc/html/installForm.htm');
 		$layout = str_replace ('<option>@@plgs@@</option>', $options, $layout);
 		$layout = str_replace ('<option>@@skins@@</option>', $skins, $layout);
 		$layout = str_replace ('<option>@@mnuTyp@@</option>', $mnuLoaders, $layout);
-		
 
 		header ('Content-Type: text/html; charset=utf-8');
 		print ($layout);
