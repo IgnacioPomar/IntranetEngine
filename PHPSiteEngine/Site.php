@@ -13,14 +13,23 @@ class Site
 	// The browser PATH
 	public static $uriPath;
 
-	// The felesystempath to the
-	public static $basePath;
+	// The felesystempath to the Site root
+	public static $rootPath;
 
 	// The folder with configuration files
 	public static $cfgPath;
 
 	// Main configuration file
 	public static $cfgFile;
+
+	// The felesystempath to the namespace folder
+	public static $nsPath;
+
+	// The felesystempath to the resource folder
+	public static $rscPath;
+
+	// The browser path to the resource folder
+	public static $rscUriPath;
 
 	// ----------- Configurated Folders -----------
 	// Folder containing the plugins
@@ -46,12 +55,14 @@ class Site
 		self::$uriPath = rtrim (self::$uriPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR; // Force end with slash
 
 		$reflector = new \ReflectionClass (self::class);
-		self::$basePath = dirname (dirname ($reflector->getFileName ())) . DIRECTORY_SEPARATOR;
+		self::$nsPath = dirname ($reflector->getFileName ()) . DIRECTORY_SEPARATOR;
+		self::$rootPath = dirname (self::$nsPath) . DIRECTORY_SEPARATOR;
 
-		self::$cfgPath = self::$basePath . 'cfg' . DIRECTORY_SEPARATOR;
+		self::$cfgPath = self::$rootPath . 'cfg' . DIRECTORY_SEPARATOR;
 		self::$cfgFile = self::$cfgPath . 'site_cfg.php';
 
-		echo self::$basePath;
+		self::$rscPath = self::$nsPath . 'rsc' . DIRECTORY_SEPARATOR;
+		self::$rscUriPath = self::$uriPath . $reflector->getNamespaceName () . DIRECTORY_SEPARATOR . 'rsc' . DIRECTORY_SEPARATOR;
 	}
 
 
@@ -60,13 +71,8 @@ class Site
 	 */
 	public static function initCfg ()
 	{
-		$GLOBALS ['plgsPath'] = $GLOBALS ['basePath'] . 'plgs' . DIRECTORY_SEPARATOR . $GLOBALS ['plgs'] . DIRECTORY_SEPARATOR;
-		$GLOBALS ['skinPath'] = $GLOBALS ['basePath'] . 'skins' . DIRECTORY_SEPARATOR . $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
-		$GLOBALS ['templatePath'] = $GLOBALS ['skinPath'] . 'tmplt' . DIRECTORY_SEPARATOR;
-		$GLOBALS ['urlSkinPath'] = $GLOBALS ['uriPath'] . 'skins' . DIRECTORY_SEPARATOR . $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
-
-		self::$plgsPath = self::$basePath . 'plgs' . DIRECTORY_SEPARATOR . $GLOBALS ['plgs'] . DIRECTORY_SEPARATOR;
-		self::$skinPath = self::$basePath . 'skins' . DIRECTORY_SEPARATOR . $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
+		self::$plgsPath = self::$rootPath . 'plgs' . DIRECTORY_SEPARATOR . $GLOBALS ['plgs'] . DIRECTORY_SEPARATOR;
+		self::$skinPath = self::$rootPath . 'skins' . DIRECTORY_SEPARATOR . $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
 		self::$templatePath = self::$skinPath . 'tmplt' . DIRECTORY_SEPARATOR;
 		self::$uriSkinPath = self::$uriPath . 'skins' . DIRECTORY_SEPARATOR . $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
 	}

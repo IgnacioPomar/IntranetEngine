@@ -4,11 +4,12 @@
  */
 
 // site Version
-$GLOBALS ['Version'] = '0.1';
+$GLOBALS ['Version'] = '0.2';
 
-// Selected modules
-$GLOBALS ['moduleAuth'] = 'src/auth_vanilla.php';
-$GLOBALS ['moduleMenu'] = 'src/@@mnuType@@';
+// Options
+$GLOBALS ['authRecover'] = @@authRecover@@;
+$GLOBALS ['authLog'] = @@authLog@@;
+$GLOBALS ['menuType'] = '@@menuType@@';
 
 // ----------------------------------
 // Database CFG

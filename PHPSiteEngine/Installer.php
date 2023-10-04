@@ -2,6 +2,7 @@
 
 namespace PHPSiteEngine;
 
+include_once ('DbSchema.php');
 
 // De momento no se hace por falta de tiempo
 class Installer
@@ -13,7 +14,7 @@ class Installer
 	{
 		if (isset ($_POST ['dbname']))
 		{
-			readfile ('./src/rsc/html/installResult.htm');
+			readfile (Site::$rscPath . 'html/installResult.htm');
 			$installer = new Installer ();
 			print ($installer->installProcessFromScratch ());
 		}
@@ -28,43 +29,43 @@ class Installer
 	{
 		if (isset ($_POST ['adminlogin']))
 		{
-			readfile ('./src/rsc/html/installResult.htm');
+			readfile (Site::$rscPath . 'html/installResult.htm');
 			print ($this->installProcessCommon ());
 		}
 		else
 		{
-			readfile ('./src/rsc/html/installFormNoCfg.htm');
+			readfile (Site::$rscPath . 'html/installFormNoCfg.htm');
 		}
 	}
 
 
 	private static function showInstallSetup ()
 	{
+		$basePath = Site::$rootPath . "plgs/";
 		$options = '';
-		foreach (glob ("./plgs/*", GLOB_ONLYDIR) as $filename)
+		foreach (glob ($basePath . "*") as $filename)
 		{
-			$filename = str_replace ("./plgs/", "", $filename);
-			$options .= '<option value="' . $filename . '">' . $filename . '</option>';
+			if (is_dir ($filename) || is_link ($filename))
+			{
+				$filename = str_replace ($basePath, "", $filename);
+				$options .= '<option value="' . $filename . '">' . $filename . '</option>';
+			}
 		}
 
+		$basePath = Site::$rootPath . "skins/";
 		$skins = '';
-		foreach (glob ("./skins/*", GLOB_ONLYDIR) as $filename)
+		foreach (glob ($basePath . "*") as $filename)
 		{
-			$filename = str_replace ("./skins/", "", $filename);
-			$skins .= '<option value="' . $filename . '">' . $filename . '</option>';
+			if (is_dir ($filename) || is_link ($filename))
+			{
+				$filename = str_replace ($basePath, "", $filename);
+				$skins .= '<option value="' . $filename . '">' . $filename . '</option>';
+			}
 		}
 
-		$mnuLoaders = '';
-		foreach (glob ("./src/menuLoader*") as $filename)
-		{
-			$filename = str_replace ("./src/", "", $filename);
-			$mnuLoaders .= '<option value="' . $filename . '">' . $filename . '</option>';
-		}
-
-		$layout = file_get_contents ('./src/rsc/html/installForm.htm');
+		$layout = file_get_contents (Site::$rscPath . 'html/installForm.htm');
 		$layout = str_replace ('<option>@@plgs@@</option>', $options, $layout);
 		$layout = str_replace ('<option>@@skins@@</option>', $skins, $layout);
-		$layout = str_replace ('<option>@@mnuTyp@@</option>', $mnuLoaders, $layout);
 
 		header ('Content-Type: text/html; charset=utf-8');
 		print ($layout);
@@ -105,8 +106,8 @@ class Installer
 			return $outputMessage;
 		}
 
-		include_once ($GLOBALS ['fileCfg']);
-		setCfgGlobals ();
+		include_once (Site::$cfgFile);
+		Site::initCfg ();
 
 		return $this->installProcessCommon ();
 	}
@@ -142,11 +143,9 @@ class Installer
 	 */
 	public function createCoreTables ()
 	{
-		include_once ($GLOBALS ['basePath'] . 'src/dbSchema.php');
-
 		$retVal = '';
 
-		$dir = new \FilesystemIterator ('./src/tables/');
+		$dir = new \FilesystemIterator (Site::$nsPath . 'tables/');
 		foreach ($dir as $fileinfo)
 		{
 			if ($fileinfo->getExtension () == 'jsonTable')
@@ -163,8 +162,6 @@ class Installer
 
 	private function createOrUpdateTables ($basePath)
 	{
-		include_once ($GLOBALS ['basePath'] . 'src/dbSchema.php');
-
 		$retVal = '';
 
 		$dir = new \RecursiveIteratorIterator (new \RecursiveDirectoryIterator ($basePath));
@@ -216,7 +213,7 @@ class Installer
 
 		// Get current plgs info
 		$currentPlgs = array ();
-		foreach (glob ($GLOBALS ['plgsPath'] . "*.plg/*.php") as $filename)
+		foreach (glob (Site::$plgsPath . "*.plg/*.php") as $filename)
 		{
 			$clases = self::getPhpClasses ($filename);
 			if (sizeof ($clases) > 0)
@@ -225,7 +222,7 @@ class Installer
 
 				foreach ($clases as $className)
 				{
-					if (is_subclass_of ($className, 'Plugin'))
+					if (is_subclass_of ($className, 'PHPSiteEngine\\Plugin'))
 					{
 						$currentPlgs [$className] = call_user_func ($className . '::getPlgInfo');
 						$currentPlgs [$className] ['path'] = $filename;
@@ -313,7 +310,7 @@ class Installer
 		}
 
 		// Create or Update PLugins Tables
-		return $out . '<h3>Updating plugin tables</h3>' . $this->createOrUpdateTables ($GLOBALS ['plgsPath']);
+		return $out . '<h3>Updating plugin tables</h3>' . $this->createOrUpdateTables (Site::$plgsPath);
 	}
 
 
@@ -402,7 +399,7 @@ class Installer
 	public function saveNewCfgFile (&$outputMessage)
 	{
 		// TODO: Detect and apply the modules (auth....)
-		$outputSkin = './src/rsc/default/site_cfg_def.php';
+		$outputSkin = Site::$rscPath . 'default/site_cfg_def.php';
 		$cfgFile = file_get_contents ($outputSkin);
 		$cfgFile = str_replace ('@@dbserver@@', $_POST ['dbserver'], $cfgFile);
 		$cfgFile = str_replace ('@@dbport@@', $_POST ['dbport'], $cfgFile);
@@ -411,13 +408,16 @@ class Installer
 		$cfgFile = str_replace ('@@dbname@@', $_POST ['dbname'], $cfgFile);
 		$cfgFile = str_replace ('@@plgs@@', $_POST ['plgs'], $cfgFile);
 		$cfgFile = str_replace ('@@skins@@', $_POST ['skins'], $cfgFile);
-		$cfgFile = str_replace ('@@mnuType@@', $_POST ['mnu'], $cfgFile);
 
-		if (! file_put_contents ($GLOBALS ['fileCfg'], $cfgFile))
+		$cfgFile = str_replace ('@@mnuType@@', $_POST ['mnu'], $cfgFile);
+		$cfgFile = str_replace ('@@authLog@@', isset ($_POST ['authLog']) ? 'TRUE' : 'FALSE', $cfgFile);
+		$cfgFile = str_replace ('@@authRecover@@', isset ($_POST ['authRecover']) ? 'TRUE' : 'FALSE', $cfgFile);
+
+		if (! file_put_contents (Site::$cfgFile, $cfgFile))
 		{
 			$outputMessage .= '<div class="fail">';
 			$outputMessage .= '<b>Error</b>: Unable to save the config file<br />';
-			$outputMessage .= 'Workaround: save the following file<br /><pre>';
+			$outputMessage .= 'Workaround: save the file ' . Site::$cfgFile . ' with this contents:<br /><pre>';
 			$outputMessage .= $cfgFile;
 			$outputMessage .= '</pre></div>';
 			return FALSE;

@@ -6,6 +6,7 @@ require_once ('Site.php');
 require_once ('Context.php');
 require_once ('Plugin.php');
 require_once ('Installer.php');
+require_once ('MenuLoaderJson.php');
 
 // Include for the admin plugins
 require_once ('ColumnFormatter.php');
@@ -18,13 +19,13 @@ class SiteAdmin
 	// @formatter:off
     const ADMIN_PLUGINS = array(
         // 'name' => 'path',
-		'ReinstallCore'		=> './src/admin/ReinstallCore.php',
-		'ReinstallPlugins'	=> './src/admin/ReinstallPlugins.php',
+        'ReinstallCore'		=> 'PlgsAdm/ReinstallCore.php',
+		'ReinstallPlugins'	=> 'PlgsAdm/ReinstallPlugins.php',
     		
-		'MaintenanceUsers' 	=> './src/admin/MaintenanceUsers.php',
-		'MaintenanceGroups'	=> './src/admin/MaintenanceGroups.php',
-		'EditPermissions'	=> './src/admin/EditPermissions.php',
-		'EditMenu'			=> './src/admin/EditMenu.php'
+		'MaintenanceUsers' 	=> 'PlgsAdm/MaintenanceUsers.php',
+		'MaintenanceGroups'	=> 'PlgsAdm/MaintenanceGroups.php',
+		'EditPermissions'	=> 'PlgsAdm/EditPermissions.php',
+		'EditMenu'			=> 'PlgsAdm/EditMenu.php'
     );
 
     // @formatter:on
@@ -38,16 +39,10 @@ class SiteAdmin
 		$this->context = new Context ();
 		// we set the userId to get all menu from the db
 		$this->context->userId = - 1;
-		$menuAdminLoader = 'src/menuLoaderJson.php';
-		include_once ($GLOBALS ['moduleMenu']);
-		if (0 != strcmp ($menuAdminLoader, $GLOBALS ['moduleMenu']))
-		{
-			include_once ($menuAdminLoader);
-		}
 
 		// Load the admin Menu
 		$this->mnuAdmin = new Menu ();
-		MenuLoaderJson::loadFromFile ('./src/admin/adminMenu.json', $this->mnuAdmin);
+		MenuLoaderJson::loadFromFile (Site::$rscPath . 'adminMenu.json', $this->mnuAdmin);
 	}
 
 
@@ -121,7 +116,7 @@ class SiteAdmin
 	 */
 	private static function checkFileCfg ()
 	{
-		if (! file_exists ($GLOBALS ['fileCfg']))
+		if (! file_exists (Site::$cfgFile))
 		{
 			Installer::installFromScratch ();
 
@@ -129,8 +124,8 @@ class SiteAdmin
 		}
 
 		// WE have the config File
-		include_once ($GLOBALS ['fileCfg']);
-		setCfgGlobals ();
+		include_once (Site::$cfgFile);
+		Site::initCfg ();
 
 		return true;
 	}
@@ -142,9 +137,8 @@ class SiteAdmin
 	private function showAdminView ()
 	{
 		// If the installation is done in a subdirectory, it would not load the styles correctly
-		$uriPath = str_replace ('site', '', $GLOBALS ['uriPath']);
 		$head = '<head>';
-		$head .= "<link rel='stylesheet' type='text/css' href='{$uriPath}src/rsc/css/admin.css'>";
+		$head .= "<link rel='stylesheet' type='text/css' href='" . Site::$rscUriPath . "css/admin.css'>";
 
 		$body = '</head><body>';
 		$body .= "<div id='toolbar'>{$this->mnuAdmin->getMenu ($this->context->mnu)}</div>";
@@ -152,15 +146,15 @@ class SiteAdmin
 
 		$plgName = $this->mnuAdmin->getPlugin ();
 
-		if (isset (self::ADMIN_PLUGINS [$plgName]) && ! empty ($plgName))
+		if (! empty ($plgName) && isset (self::ADMIN_PLUGINS [$plgName]))
 		{
-			require_once (self::ADMIN_PLUGINS [$plgName]);
+			require_once (Site::$nsPath . self::ADMIN_PLUGINS [$plgName]);
 			$plg = new $plgName ($this->context);
 
 			// Add admin module javascript
 			foreach ($plg->getExternalJs () as $jsFile)
 			{
-				$head .= "<script type='text/javascript' src='{$uriPath}src/rsc/js/$jsFile' ></script>";
+				$head .= "<script type='text/javascript' src='" . Site::$rscUriPath . "js/$jsFile' ></script>";
 			}
 
 			// Show module

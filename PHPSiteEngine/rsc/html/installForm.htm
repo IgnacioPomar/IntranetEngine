@@ -87,7 +87,7 @@ else
 						required='required' value=''></td>
 				</tr>
 				<tr>
-					<td colspan='2' class='titulo'>Configuración del proyecto</td>
+					<td colspan='2' class='titulo'>Configuración del sitio</td>
 				</tr>
 				<tr>
 					<td><label for='skins'>Seleccione skins</label></td>
@@ -102,10 +102,24 @@ else
 					</select></td>
 				</tr>
 				<tr>
+					<td colspan='2' class='titulo'>Opciones del sitio</td>
+				</tr>
+				<tr>
 					<td><label for='mnu'>Tipo de menu</label></td>
-					<td><select id='mnu' name='mnu'>
-							<option>@@mnuTyp@@</option>
-					</select></td>
+					<td>
+						<select id='mnu' name='mnu'>
+							 <option value="0">Menu fijo</option>
+							 <option value="1">Menu din&aacute;mico</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td><label for='authRecover'>Permitir recuperar Contrase&ntilde;a</label></td>
+					<td><input type="checkbox" id="authRecover" name="authRecover" /></td>
+				</tr>
+				<tr>
+					<td><label for='authLog'>Registrar Accesos</label></td>
+					<td><input type="checkbox" id="authLog" name="authLog" /></td>
 				</tr>
 				<tr>
 					<td colspan='2' class='titulo'>Configuración del usuario

@@ -2,39 +2,56 @@
 
 namespace PHPSiteEngine;
 
-use mysqli;
-
 class DbSchema
 {
 
 
 	private static function isQuerySucess ($mysqli, $sql)
 	{
-		if (! $resultado = $mysqli->query ($sql))
+		try
+		{
+			if (! $resultado = $mysqli->query ($sql))
+			{
+				return false;
+			}
+			else
+			{
+				$resultado->close ();
+				return true;
+			}
+		}
+		catch (\mysqli_sql_exception $e)
 		{
 			return false;
-		}
-		else
-		{
-			$resultado->close ();
-			return true;
 		}
 	}
 
 
 	private static function isExecutionSucess ($mysqli, $sql)
 	{
-		if (! $resultado = $mysqli->query ($sql))
+		try
+		{
+
+			if (! $resultado = $mysqli->query ($sql))
+			{
+				echo "Error: Execution failied: \n";
+				echo "Query: " . $sql . "\n";
+				echo "Errno: " . $mysqli->errno . "\n";
+				echo "Error: " . $mysqli->error . "\n";
+				exit ();
+			}
+			else
+			{
+				return $resultado === TRUE;
+			}
+		}
+		catch (\mysqli_sql_exception $e)
 		{
 			echo "Error: Execution failied: \n";
 			echo "Query: " . $sql . "\n";
 			echo "Errno: " . $mysqli->errno . "\n";
 			echo "Error: " . $mysqli->error . "\n";
 			exit ();
-		}
-		else
-		{
-			return $resultado === TRUE;
 		}
 	}
 
@@ -235,7 +252,7 @@ class DbSchema
 
 	/**
 	 *
-	 * @param mysqli $mysqli
+	 * @param \mysqli $mysqli
 	 * @param array $fileInfo
 	 * @return array: nombre tabla, y código de salida: 1, ok, 0, no accion, -1, error
 	 *        
