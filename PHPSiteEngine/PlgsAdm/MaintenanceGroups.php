@@ -2,7 +2,7 @@
 
 namespace PHPSiteEngine\PlgsAdm;
 
-use mysqli;
+use PHPSiteEngine\Site;
 use PHPSiteEngine\Plugin;
 use PHPSiteEngine\Context;
 use PHPSiteEngine\ColumnFormatter;
@@ -18,7 +18,7 @@ class MaintenanceGroups extends Plugin
 	{
 		parent::__construct ($context);
 
-		$this->jsonFile = $GLOBALS ['basePath'] . 'src/tables/groups.jsonTable';
+		$this->jsonFile = Site::$nsPath . 'tables/groups.jsonTable';
 	}
 
 	// @formatter:off
@@ -176,7 +176,6 @@ class MaintenanceGroups extends Plugin
 
 	/**
 	 *
-	 * @param mysqli $mysqli
 	 * @return string
 	 */
 	public function main ()

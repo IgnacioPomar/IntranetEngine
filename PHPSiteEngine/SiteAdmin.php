@@ -151,6 +151,7 @@ class SiteAdmin
 		if (! empty ($plgName) && isset (self::ADMIN_PLUGINS [$plgName]))
 		{
 			require_once (Site::$nsPath . self::ADMIN_PLUGINS [$plgName]);
+			$plgName = 'PHPSiteEngine\\PlgsAdm\\' . $plgName;
 			$plg = new $plgName ($this->context);
 
 			// Add admin module javascript

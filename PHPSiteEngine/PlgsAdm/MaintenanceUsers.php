@@ -6,7 +6,7 @@ use PHPSiteEngine\Context;
 use PHPSiteEngine\Plugin;
 use PHPSiteEngine\ColumnFormatter;
 use PHPSiteEngine\AutoForm;
-
+use PHPSiteEngine\Site;
 
 class MaintenanceUsers extends Plugin
 {
@@ -17,7 +17,7 @@ class MaintenanceUsers extends Plugin
 	{
 		parent::__construct ($context);
 
-		$this->jsonFile = $GLOBALS ['basePath'] . 'src/tables/users.jsonTable';
+		$this->jsonFile = Site::$nsPath . 'tables/users.jsonTable';
 	}
 
 	// @formatter:off
