@@ -5,6 +5,7 @@ namespace PHPSiteEngine\PlgsAdm;
 use PHPSiteEngine\Context;
 use PHPSiteEngine\Plugin;
 use PHPSiteEngine\AutoForm;
+use PHPSiteEngine\Site;
 
 class EditMenu extends Plugin
 {
@@ -177,7 +178,7 @@ class EditMenu extends Plugin
 
 	private function addNewNode ()
 	{
-		$mnuSchema = $GLOBALS ['basePath'] . 'src/tables/mainMenu.jsonTable';
+		$mnuSchema = Site::$nsPath . 'tables/mainMenu.jsonTable';
 		$retVal = '<h1>New Data Form</h1>';
 
 		// We can select the order and wich fields we want to use to create
@@ -250,7 +251,7 @@ class EditMenu extends Plugin
 
 	private function editNode ()
 	{
-		$mnuSchema = $GLOBALS ['basePath'] . 'src/tables/mainMenu.jsonTable';
+		$mnuSchema = Site::$nsPath . 'tables/mainMenu.jsonTable';
 		$retVal = '<h1>New Data Form</h1>';
 
 		// We can select the order and wich fields we want to use to create

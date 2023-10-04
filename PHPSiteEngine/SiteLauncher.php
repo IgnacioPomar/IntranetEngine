@@ -4,6 +4,9 @@ namespace PHPSiteEngine;
 
 require_once ('Site.php');
 require_once ('Context.php');
+require_once ('Plugin.php');
+require_once ('WebEngine.php');
+require_once ('Auth.php');
 
 class SiteLauncher
 {
@@ -40,16 +43,16 @@ class SiteLauncher
 	 */
 	private static function checkInstallation ()
 	{
-		if (! file_exists ($GLOBALS ['fileCfg']))
+		if (! file_exists (Site::$cfgFile))
 		{
 			echo 'Waiting installation';
 			return false;
 		}
 
-		include_once ($GLOBALS ['fileCfg']);
-		setCfgGlobals ();
+		include_once (Site::$cfgFile);
+		Site::initCfg ();
 
-		if ($GLOBALS ['Version'] != VERSION)
+		if ($GLOBALS ['Version'] != Site::VERSION)
 		{
 			echo 'Maintenance in progress. Please, return later';
 			return false;
@@ -68,7 +71,6 @@ class SiteLauncher
 		session_start ();
 
 		// Check Auth
-		include_once ($GLOBALS ['moduleAuth']);
 		$context->userId = Auth::login ($context->mysqli);
 
 		return ($context->userId !== - 1);
@@ -83,14 +85,19 @@ class SiteLauncher
 		$context = new Context ();
 		if (self::checkInstallation () && self::connectDb ($context) && self::checkAuth ($context))
 		{
-			require_once ($GLOBALS ['moduleMenu']);
-			require_once ('src/Plugin.php');
-			require_once ('src/WebEngine.php');
 
 			// load the web Menu
 			$context->mnu = new Menu ();
-			$menuLoader = basename ($GLOBALS ['moduleMenu'], '.php');
-			$menuLoader::load ($context, $context->mnu);
+			if ($GLOBALS ['menuType'] == 0)
+			{
+				require_once ('MenuLoaderJson.php');
+				MenuLoaderJson::load ($context, $context->mnu);
+			}
+			else
+			{
+				require_once ('MenuLoaderDB.php');
+				MenuLoaderDB::load ($context, $context->mnu);
+			}
 
 			WebEngine::launch ($context, isset ($_GET ['ajax']));
 		}

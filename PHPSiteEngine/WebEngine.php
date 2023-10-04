@@ -9,7 +9,7 @@ class WebEngine
 	// @formatter:off
 	const HARDCODED_PLUGINS = array(
 			// 'name' => 'path',
-			'/Logout'		=> ['file' =>'./src/harcoded/Logout.php', 'class' => 'Logout'],
+			'/Logout'		=> ['file' =>'PlgsStd/Logout.php', 'class' => 'Logout'],
 	);
 	
 	// @formatter:on
@@ -53,7 +53,7 @@ class WebEngine
 	{
 		$plg = $this->loadPlugin ();
 
-		$layout = file_get_contents ($GLOBALS ['templatePath'] . $this->context->mnu->getBaseTemplate ());
+		$layout = file_get_contents (Site::$templatePath . $this->context->mnu->getBaseTemplate ());
 
 		// ---- Session data ----
 		$layout = str_replace ('@@userName@@', htmlspecialchars_decode ($_SESSION ['userName']), $layout);
@@ -66,8 +66,8 @@ class WebEngine
 		// ---- Web Engine base components ----
 		$layout = str_replace ('@@Menu@@', $this->context->mnu->getMenu (), $layout);
 		$layout = str_replace ('@@pageTitle@@', $this->context->mnu->getTitle (), $layout);
-		$layout = str_replace ('@@skinPath@@', $GLOBALS ['urlSkinPath'], $layout);
-		$layout = str_replace ('@@uriPath@@', $GLOBALS ['uriPath'], $layout);
+		$layout = str_replace ('@@skinPath@@', Site::$uriSkinPath, $layout);
+		$layout = str_replace ('@@uriPath@@', Site::$uriPath, $layout);
 
 		// ---- Finally, the body ----
 		$plgBody = $plg->main ();
@@ -92,7 +92,8 @@ class WebEngine
 				$plgInfo = self::HARDCODED_PLUGINS [$mnu->subPath];
 
 				require_once ($plgInfo ['file']);
-				$plg = new $plgInfo ['class'] ($this->context);
+				$plgName = 'PHPSiteEngine\\PlgsStd\\' . $plgInfo ['class'];
+				$plg = new $plgName ($this->context);
 				// Harcoded plugins dont have nor params nor permmisions
 
 				$mnu->stCurrOpc ([ 'opc' => $mnu->subPath, 'tmplt' => 'skel.htm', 'name' => $plgInfo ['class']]);
@@ -102,7 +103,7 @@ class WebEngine
 			else
 			{
 
-				require_once ('src/fake404.php');
+				require_once (Site::$nsPath . 'Fake404.php');
 				Fake404::main ();
 			}
 		}
@@ -130,7 +131,7 @@ class WebEngine
 		}
 
 		// If we arrive here, means we have no plugin installed
-		require_once ('src/fake404.php');
+		require_once (Site::$nsPath . 'Fake404.php');
 		Fake404::main ();
 	}
 
@@ -147,7 +148,7 @@ class WebEngine
 		$jsCallContents = '';
 		if ($jsCall != '') // avoid null files
 		{
-			$jsCallFile = $GLOBALS ['skinPath'] . 'js/' . $jsCall;
+			$jsCallFile = Site::$skinPath . 'js/' . $jsCall;
 			if (file_exists ($jsCallFile))
 			{
 				$jsCallContents = '<script type="text/javascript">';
@@ -180,7 +181,7 @@ class WebEngine
 			}
 			else
 			{
-				$jsPath = $GLOBALS ['urlSkinPath'] . "js/$jsFile";
+				$jsPath = Site::$uriSkinPath . "js/$jsFile";
 			}
 
 			$extension = substr (strrchr ($jsPath, '.'), 1);
@@ -215,7 +216,7 @@ class WebEngine
 			}
 			else
 			{
-				$cssPath = $GLOBALS ['urlSkinPath'] . "css/$cssFile";
+				$cssPath = Site::$uriSkinPath . "css/$cssFile";
 				$cssType = 'type="text/css"';
 			}
 
