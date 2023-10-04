@@ -1,5 +1,10 @@
 <?php
 
+namespace PHPSiteEngine\PlgsAdm;
+
+use PHPSiteEngine\Context;
+use PHPSiteEngine\Plugin;
+
 class EditPermissions extends Plugin
 {
 	const PERM_COLORS = array (- 1 => '#ffa7a7', 0 => '#c1c1c1', 1 => '#a5ff8b');
@@ -407,8 +412,6 @@ class EditPermissions extends Plugin
 
 
 	/**
-	 *
-	 * @param mysqli $mysqli
 	 */
 	public function __construct (Context $context)
 	{
@@ -423,7 +426,6 @@ class EditPermissions extends Plugin
 
 	/**
 	 *
-	 * @param mysqli $mysqli
 	 * @return string
 	 */
 	public function main ()

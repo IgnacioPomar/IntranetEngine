@@ -1,6 +1,10 @@
 <?php
-require_once $GLOBALS ['basePath'] . 'src/ColumnFormatter.php';
-require_once $GLOBALS ['basePath'] . 'src/AutoForm.php';
+
+namespace PHPSiteEngine\PlgsAdm;
+
+use PHPSiteEngine\Context;
+use PHPSiteEngine\Plugin;
+use PHPSiteEngine\AutoForm;
 
 class EditMenu extends Plugin
 {

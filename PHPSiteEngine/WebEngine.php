@@ -1,5 +1,7 @@
 <?php
 
+namespace PHPSiteEngine;
+
 class WebEngine
 {
 	private Context $context;

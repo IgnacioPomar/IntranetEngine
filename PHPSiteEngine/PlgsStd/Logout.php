@@ -1,4 +1,6 @@
 <?php
+namespace PHPSiteEngine\PlgsStd;
+use PHPSiteEngine\Plugin;
 
 class Logout extends Plugin
 {

@@ -1,5 +1,7 @@
 <?php
 
+namespace PHPSiteEngine;
+
 /**
  * This class helps column order and format for reports
  */
@@ -138,7 +140,7 @@ class ColumnFormatter
 	public function asciiAddLine (array $row)
 	{
 		$line = array ();
-		foreach ($this->colsDef as $fld => $col)
+		foreach (array_keys ($this->colsDef) as $fld)
 		{
 			$val = $row [$fld] ?? '';
 

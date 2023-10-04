@@ -1,9 +1,12 @@
 <?php
+
+namespace PHPSiteEngine;
+
 // TODO: Adapt to the new tables
 // Allos online registration of the users, and passeord automatic recovery (using emails)
 include_once ('authMailer.php');
 
-class Auth
+class AuthWithRecover
 {
 	private $userId;
 	private $mysqli;
@@ -19,7 +22,7 @@ class Auth
 			return $_SESSION ['userId'];
 		}
 
-		$auth = new Auth ();
+		$auth = new AuthWithRecover ();
 		$auth->userId = NULL;
 		$auth->mysqli = $mysqli;
 
@@ -48,7 +51,6 @@ class Auth
 	/**
 	 * Rellenamos los datos que mantendremos a lo largo de la sesi�n referente al usuario
 	 *
-	 * @param mysqli $mysqli
 	 * @param integer $userId
 	 * @return boolean
 	 */
@@ -73,7 +75,6 @@ class Auth
 	/**
 	 * Comprobamos si el usuario en cuestión esta activo
 	 *
-	 * @param mysqli $mysqli
 	 * @param integer $userId
 	 * @return boolean
 	 */
@@ -105,7 +106,6 @@ class Auth
 	 * Nos aseguramos de que la base de datos admita un mayor tiempo de vida a esta identificaci�n
 	 *
 	 *
-	 * @param mysqli $mysqli
 	 * @param integer $userId
 	 * @return boolean
 	 */
@@ -132,7 +132,6 @@ class Auth
 	 * Nos aseguramos de que la base de datos admita un mayor tiempo de vida a esta identificaci�n
 	 *
 	 *
-	 * @param mysqli $mysqli
 	 * @param integer $userId
 	 * @return boolean
 	 */
@@ -147,7 +146,6 @@ class Auth
 	 * Nos aseguramos de que la base de datos admita un mayor tiempo de vida a esta identificaci�n
 	 *
 	 *
-	 * @param mysqli $mysqli
 	 * @param integer $userId
 	 * @return boolean
 	 */

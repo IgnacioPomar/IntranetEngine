@@ -1,5 +1,10 @@
 <?php
 
+namespace PHPSiteEngine\PlgsAdm;
+
+use PHPSiteEngine\Plugin;
+use PHPSiteEngine\Installer;
+
 class ReinstallPlugins extends Plugin
 {
 

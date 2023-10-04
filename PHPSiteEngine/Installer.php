@@ -1,5 +1,8 @@
 <?php
 
+namespace PHPSiteEngine;
+
+
 // De momento no se hace por falta de tiempo
 class Installer
 {
@@ -72,7 +75,7 @@ class Installer
 	{
 		if ($mysqli == NULL)
 		{
-			$this->mysqli = @new mysqli ($_POST ['dbserver'], $_POST ['dbuser'], $_POST ['dbpass'], $_POST ['dbname'], $_POST ['dbport']);
+			$this->mysqli = @new \mysqli ($_POST ['dbserver'], $_POST ['dbuser'], $_POST ['dbpass'], $_POST ['dbname'], $_POST ['dbport']);
 		}
 		else
 		{
@@ -143,7 +146,7 @@ class Installer
 
 		$retVal = '';
 
-		$dir = new FilesystemIterator ('./src/tables/');
+		$dir = new \FilesystemIterator ('./src/tables/');
 		foreach ($dir as $fileinfo)
 		{
 			if ($fileinfo->getExtension () == 'jsonTable')
@@ -164,7 +167,7 @@ class Installer
 
 		$retVal = '';
 
-		$dir = new RecursiveIteratorIterator (new RecursiveDirectoryIterator ($basePath));
+		$dir = new \RecursiveIteratorIterator (new \RecursiveDirectoryIterator ($basePath));
 		foreach ($dir as $file)
 		{
 			if ($file->isDir ())

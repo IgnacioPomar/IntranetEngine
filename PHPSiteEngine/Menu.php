@@ -1,5 +1,7 @@
 <?php
 
+namespace PHPSiteEngine;
+
 /*
  *
  * As all the Menu modules, it'll return:
@@ -20,9 +22,6 @@ class Menu
 
 	/**
 	 * Sets the full menu info
-	 *
-	 *
-	 * @param Context $context
 	 */
 	function __construct ()
 	{

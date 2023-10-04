@@ -1,5 +1,7 @@
 <?php
 
+namespace PHPSiteEngine;
+
 class MenuLoaderDB
 {
 	const ONLY_SITE_ADMIN = - 1;
@@ -19,7 +21,6 @@ class MenuLoaderDB
 
 	/**
 	 *
-	 * @param mysqli $mysqli
 	 * @return array $orderMenu
 	 */
 	public static function getArrayMenu ($mysqli, $userId = self::ONLY_SITE_ADMIN)

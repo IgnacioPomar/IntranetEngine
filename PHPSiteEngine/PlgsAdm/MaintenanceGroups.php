@@ -1,7 +1,12 @@
 <?php
-require_once $GLOBALS ['basePath'] . 'src/ColumnFormatter.php';
-require_once $GLOBALS ['basePath'] . 'src/AutoForm.php';
-include_once ('FormatterColumnToCheckbox.php');
+
+namespace PHPSiteEngine\PlgsAdm;
+
+use mysqli;
+use PHPSiteEngine\Plugin;
+use PHPSiteEngine\Context;
+use PHPSiteEngine\ColumnFormatter;
+use PHPSiteEngine\Autoform;
 
 // YAGNI: Include it in the ColumnFormatter class
 class MaintenanceGroups extends Plugin

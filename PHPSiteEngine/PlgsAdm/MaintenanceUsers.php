@@ -1,7 +1,12 @@
 <?php
-require_once $GLOBALS ['basePath'] . 'src/ColumnFormatter.php';
-require_once $GLOBALS ['basePath'] . 'src/AutoForm.php';
-include_once ('FormatterColumnToCheckbox.php');
+
+namespace PHPSiteEngine\PlgsAdm;
+
+use PHPSiteEngine\Context;
+use PHPSiteEngine\Plugin;
+use PHPSiteEngine\ColumnFormatter;
+use PHPSiteEngine\AutoForm;
+
 
 class MaintenanceUsers extends Plugin
 {
@@ -272,3 +277,4 @@ class MaintenanceUsers extends Plugin
 		return $retVal;
 	}
 }
+

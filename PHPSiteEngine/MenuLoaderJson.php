@@ -1,5 +1,7 @@
 <?php
 
+namespace PHPSiteEngine;
+
 /*
  * The Menu - JSon variant means all the users will see the same options
  * (it'll not hide options if we haver give permissions to it)

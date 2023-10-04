@@ -1,6 +1,11 @@
 <?php
-include_once ('dbSchema.php');
-include_once ('SearchBox.php');
+
+namespace PHPSiteEngine;
+
+use DateTime;
+
+require_once ('DbSchema.php');
+require_once ('SearchBox.php');
 
 class AutoForm
 {

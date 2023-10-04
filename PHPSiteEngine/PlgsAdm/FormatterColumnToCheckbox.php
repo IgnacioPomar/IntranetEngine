@@ -1,5 +1,7 @@
 <?php
 
+namespace PHPSiteEngine\PlgsAdm;
+
 class FormatterColumnToCheckbox
 {
 

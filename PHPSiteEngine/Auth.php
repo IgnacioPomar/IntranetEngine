@@ -1,10 +1,13 @@
 <?php
 
+
+namespace PHPSiteEngine;
+
 class Auth
 {
 	private $userId;
 	private $mysqli;
-	private $errorInfo = "";
+	private $errorInfo;
 	private $errorCode;
 
 

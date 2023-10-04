@@ -1,5 +1,7 @@
 <?php
 
+namespace PHPSiteEngine;
+
 class Fake404
 {
 
@@ -16,9 +18,9 @@ class Fake404
 </head>
 <body>
 	<h1>Not Found</h1>
-	<p>The requested URL <?= $_SERVER['REQUEST_URI']?> was not found on this server.</p>
+	<p>The requested URL <?=$_SERVER ['REQUEST_URI']?> was not found on this server.</p>
 	<hr>
-	<address><?=$_SERVER['SERVER_NAME']?>: Port 80</address>
+	<address><?=$_SERVER ['SERVER_NAME']?>: Port 80</address>
 </body>
 </html>
 <?php

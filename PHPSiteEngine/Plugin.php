@@ -1,5 +1,7 @@
 <?php
 
+namespace PHPSiteEngine;
+
 abstract class Plugin
 {
 	protected array $params = array ();
