@@ -1,13 +1,12 @@
 <?php
 
-
 namespace PHPSiteEngine;
 
 class Auth
 {
 	private $userId;
 	private $mysqli;
-	private $errorInfo;
+	private $errorInfo = '';
 	private $errorCode;
 
 
@@ -446,8 +445,9 @@ class Auth
 	private function showFinalLoginForm ($file)
 	{
 		$loginForm = file_get_contents ($file);
-		$loginForm = str_replace ('@@uriPath@@', $GLOBALS ['uriPath'], $loginForm);
-		$loginForm = str_replace ('@@skinPath@@', $GLOBALS ['urlSkinPath'], $loginForm);
+		$loginForm = str_replace ('@@uriPath@@', Site::$uriPath, $loginForm);
+		$loginForm = str_replace ('@@skinPath@@', Site::$uriSkinPath, $loginForm);
+		$loginForm = str_replace ('@@rscUriPath@@', Site::$rscUriPath, $loginForm);
 		$loginForm = str_replace ('@@errorInfo@@', $this->errorInfo, $loginForm);
 
 		header ('Content-Type: text/html; charset=utf-8');
@@ -462,13 +462,13 @@ class Auth
 	 */
 	public function showLoginForm ()
 	{
-		$this->showFinalLoginForm ($GLOBALS ['skinPath'] . 'tmplt/loginForm.htm');
+		$this->showFinalLoginForm (Site::$skinPath . 'tmplt/loginForm.htm');
 	}
 
 
 	public function showSetupLoginForm ()
 	{
-		$this->showFinalLoginForm ('./src/rsc/html/setupLoginForm.htm', '');
+		$this->showFinalLoginForm (Site::$rscPath . 'html/setupLoginForm.htm', '');
 	}
 
 

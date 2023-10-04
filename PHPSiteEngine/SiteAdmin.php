@@ -7,6 +7,8 @@ require_once ('Context.php');
 require_once ('Plugin.php');
 require_once ('Installer.php');
 require_once ('MenuLoaderJson.php');
+require_once ('MenuLoaderDB.php'); // if ($GLOBALS ['menuType'] != 0)
+require_once ('Auth.php');
 
 // Include for the admin plugins
 require_once ('ColumnFormatter.php');
@@ -178,9 +180,6 @@ class SiteAdmin
 	private function checkAdminAuth ()
 	{
 		session_start ();
-
-		// Comprobamos si estamos autenticados
-		include_once ($GLOBALS ['moduleAuth']);
 		$this->userId = Auth::setupLogin ($this->context->mysqli);
 
 		// TODO: comprobar que tiene permisos de admin
@@ -206,10 +205,15 @@ class SiteAdmin
 
 	private function loadWebMenu ()
 	{
-		// load the web Men
-		$menuLoader = basename ($GLOBALS ['moduleMenu'], '.php');
 		$this->context->mnu = new Menu ();
-		$menuLoader::load ($this->context, $this->context->mnu);
+		if ($GLOBALS ['menuType'] == 0)
+		{
+			MenuLoaderJson::load ($this->context, $this->context->mnu);
+		}
+		else
+		{
+			MenuLoaderDB::load ($this->context, $this->context->mnu);
+		}
 	}
 
 

@@ -19,7 +19,7 @@ class MenuLoaderJson
 	public static function load (&$context, Menu &$menu)
 	{
 		$menuFileName = (isset ($GLOBALS ['jsonMenu'])) ? $GLOBALS ['jsonMenu'] : 'mainMenu.json';
-		MenuLoaderJson::loadFromFile ($GLOBALS ['cfgPath'] . $menuFileName, $menu);
+		MenuLoaderJson::loadFromFile (Site::$cfgPath . $menuFileName, $menu);
 	}
 
 

@@ -409,7 +409,7 @@ class Installer
 		$cfgFile = str_replace ('@@plgs@@', $_POST ['plgs'], $cfgFile);
 		$cfgFile = str_replace ('@@skins@@', $_POST ['skins'], $cfgFile);
 
-		$cfgFile = str_replace ('@@mnuType@@', $_POST ['mnu'], $cfgFile);
+		$cfgFile = str_replace ('@@menuType@@', $_POST ['mnu'], $cfgFile);
 		$cfgFile = str_replace ('@@authLog@@', isset ($_POST ['authLog']) ? 'TRUE' : 'FALSE', $cfgFile);
 		$cfgFile = str_replace ('@@authRecover@@', isset ($_POST ['authRecover']) ? 'TRUE' : 'FALSE', $cfgFile);
 
