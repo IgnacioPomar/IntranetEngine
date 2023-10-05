@@ -1,5 +1,7 @@
 <?php
+
 namespace PHPSiteEngine\PlgsStd;
+
 use PHPSiteEngine\Plugin;
 
 class Logout extends Plugin
@@ -18,7 +20,7 @@ class Logout extends Plugin
 
 			// Delete in the browser
 			unset ($_COOKIE ['SecurityCookie']);
-			setcookie ('SecurityCookie', null, - 1, '/');
+			setcookie ('SecurityCookie', '', - 1, '/');
 		}
 
 		if (! isset ($_SESSION)) session_start ();
