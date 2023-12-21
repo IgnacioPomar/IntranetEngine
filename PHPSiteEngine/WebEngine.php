@@ -20,19 +20,12 @@ class WebEngine
 	 * @param Menu $mnu
 	 * @param bool $isAjax
 	 */
-	public static function launch (&$context, $isAjax)
+	public static function launch (&$context)
 	{
 		$we = new WebEngine ();
 		$we->context = &$context;
 
-		if ($isAjax)
-		{
-			$we->showAjaxBody ();
-		}
-		else
-		{
-			$we->compose ();
-		}
+		$we->compose ();
 	}
 
 
@@ -52,29 +45,35 @@ class WebEngine
 	private function compose ()
 	{
 		$plg = $this->loadPlugin ();
-
-		$layout = file_get_contents (Site::$templatePath . $this->context->mnu->getBaseTemplate ());
-
-		// ---- Session data ----
-		$layout = str_replace ('@@userName@@', htmlspecialchars_decode ($_SESSION ['userName']), $layout);
-
-		// ---- Plugin data ----
-		$this->setJsCall ($plg->getJsCall (), $layout);
-		$this->setJsHeader ($plg->getExternalJs (), $layout);
-		$this->setCssHeader ($plg->getExternalCss (), $layout);
-
-		// ---- Web Engine base components ----
-		$layout = str_replace ('@@Menu@@', $this->context->mnu->getMenu (), $layout);
-		$layout = str_replace ('@@pageTitle@@', $this->context->mnu->getTitle (), $layout);
-		$layout = str_replace ('@@skinPath@@', Site::$uriSkinPath, $layout);
-		$layout = str_replace ('@@uriPath@@', Site::$uriPath, $layout);
-
-		// ---- Finally, the body ----
 		$plgBody = $plg->main ();
 
-		$layout = str_replace ('@@content@@', $plgBody, $layout);
+		if ($this->context->isAjax)
+		{
+			print ($plgBody);
+		}
+		else
+		{
+			$layout = file_get_contents (Site::$templatePath . $this->context->mnu->getBaseTemplate ());
 
-		print ($layout);
+			// ---- Session data ----
+			$layout = str_replace ('@@userName@@', htmlspecialchars_decode ($_SESSION ['userName']), $layout);
+
+			// ---- Plugin data ----
+			$this->setJsCall ($plg->getJsCall (), $layout);
+			$this->setJsHeader ($plg->getExternalJs (), $layout);
+			$this->setCssHeader ($plg->getExternalCss (), $layout);
+
+			// ---- Web Engine base components ----
+			$layout = str_replace ('@@Menu@@', $this->context->mnu->getMenu (), $layout);
+			$layout = str_replace ('@@pageTitle@@', $this->context->mnu->getTitle (), $layout);
+			$layout = str_replace ('@@skinPath@@', Site::$uriSkinPath, $layout);
+			$layout = str_replace ('@@uriPath@@', Site::$uriPath, $layout);
+
+			// ---- Finally, the body ----
+			$layout = str_replace ('@@content@@', $plgBody, $layout);
+
+			print ($layout);
+		}
 	}
 
 

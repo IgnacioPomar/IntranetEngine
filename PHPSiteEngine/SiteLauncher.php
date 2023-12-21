@@ -103,7 +103,8 @@ class SiteLauncher
 				MenuLoaderDB::load ($context, $context->mnu);
 			}
 
-			WebEngine::launch ($context, isset ($_GET ['ajax']));
+			$context->isAjax = isset ($_GET ['ajax']);
+			WebEngine::launch ($context);
 		}
 	}
 }

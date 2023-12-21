@@ -9,4 +9,5 @@ class Context
 	public \mysqli $mysqli;
 	public int $userId;
 	public Menu $mnu;
+	public bool $isAjax;
 }
