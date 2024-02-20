@@ -399,7 +399,7 @@ class Installer
 	public function saveNewCfgFile (&$outputMessage)
 	{
 		// TODO: Detect and apply the modules (auth....)
-		$outputSkin = Site::$rscPath . 'default/site_cfg_def.php';
+		$outputSkin = Site::$rscPath . 'default/site_cfg.template';
 		$cfgFile = file_get_contents ($outputSkin);
 		$cfgFile = str_replace ('@@dbserver@@', $_POST ['dbserver'], $cfgFile);
 		$cfgFile = str_replace ('@@dbport@@', $_POST ['dbport'], $cfgFile);
