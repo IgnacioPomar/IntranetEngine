@@ -27,6 +27,7 @@ class Logout extends Plugin
 		unset ($_SESSION);
 		session_unset ();
 		session_destroy ();
+		$_SESSION ['userName'] = '';
 
 		return '<h2 class="warning">Logout sucess</h2>';
 	}
