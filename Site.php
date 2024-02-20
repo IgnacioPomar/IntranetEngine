@@ -49,17 +49,24 @@ class Site
 	/**
 	 * Initialization of universal Vars
 	 */
-	public static function init ()
+	public static function init ($rootPath, $cfgFile)
 	{
 		self::$uriPath = dirname ($_SERVER ['SCRIPT_NAME']); // Remove index.php or siteAdmin.php
 		self::$uriPath = rtrim (self::$uriPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR; // Force end with slash
 
 		$reflector = new \ReflectionClass (self::class);
 		self::$nsPath = dirname ($reflector->getFileName ()) . DIRECTORY_SEPARATOR;
-		self::$rootPath = dirname (self::$nsPath) . DIRECTORY_SEPARATOR;
+		self::$rootPath = $rootPath;
+		
+		//Make sure it ends with slash;
+		if (substr (self::$rootPath, - 1) !== DIRECTORY_SEPARATOR)
+		{
+			self::$rootPath .= DIRECTORY_SEPARATOR;
+		}
 
-		self::$cfgPath = self::$rootPath . 'cfg' . DIRECTORY_SEPARATOR;
-		self::$cfgFile = self::$cfgPath . 'site_cfg.php';
+		self::$cfgFile = self::$rootPath . $cfgFile;
+		self::$cfgPath = dirname (self::$cfgFile) . DIRECTORY_SEPARATOR;
+		
 
 		self::$rscPath = self::$nsPath . 'rsc' . DIRECTORY_SEPARATOR;
 		self::$rscUriPath = self::$uriPath . $reflector->getNamespaceName () . DIRECTORY_SEPARATOR . 'rsc' . DIRECTORY_SEPARATOR;
@@ -71,14 +78,13 @@ class Site
 	 */
 	public static function initCfg ()
 	{
-		self::$plgsPath = self::$rootPath . 'plgs' . DIRECTORY_SEPARATOR . $GLOBALS ['plgs'] . DIRECTORY_SEPARATOR;
-		self::$skinPath = self::$rootPath . 'skins' . DIRECTORY_SEPARATOR . $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
+		self::$plgsPath = self::$rootPath .  $GLOBALS ['plgs'] . DIRECTORY_SEPARATOR;
+		self::$skinPath = self::$rootPath .  $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
 		self::$templatePath = self::$skinPath . 'tmplt' . DIRECTORY_SEPARATOR;
-		self::$uriSkinPath = self::$uriPath . 'skins' . DIRECTORY_SEPARATOR . $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
+		self::$uriSkinPath = self::$uriPath .  $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
 	}
 }
 
-// We will initialize when we load the file
-Site::init ();
+
 
 

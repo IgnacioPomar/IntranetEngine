@@ -221,8 +221,9 @@ class SiteAdmin
 	/**
 	 * Entry Point
 	 */
-	public static function main ()
+	public static function main ($rootPath, $cfgFile)
 	{
+		Site::init ($rootPath, $cfgFile);
 		if (self::checkFileCfg ())
 		{
 			$adminModule = new SiteAdmin ();

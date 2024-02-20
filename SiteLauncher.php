@@ -84,8 +84,10 @@ class SiteLauncher
 	/**
 	 * Entry point
 	 */
-	public static function main ()
+	public static function main ($rootPath, $cfgFile)
 	{
+		Site::init ($rootPath, $cfgFile);
+		
 		$context = new Context ();
 		if (self::checkInstallation () && self::connectDb ($context) && self::checkAuth ($context))
 		{
