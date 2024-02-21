@@ -336,3 +336,52 @@ class FormatterBackgroundColor
 		return '<span class="' . $class . '" style="background-color: ' . $bgColor . ';">' . $val . '</span>';
 	}
 }
+
+use IntlDateFormatter;
+
+class FormatterTimestamp
+{
+	private $fmt;
+
+
+	function __construct ($locale = 'es_ES.UTF-8')
+	{
+		$this->fmt = new \IntlDateFormatter ($locale, IntlDateFormatter::MEDIUM, IntlDateFormatter::NONE, null, IntlDateFormatter::GREGORIAN, null);
+	}
+
+
+	/**
+	 *
+	 * @param mixed $val
+	 * @param string $class
+	 * @return string
+	 */
+	public function getSpan ($val, $class)
+	{
+		return "<div class='$class'>" . $this->fmt->format ($val) . '</div>';
+	}
+}
+
+class FormatterFromArray
+{
+	private $data;
+
+
+	function __construct (array $vals)
+	{
+		$this->data = $vals;
+	}
+
+
+	/**
+	 *
+	 * @param mixed $val
+	 * @param string $class
+	 * @return string
+	 */
+	public function getSpan ($val, $class)
+	{
+		return "<div class='$class'>" . $this->data [$val] . '</div>';
+	}
+}
+
