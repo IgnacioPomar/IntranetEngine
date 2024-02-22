@@ -112,7 +112,7 @@ class WebEngine
 		{
 			if ($row = $resultado->fetch_assoc ())
 			{
-				require_once ($row ['plgFile']);
+				require_once (Site::$plgsPath . $row ['plgFile']);
 				$plg = new $class ($this->context);
 
 				if (strlen ($row ['plgParams']) > 2)

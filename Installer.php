@@ -225,7 +225,7 @@ class Installer
 					if (is_subclass_of ($className, 'PHPSiteEngine\\Plugin'))
 					{
 						$currentPlgs [$className] = call_user_func ($className . '::getPlgInfo');
-						$currentPlgs [$className] ['path'] = $filename;
+						$currentPlgs [$className] ['path'] = str_replace (Site::$plgsPath, '', $filename);
 					}
 				}
 			}
