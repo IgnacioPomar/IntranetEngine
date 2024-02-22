@@ -232,8 +232,15 @@ class SiteAdmin
 			{
 				if ($GLOBALS ['Version'] != Site::VERSION)
 				{
-					echo '<h1>New PHPSiteEngine version. Migration needed</h1>';
-					return false;
+					if (isset ($_POST ['installNewVersion']) && $_POST ['installNewVersion'] == 'true')
+					{
+						include_once (Site::$nsPath . 'Migrator.php');
+						Migrator::migrate ($adminModule->context);
+					}
+					else
+					{
+						echo file_get_contents (Site::$rscPath . 'html/migrationForm.html');
+					}
 				}
 				else
 				{
