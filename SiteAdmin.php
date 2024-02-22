@@ -230,8 +230,16 @@ class SiteAdmin
 
 			if ($adminModule->checkInstallation () && $adminModule->checkAdminAuth ())
 			{
-				$adminModule->loadWebMenu ();
-				echo $adminModule->showAdminView ();
+				if ($GLOBALS ['Version'] != Site::VERSION)
+				{
+					echo '<h1>New PHPSiteEngine version. Migration needed</h1>';
+					return false;
+				}
+				else
+				{
+					$adminModule->loadWebMenu ();
+					echo $adminModule->showAdminView ();
+				}
 			}
 		}
 	}
