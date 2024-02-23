@@ -57,8 +57,8 @@ class Site
 		$reflector = new \ReflectionClass (self::class);
 		self::$nsPath = dirname ($reflector->getFileName ()) . DIRECTORY_SEPARATOR;
 		self::$rootPath = $rootPath;
-		
-		//Make sure it ends with slash;
+
+		// Make sure it ends with slash;
 		if (substr (self::$rootPath, - 1) !== DIRECTORY_SEPARATOR)
 		{
 			self::$rootPath .= DIRECTORY_SEPARATOR;
@@ -66,7 +66,6 @@ class Site
 
 		self::$cfgFile = self::$rootPath . $cfgFile;
 		self::$cfgPath = dirname (self::$cfgFile) . DIRECTORY_SEPARATOR;
-		
 
 		self::$rscPath = self::$nsPath . 'rsc' . DIRECTORY_SEPARATOR;
 		self::$rscUriPath = self::$uriPath . $reflector->getNamespaceName () . DIRECTORY_SEPARATOR . 'rsc' . DIRECTORY_SEPARATOR;
@@ -78,10 +77,10 @@ class Site
 	 */
 	public static function initCfg ()
 	{
-		self::$plgsPath = self::$rootPath .  $GLOBALS ['plgs'] . DIRECTORY_SEPARATOR;
-		self::$skinPath = self::$rootPath .  $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
+		self::$plgsPath = self::$rootPath . $GLOBALS ['plgs'] . DIRECTORY_SEPARATOR;
+		self::$skinPath = self::$rootPath . $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
 		self::$templatePath = self::$skinPath . 'tmplt' . DIRECTORY_SEPARATOR;
-		self::$uriSkinPath = self::$uriPath .  $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
+		self::$uriSkinPath = self::$uriPath . $GLOBALS ['skin'] . DIRECTORY_SEPARATOR;
 	}
 }
 

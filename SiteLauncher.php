@@ -58,7 +58,14 @@ class SiteLauncher
 
 		if ($GLOBALS ['Version'] != Site::VERSION)
 		{
-			echo 'Maintenance in progress. Please, return later';
+			if (file_exists (Site::$templatePath . 'maintenance.html'))
+			{
+				echo file_get_contents (Site::$templatePath . 'maintenance.html');
+			}
+			else
+			{
+				echo file_get_contents (Site::$rscPath . 'skinTmplt/maintenance.html');
+			}
 			return false;
 		}
 		return true;
@@ -87,7 +94,7 @@ class SiteLauncher
 	public static function main ($rootPath, $cfgFile)
 	{
 		Site::init ($rootPath, $cfgFile);
-		
+
 		$context = new Context ();
 		if (self::checkInstallation () && self::connectDb ($context) && self::checkAuth ($context))
 		{

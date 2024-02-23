@@ -462,7 +462,14 @@ class Auth
 	 */
 	public function showLoginForm ()
 	{
-		$this->showFinalLoginForm (Site::$skinPath . 'tmplt/loginForm.htm');
+		if (file_exists (Site::$skinPath . 'tmplt/loginForm.htm'))
+		{
+			$this->showFinalLoginForm (Site::$skinPath . 'tmplt/loginForm.htm');
+		}
+		else
+		{
+			$this->showFinalLoginForm (Site::$rscPath . 'skinTmplt/loginForm.htm');
+		}
 	}
 
 
