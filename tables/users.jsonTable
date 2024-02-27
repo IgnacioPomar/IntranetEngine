@@ -1,7 +1,7 @@
 {
 	"tablename": "weUsers",
 	"fields": {
-		"idUser":		{"type": "auto", "formType":"hidden"},
+		"idUser":		{"type": "string","lenght": 24, "formType":"hidden"},
 		"email":		{"type": "string","lenght": 50, "label": "Email", "formType":"email"},
 		"name":			{"type": "string","lenght": 50, "label": "User name"},
 		"password": 	{"type": "string","lenght": 255, "label": "Password", "formType":"password"},

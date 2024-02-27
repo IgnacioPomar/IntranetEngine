@@ -7,7 +7,7 @@ namespace PHPSiteEngine;
  */
 class Site
 {
-	const VERSION = '0.2';
+	const VERSION = '0.3';
 
 	// ----------- Universal Folders -----------
 	// The browser PATH

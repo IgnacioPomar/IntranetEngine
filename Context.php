@@ -7,7 +7,7 @@ require_once ('Menu.php');
 class Context
 {
 	public \mysqli $mysqli;
-	public int $userId;
+	public ?string $userId;
 	public Menu $mnu;
 	public bool $isAjax;
 }

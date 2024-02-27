@@ -1,7 +1,7 @@
 {
 	"tablename": "weUsersGroups",
 	"fields": {
-		"idUser":		{"type": "int"},
+		"idUser":		{"type": "string", "lenght": 24},
 		"idGrp":		{"type": "int"}
 	},
 	"indexes": [

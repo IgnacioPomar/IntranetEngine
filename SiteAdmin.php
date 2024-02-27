@@ -33,14 +33,14 @@ class SiteAdmin
     // @formatter:on
 	private Menu $mnuAdmin;
 	private Context $context;
-	private int $userId;
+	private ?string $userId;
 
 
 	public function __construct ()
 	{
 		$this->context = new Context ();
 		// we set the userId to get all menu from the db
-		$this->context->userId = - 1;
+		$this->context->userId = NULL;
 
 		// Load the admin Menu
 		$this->mnuAdmin = new Menu ();
@@ -183,17 +183,22 @@ class SiteAdmin
 		session_start ();
 		$this->userId = Auth::setupLogin ($this->context->mysqli);
 
-		// TODO: comprobar que tiene permisos de admin
-
 		if ($this->userId !== NULL)
 		{
-			if (isset ($_SESSION ['isAdmin']) && $_SESSION ['isAdmin'] == 1)
+			// Check if we currently have an admin rights
+			if (Auth::isAdmin ($this->context->mysqli, $this->userId))
 			{
 				return TRUE;
 			}
 			else
 			{
 				echo 'You need ADMIN privileges to enter here';
+
+				unset ($_SESSION);
+				session_unset ();
+				session_destroy ();
+				$_SESSION ['userName'] = '';
+
 				return FALSE;
 			}
 		}

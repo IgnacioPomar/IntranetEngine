@@ -3,7 +3,7 @@
 	"fields": {
 		"cookieId":		{"type": "string", "lenght": 30},
 		"cookiePass":	{"type": "string", "lenght": 45},
-		"realUserId":	{"type": "int"},		
+		"realUserId":	{"type": "string", "lenght": 24},		
 		"firstAccess":	{"type": "datetime"},
 		"expires":		{"type": "datetime"},
 		"browserInfo":	{"type": "string","lenght": 255}

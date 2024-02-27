@@ -14,7 +14,7 @@ class Auth
 	 * A login for the admin space.
 	 * It wont use the skin at all
 	 */
-	public static function setupLogin ($mysqli)
+	public static function setupLogin ($mysqli): ?string
 	{
 		if (isset ($_SESSION ['userId']))
 		{
@@ -22,7 +22,7 @@ class Auth
 		}
 
 		$auth = new Auth ();
-		$auth->userId = - 1;
+		$auth->userId = NULL;
 		$auth->mysqli = $mysqli;
 
 		if ($auth->checkLocallogin ()) return $auth->userId;
@@ -33,7 +33,13 @@ class Auth
 	}
 
 
-	public static function login ($mysqli)
+	/**
+	 * Check if the user is logged Or is logging
+	 *
+	 * @param integer $userId
+	 * @return boolean
+	 */
+	public static function login ($mysqli): ?string
 	{
 		// 0.- WE are already in session
 		if (isset ($_SESSION ['userId']))
@@ -42,68 +48,65 @@ class Auth
 		}
 
 		$auth = new Auth ();
-		$auth->userId = - 1;
+		$auth->userId = NULL;
 		$auth->mysqli = $mysqli;
 
-		// 1.- Comprobar si venimos de otras sesiones
+		// 1.- Check if there is a cookie with a valid session
 		if ($auth->checkCookieslogin ()) return $auth->userId;
-		;
 
-		// 2.- Comprobar si hay login con cuenta de google o Facebook
-		// 3.- Comprobar si se ha introducido algo en el formulario de login
+		// 2.- TODO: check if there is a valid google or facebook or Office365 login
+		// 3.- Check if the form has been submitted
 		if ($auth->checkLocallogin ()) return $auth->userId;
 
-		// 4.- Comprobamos si es una llamada interna de la página
+		// 4.- Check if it is an internal call from inside the site
 		if ($auth->checkInternalCall ()) return $auth->userId;
 
-		// 5.- Comprobamos si se trata de una llamada desde una aplicación
+		// 5.- Check if it is a direct app call
 		if ($auth->checkAppCall ()) return $auth->userId;
 
-		// TODO: opcionalmente añadir un método de identificación usando certificados instalados en la máqina
+		// TODO: Check if there is a valid certificate in the machine
 		// https://webauthn.guide/#webauthn-api
 
-		// ---------- No tenemos id de usuario que devolver ----------
-		// 5.- Mostrar el formulario de login
+		// ---------- We dont have a valid user ----------
+		// Show the login form
 		$auth->showLoginForm ();
-		return - 1;
+		return NULL;
 	}
 
 
 	/**
-	 * Rellenamos los datos que mantendremos a lo largo de la sesión referente al usuario
+	 * Check if the user is an admin
 	 *
 	 * @param integer $userId
 	 * @return boolean
 	 */
-	private function fillSessionData ()
+	public static function isAdmin ($mysqli, $userId): bool
 	{
-		$consulta = "SELECT isAdmin, name FROM weUsers WHERE idUser = $this->userId;";
+		$retVal = false;
+		$consulta = "SELECT isAdmin FROM weUsers WHERE idUser = '$userId';";
 
-		if ($resultado = $this->mysqli->query ($consulta))
+		if ($res = $mysqli->query ($consulta))
 		{
-			if ($resultado->num_rows > 0)
+			if ($row = $res->fetch_assoc ())
 			{
-				$tupla = $resultado->fetch_object ();
-				$_SESSION ['isAdmin'] = $tupla->isAdmin;
-				$_SESSION ['userName'] = $tupla->name;
-				$_SESSION ['userId'] = $this->userId;
+				$retVal = ($row ['isAdmin'] == 1);
 			}
-
-			$resultado->free_result ();
+			$res->free_result ();
 		}
+		return $retVal;
 	}
 
 
 	/**
-	 * Comprobamos si el usuario en cuestión esta activo
+	 * Check if the user is still active
 	 *
 	 * @param integer $userId
 	 * @return boolean
 	 */
-	private function checkIfUserIsActive ($userId)
+	private function checkIfUserIsActive ($userId): bool
 	{
 		$retVal = FALSE;
-		$consulta = "SELECT isActive FROM weUsers WHERE idUser = $userId;";
+		$consulta = "SELECT isActive, name FROM weUsers WHERE idUser = '$userId';";
 
 		if ($resultado = $this->mysqli->query ($consulta))
 		{
@@ -114,6 +117,9 @@ class Auth
 				if ($tupla->isActive == 1)
 				{
 					$retVal = TRUE;
+
+					$this->userId = $_SESSION ['userId'] = $userId;
+					$_SESSION ['userName'] = $tupla->name;
 				}
 			}
 
@@ -143,7 +149,7 @@ class Auth
 	 */
 	private function deleteOldCookies ()
 	{
-		$sql = 'DELETE FROM weSessCookie  WHERE expires < NOW();';
+		$sql = 'DELETE FROM weSessCookie WHERE expires < NOW();';
 		$this->mysqli->query ($sql);
 	}
 
@@ -172,8 +178,6 @@ class Auth
 
 				if (($tupla->cookiePass === $cookiePass) && ($this->checkIfUserIsActive ($tupla->realUserId)))
 				{
-					$this->userId = $tupla->realUserId;
-					$this->fillSessionData ($tupla->realUserId);
 
 					$retVal = true;
 
@@ -371,7 +375,7 @@ class Auth
 		$browserId = $_SERVER ['HTTP_USER_AGENT'];
 
 		$consulta = "INSERT INTO weSessCookie (cookieId,cookiePass,realUserId,firstAccess,expires,browserInfo)
-		VALUES (\"$cookieId\",\"$cookiePass\",$userId,NOW(),NOW() + INTERVAL 30 DAY,\"$browserId\");
+		VALUES (\"$cookieId\",\"$cookiePass\",'$userId',NOW(),NOW() + INTERVAL 30 DAY,\"$browserId\");
 		";
 
 		if ($this->mysqli->query ($consulta))
@@ -397,7 +401,7 @@ class Auth
 		if (isset ($_POST ['user']))
 		{
 			$usuario = $this->mysqli->real_escape_string ($_POST ['user']);
-			$consulta = 'SELECT idUser, password, isActive FROM weUsers WHERE email="' . $usuario . '"';
+			$consulta = 'SELECT idUser, name, password, isActive FROM weUsers WHERE email="' . $usuario . '"';
 
 			if ($resultado = $this->mysqli->query ($consulta))
 			{
@@ -409,12 +413,11 @@ class Auth
 					{
 						if ($tupla->isActive == 1)
 						{
-							$this->userId = $tupla->idUser;
-							$_SESSION ['userId'] = $this->userId;
+							$this->userId = $_SESSION ['userId'] = $tupla->idUser;
+							$_SESSION ['userName'] = $tupla->name;
+
 							$this->saveCookieSession (true);
 							$retVal = TRUE;
-
-							$this->fillSessionData ();
 						}
 						else
 						{

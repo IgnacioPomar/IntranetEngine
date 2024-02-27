@@ -84,7 +84,7 @@ class SiteLauncher
 		// Check Auth
 		$context->userId = Auth::login ($context->mysqli);
 
-		return ($context->userId !== - 1);
+		return ($context->userId !== NULL);
 	}
 
 
