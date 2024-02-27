@@ -12,7 +12,7 @@ class UUIDv7
 	 *
 	 * @return string
 	 */
-	private static function generateBinary (): string
+	public static function generateBinary (): string
 	{
 		$counter = 0xFFF & self::$subMillisecondCounter ++;
 
@@ -33,9 +33,9 @@ class UUIDv7
 	 *
 	 * @return string
 	 */
-	public static function generateBase64 (): string
+	public static function generateBase64 ($uuidBin = NULL): string
 	{
-		$uuidBin = self::generateBinary ();
+		$uuidBin ??= self::generateBinary ();
 		return rtrim (strtr (base64_encode ($uuidBin), '+/', '-_'), '=');
 	}
 
@@ -45,9 +45,9 @@ class UUIDv7
 	 *
 	 * @return string
 	 */
-	public static function generateStd (): string
+	public static function generateStd ($uuidBin = NULL): string
 	{
-		$uuidBin = self::generateBinary ();
+		$uuidBin ??= self::generateBinary ();
 		$hex = bin2hex ($uuidBin);
 
 		// Split the hex string into the UUID format parts
@@ -55,9 +55,9 @@ class UUIDv7
 		$time_mid = substr ($hex, 8, 4);
 		// We have to adjust the version and the variant according to the UUID standards.
 		$version_and_time_high = substr ($hex, 12, 4);
-		$version_and_time_high = (hexdec ($version_and_time_high) & 0x0fff) | 0x7000; // Version 7
+		$version_and_time_high = (hexdec ($version_and_time_high));
 		$clock_seq_and_variant = substr ($hex, 16, 4);
-		$clock_seq_and_variant = (hexdec ($clock_seq_and_variant) & 0x3fff) | 0x8000; // Variant 1
+		$clock_seq_and_variant = (hexdec ($clock_seq_and_variant));
 		$node = substr ($hex, 20);
 
 		return sprintf ('%08s-%04s-%04x-%04x-%012s', $time_low, $time_mid, $version_and_time_high, $clock_seq_and_variant, $node);
@@ -95,6 +95,6 @@ class UUIDv7
 
 		// Convierte el tiempo en milisegundos a una fecha y hora
 		$dateTime = (new \DateTime ())->setTimestamp ((int) ($time / 1000));
-		return $dateTime->format ('Y-m-d H:i:s');
+		return $dateTime->format ('Y-m-d H:i:s.v');
 	}
 }
