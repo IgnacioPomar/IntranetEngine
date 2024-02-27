@@ -3,6 +3,7 @@
 namespace PHPSiteEngine;
 
 include_once ('DbSchema.php');
+include_once ('UUIDv7.php');
 
 // De momento no se hace por falta de tiempo
 class Installer
@@ -41,31 +42,7 @@ class Installer
 
 	private static function showInstallSetup ()
 	{
-		$basePath = Site::$rootPath . "plgs/";
-		$options = '';
-		foreach (glob ($basePath . "*") as $filename)
-		{
-			if (is_dir ($filename) || is_link ($filename))
-			{
-				$filename = str_replace ($basePath, "", $filename);
-				$options .= '<option value="' . $filename . '">' . $filename . '</option>';
-			}
-		}
-
-		$basePath = Site::$rootPath . "skins/";
-		$skins = '';
-		foreach (glob ($basePath . "*") as $filename)
-		{
-			if (is_dir ($filename) || is_link ($filename))
-			{
-				$filename = str_replace ($basePath, "", $filename);
-				$skins .= '<option value="' . $filename . '">' . $filename . '</option>';
-			}
-		}
-
 		$layout = file_get_contents (Site::$rscPath . 'html/installForm.htm');
-		$layout = str_replace ('<option>@@plgs@@</option>', $options, $layout);
-		$layout = str_replace ('<option>@@skins@@</option>', $skins, $layout);
 
 		header ('Content-Type: text/html; charset=utf-8');
 		print ($layout);
@@ -347,7 +324,8 @@ class Installer
 	 */
 	public function addInitialData (&$out)
 	{
-		$sqlCmd = 'INSERT INTO weUsers (name, email, password, isActive, isAdmin) VALUES (';
+		$sqlCmd = 'INSERT INTO weUsers (idUser, name, email, password, isActive, isAdmin) VALUES (';
+		$sqlCmd .= '"' . UUIDv7::generateBase64 () . '",';
 		$sqlCmd .= '"' . $_POST ['adminname'] . '",';
 		$sqlCmd .= '"' . $_POST ['adminlogin'] . '",';
 		$sqlCmd .= '"' . password_hash ($_POST ['adminpass1'], PASSWORD_DEFAULT) . '",';
