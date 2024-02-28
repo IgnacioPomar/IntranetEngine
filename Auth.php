@@ -9,6 +9,22 @@ class Auth
 	private $errorInfo = '';
 	private $errorCode;
 
+	// Configurated behaviours
+	private bool $keepLogged;
+	private bool $allowRecover;
+	private bool $allowAppLogins;
+
+
+	/**
+	 * Constructor: init the configurated behaviours
+	 */
+	public function __construct ()
+	{
+		$this->keepLogged = $GLOBALS ['authKeepLogged'] ?? true;
+		$this->allowRecover = $GLOBALS ['authAllowRecover'] ?? false;
+		$this->allowAppLogins = $GLOBALS ['authAllowAppLogins'] ?? false;
+	}
+
 
 	/**
 	 * A login for the admin space.
@@ -51,6 +67,15 @@ class Auth
 		$auth->userId = NULL;
 		$auth->mysqli = $mysqli;
 
+		if ($auth->allowRecover)
+		{
+			$auth->disassembleRecoveryLink ();
+			if (isset ($_POST ['recoverPass']))
+			{
+				return $auth->recoverPass ();
+			}
+		}
+
 		// 1.- Check if there is a cookie with a valid session
 		if ($auth->checkCookieslogin ()) return $auth->userId;
 
@@ -58,11 +83,14 @@ class Auth
 		// 3.- Check if the form has been submitted
 		if ($auth->checkLocallogin ()) return $auth->userId;
 
-		// 4.- Check if it is an internal call from inside the site
-		if ($auth->checkInternalCall ()) return $auth->userId;
+		if ($auth->allowAppLogins)
+		{
+			// 4.- Check if it is an internal call from inside the site
+			if ($auth->checkInternalCall ()) return $auth->userId;
 
-		// 5.- Check if it is a direct app call
-		if ($auth->checkAppCall ()) return $auth->userId;
+			// 5.- Check if it is a direct app call
+			if ($auth->checkAppCall ()) return $auth->userId;
+		}
 
 		// TODO: Check if there is a valid certificate in the machine
 		// https://webauthn.guide/#webauthn-api
@@ -219,7 +247,7 @@ class Auth
 	{
 		$retVal = FALSE;
 
-		if (isset ($_COOKIE ['SecurityCookie']))
+		if ($this->keepLogged && isset ($_COOKIE ['SecurityCookie']))
 		{
 			// Comprobamos si la cookie tiene el formato deseado
 			if (strpos ($_COOKIE ['SecurityCookie'], '@') !== false)
@@ -366,6 +394,9 @@ class Auth
 	 */
 	private function saveCookieSession ($setCookie, $userId = NULL)
 	{
+		// Skip if we are not allowed to keep the user logged
+		if (! $this->keepLogged) return '';
+
 		$userId = $userId ?? $this->userId;
 
 		// Primero obtenemos los valores unicos para esta sesion
@@ -482,6 +513,11 @@ class Auth
 	}
 
 
+	/**
+	 * Drop Coockies and unset session, so we can logout
+	 *
+	 * @param string $lang
+	 */
 	public function logout ()
 	{
 		if (isset ($_COOKIE ['SecurityCookie']))
@@ -502,4 +538,200 @@ class Auth
 
 		exit ();
 	}
+
+
+	// ----------------- PAssword Recovery Funcions: start -----------------
+
+	/**
+	 * The email recover link comes obscured to make it easier...
+	 * so, for easy development, we kei it look like a std call
+	 *
+	 * @param integer $userId
+	 * @return boolean
+	 */
+	private function disassembleRecoveryLink ()
+	{
+		if (isset ($_GET ['recover']))
+		{
+			$prms = array ();
+			parse_str (base64_decode (strtr ($_GET ['recover'], '-_', '+/')), $prms);
+			if (isset ($prms ['rP']) && isset ($prms ['rE']) && isset ($prms ['CR']))
+			{
+				$_POST ['recoverPass'] = $prms ['rP'];
+				$_POST ['recoverEmail'] = $prms ['rE'];
+				$_GET ['codRec'] = strtr ($prms ['CR'], '+/', '-_');
+			}
+		}
+	}
+
+
+	/**
+	 * Password recovery flow
+	 *
+	 *
+	 * @return NULL
+	 */
+	private function recoverPass ()
+	{
+		if (isset ($_POST ['recoverPass']) && isset ($_POST ['recoverEmail']))
+		{
+
+			if (isset ($_POST ['codRec']))
+			{
+				// The form has been posted with the new password
+				// TODO: check if the password has the requiired strength
+				return $this->checkAndStoreNewPass ();
+			}
+			else
+			{
+				$recoverFormPassFile = Site::$skinPath . 'tmplt/recoverFormPass.htm';
+				if (! file_exists ($recoverFormPassFile))
+				{
+					$recoverFormPassFile = Site::$rscPath . 'html/recoverFormPass.htm';
+				}
+
+				$loginEmailForm = file_get_contents ($recoverFormPassFile);
+				$loginEmailForm = str_replace ('@@email@@', $_POST ['recoverEmail'], $loginEmailForm);
+
+				if (isset ($_GET ['codRec']))
+				{
+					// Comming from the email recover link. Show the form to reset the code
+					$loginEmailForm = str_replace ('@@codRec@@', $_GET ['codRec'], $loginEmailForm);
+				}
+				else
+				{
+					// WE have the email... set a new recovery code and send by email
+					$this->launchRecoverEmail ($_POST ['recoverEmail']);
+					$loginEmailForm = str_replace ('@@codRec@@', '', $loginEmailForm);
+				}
+
+				header ('Content-Type: text/html; charset=utf-8');
+				print ($loginEmailForm);
+			}
+		}
+		else
+		{
+			// Comming from a link in the the login form: ask for the email
+			$recoverFormEmailFile = Site::$skinPath . 'tmplt/recoverFormEmail.htm';
+			if (! file_exists ($recoverFormEmailFile))
+			{
+				$recoverFormEmailFile = Site::$rscPath . 'html/recoverFormEmail.htm';
+			}
+			$loginEmailForm = file_get_contents ($recoverFormEmailFile);
+
+			header ('Content-Type: text/html; charset=utf-8');
+			print ($loginEmailForm);
+		}
+
+		return NULL;
+	}
+
+
+	/**
+	 * Check the recovery password and if correct, store the new password
+	 *
+	 * @return NULL
+	 */
+	private function checkAndStoreNewPass ()
+	{
+		// Check the used code is valid
+		$email = $this->mysqli->real_escape_string ($_POST ['recoverEmail']);
+		$sql = 'SELECT idUser,recoveryPass FROM weUsers WHERE email="' . $email . '" AND recoveryDate> NOW();';
+
+		$idUsr = NULL;
+		$isValid = false;
+		if ($resultado = $this->mysqli->query ($sql))
+		{
+			if ($resultado->num_rows > 0)
+			{
+				$row = $resultado->fetch_object ();
+
+				if ($row->recoveryPass == $_POST ['codRec'])
+				{
+					$isValid = true;
+					$idUsr = $row->idUser;
+					$_SESSION ['userId'] = $idUsr;
+				}
+			}
+		}
+
+		if (! $isValid)
+		{
+			// TODO: Show a error message
+			return NULL;
+		}
+		else
+		{
+			$dbPass = $this->mysqli->real_escape_string (password_hash ($_POST ['newPass'], 1));
+
+			$sql = 'UPDATE weUsers SET password="' . $dbPass . '", recoveryPass="", isActive=true WHERE email = "' . $email . '";';
+			$this->mysqli->query ($sql);
+			return $idUsr;
+		}
+	}
+
+
+	private function launchRecoverEmail ($email): string
+	{
+		// check email. Drop process if incorrect
+		if (! filter_var ($email, FILTER_VALIDATE_EMAIL))
+		{
+			// YAGNI: Check if we need FILTER_FLAG_EMAIL_UNICODE
+			// TODO: Show a better message error
+			return "Incorrect email address.";
+		}
+
+		// Check the user and recover passwodr status
+		$currRecoverPass = '';
+		$mustSendEmail = true;
+		$mustGenerateNewRecoverPass = true;
+		$sqlEml = $this->mysqli->real_escape_string ($email);
+		$sql = 'SELECT recoveryPass, recoveryDate > NOW() AS withRecoverPassword, (recoveryDate - INTERVAL 30 MINUTE)> NOW()  AS isNewRecoverPassword';
+		$sql .= " FROM weUsers WHERE email='$sqlEml'";
+
+		if ($res = $this->mysqli->query ($sql))
+		{
+			if ($res->num_rows > 0)
+			{
+				$row = $res->fetch_assoc ();
+				if ($row ['withRecoverPassword'] == 0)
+				{
+					$mustSendEmail = true;
+					$mustGenerateNewRecoverPass = true;
+				}
+				else if ($row ['isNewRecoverPassword'] == 0)
+				{
+					$mustGenerateNewRecoverPass = false;
+					$mustSendEmail = true;
+					$currRecoverPass = $row ['recoveryPass'];
+				}
+			}
+			else
+			{
+				// The account does not exists: return as if the process were OK
+				return '';
+			}
+		}
+
+		// Generate a new recover password
+		if ($mustGenerateNewRecoverPass)
+		{
+			$currRecoverPass = rtrim (base64_encode (random_bytes (14)), '=');
+			$sql = 'UPDATE weUsers SET recoveryPass="' . $currRecoverPass . '", recoveryDate= (NOW()+INTERVAL 30 MINUTE) WHERE email = "' . $sqlEml . '";';
+			$this->mysqli->query ($sql);
+		}
+
+		// Send the recover password email
+		if ($mustSendEmail)
+		{
+			require_once (Site::$cfgPath . 'mailer_cfg.php');
+			require_once (Site::$rscPath . 'authMailer.php');
+			sendRecoverEmail ($email, $currRecoverPass);
+		}
+
+		// No errors
+		return '';
+	}
+
+	// ----------------- PAssword Recovery Funcions: end -----------------
 }

@@ -38,7 +38,8 @@ html {
 }
 
 .logo img {
-	width: 155px;
+	width: 100px;
+	margin-top: 20px;
 }
 
 .form input {
